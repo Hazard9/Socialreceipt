@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmed | Social Receipt</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f4f0;
+      --green: #1a7a4a;
+      --green-light: #22a864;
+      --green-dim: #0f4a2e;
+      --border: rgba(245,244,240,0.12);
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(26,122,74,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,122,74,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      background: #111110;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 48px 40px 40px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Receipt-style top bar */
+    .receipt-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .receipt-id {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: rgba(245,244,240,0.3);
+      text-transform: uppercase;
+    }
+
+    .receipt-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green-light);
+      animation: pulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Check mark */
+    .check-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,168,100,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .check-wrap svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--green-light);
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .check-path {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: drawCheck 0.4s ease 0.3s forwards;
+    }
+
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      color: var(--white);
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: rgba(245,244,240,0.45);
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 36px;
+    }
+
+    /* Plan badge - populated from URL param */
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      background: rgba(26,122,74,0.12);
+      border: 1px solid rgba(34,168,100,0.2);
+      border-radius: 2px;
+      padding: 5px 10px;
+      margin-bottom: 32px;
+    }
+
+    .plan-badge::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green-light);
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 0 28px;
+    }
+
+    /* CTA button */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--green);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      border-radius: 3px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary:hover {
+      background: var(--green-light);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Save page button */
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 24px;
+      background: transparent;
+      color: rgba(245,244,240,0.55);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      margin-bottom: 28px;
+    }
+
+    .btn-secondary:hover {
+      color: var(--white);
+      border-color: rgba(245,244,240,0.25);
+    }
+
+    .btn-secondary svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Support line */
+    .support {
+      font-size: 12px;
+      color: rgba(245,244,240,0.3);
+      text-align: center;
+      font-family: var(--mono);
+    }
+
+    .support a {
+      color: rgba(245,244,240,0.5);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(245,244,240,0.15);
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .support a:hover {
+      color: var(--white);
+      border-color: rgba(245,244,240,0.4);
+    }
+
+    /* Save toast */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--green-dim);
+      border: 1px solid rgba(34,168,100,0.3);
+      color: var(--green-light);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 10px 18px;
+      border-radius: 2px;
+      white-space: nowrap;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px 32px; }
+      h1 { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="receipt-header">
+      <div class="receipt-dot"></div>
+      <span class="receipt-id">Payment Confirmed</span>
+    </div>
+
+    <div class="check-wrap">
+      <svg viewBox="0 0 24 24">
+        <polyline class="check-path" points="4 13 9 18 20 7"></polyline>
+      </svg>
+    </div>
+
+    <h1>Payment received.<br>Your Social Receipt access is active.</h1>
+    <p class="subtitle">Bookmark this page or screenshot it. Your access starts immediately.</p>
+
+    <div class="plan-badge" id="planBadge">Starter Plan</div>
+
+    <hr class="divider">
+
+    <a href="https://socialreceipt.netlify.app" class="btn-primary" id="openApp">
+      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      Open Social Receipt
+    </a>
+
+    <button class="btn-secondary" onclick="savePage()">
+      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+      Save this page
+    </button>
+
+    <p class="support">Questions? <a href="mailto:hartfeltauthor@gmail.com">hartfeltauthor@gmail.com</a></p>
+  </div>
+
+  <div class="toast" id="toast">Page saved to bookmarks</div>
+
+  <script>
+    // Read plan from URL ?plan=pro or ?plan=starter etc.
+    function getPlan() {
+      const params = new URLSearchParams(window.location.search);
+      const plan = params.get('plan') || params.get('planName') || '';
+      if (!plan) return null;
+      // Capitalize and clean
+      return decodeURIComponent(plan)
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim();
+    }
+
+    const planEl = document.getElementById('planBadge');
+    const detected = getPlan();
+    if (detected) {
+      planEl.textContent = detected + ' Plan';
+    }
+
+    function savePage() {
+      try {
+        window.sidebar && window.sidebar.addPanel
+          ? window.sidebar.addPanel(document.title, window.location.href, '')
+          : window.external && 'AddFavorite' in window.external
+            ? window.external.AddFavorite(window.location.href, document.title)
+            : (function() {
+                alert('Press ' + (/Mac/.test(navigator.platform) ? 'Cmd' : 'Ctrl') + '+D to bookmark this page.');
+              })();
+      } catch(e) {
+        showToast('Press Ctrl+D (or Cmd+D on Mac) to bookmark');
+        return;
+      }
+      showToast('Page saved to bookmarks');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>
