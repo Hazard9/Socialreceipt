@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Social Receipt</title><desc id="desc">Gold Social Receipt monogram on charcoal</desc>
+<rect width="512" height="512" rx="112" fill="#0c0b09"/>
+<path d="M135 92h242v292l-30-22-30 22-30-22-30 22-30-22-30 22-32-22-30 22V92z" fill="#d4aa5a"/>
+<path d="M179 151c18-19 43-29 74-29 34 0 60 9 78 27l-27 29c-14-12-30-18-49-18-16 0-27 4-27 12 0 7 7 11 34 17 43 10 70 24 70 61 0 39-32 65-81 65-37 0-69-12-91-35l28-29c18 17 39 25 64 25 18 0 30-6 30-16 0-9-8-13-35-19-42-9-69-22-69-59 0-18 8-35 21-48z" fill="#0c0b09"/>
+<path d="M176 342h160" stroke="#0c0b09" stroke-width="13" stroke-linecap="round"/></svg>

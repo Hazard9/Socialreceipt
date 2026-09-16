@@ -1,3 +1,11 @@
+[build]
+functions = "netlify/functions"
+
+# Functions are served at /.netlify/functions/<name> automatically.
+# Do not add a catch-all-safe alias for them here — the /_redirects
+# file's "/* /index.html 200" rule is processed before rules in this
+# file and would swallow anything less specific than that exact path.
+
 [[redirects]]
 from = "/*"
 to = "/index.html"
