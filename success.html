@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Confirmed | Social Receipt</title>
+  <title>Checkout | Social Receipt</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -302,26 +302,57 @@
       .card { padding: 36px 24px 32px; }
       h1 { font-size: 19px; }
     }
+
+    /* Pending / failed states */
+    .check-wrap.pending {
+      background: rgba(245,244,240,0.06);
+      border-color: rgba(245,244,240,0.15);
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(245,244,240,0.15);
+      border-top-color: rgba(245,244,240,0.6);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .check-wrap.failed {
+      background: rgba(201,64,64,0.12);
+      border-color: rgba(201,64,64,0.3);
+    }
+    .check-wrap.failed svg {
+      stroke: #e07070;
+    }
+    .plan-badge.failed {
+      color: #e07070;
+      background: rgba(201,64,64,0.1);
+      border-color: rgba(201,64,64,0.25);
+    }
+    .plan-badge.failed::before { background: #e07070; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <div class="receipt-header">
-      <div class="receipt-dot"></div>
-      <span class="receipt-id">Payment Confirmed</span>
+      <div class="receipt-dot" id="receiptDot"></div>
+      <span class="receipt-id" id="receiptStatusLabel">Confirming payment&hellip;</span>
     </div>
 
-    <div class="check-wrap">
-      <svg viewBox="0 0 24 24">
+    <div class="check-wrap pending" id="checkWrap">
+      <div class="spinner" id="spinner"></div>
+      <svg viewBox="0 0 24 24" class="hidden" id="checkSvg">
         <polyline class="check-path" points="4 13 9 18 20 7"></polyline>
       </svg>
     </div>
 
-    <h1>Payment received.<br>Your Social Receipt access is active.</h1>
-    <p class="subtitle">Bookmark this page or screenshot it. Your access starts immediately.</p>
+    <h1 id="headline">Confirming your payment&hellip;</h1>
+    <p class="subtitle" id="subtitleText">This takes a moment. Do not close this tab.</p>
 
-    <div class="plan-badge" id="planBadge">Starter Plan</div>
+    <div class="plan-badge hidden" id="planBadge">Pro Plan</div>
 
     <hr class="divider">
 
@@ -341,23 +372,71 @@
   <div class="toast" id="toast">Page saved to bookmarks</div>
 
   <script>
-    // Read plan from URL ?plan=pro or ?plan=starter etc.
-    function getPlan() {
-      const params = new URLSearchParams(window.location.search);
-      const plan = params.get('plan') || params.get('planName') || '';
-      if (!plan) return null;
-      // Capitalize and clean
-      return decodeURIComponent(plan)
-        .replace(/-/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase())
-        .trim();
+    // This page never claims payment occurred just because a URL param
+    // says so. It calls the verify-checkout serverless function, which
+    // confirms the session with Stripe's API using the secret key. Only
+    // a valid, paid Stripe session flips this page to "confirmed".
+    function capitalize(plan) {
+      return plan.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }).trim();
     }
 
-    const planEl = document.getElementById('planBadge');
-    const detected = getPlan();
-    if (detected) {
-      planEl.textContent = detected + ' Plan';
+    function showConfirmed(plan) {
+      document.getElementById('receiptDot').style.background = 'var(--green-light)';
+      document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
+      document.getElementById('spinner').classList.add('hidden');
+      document.getElementById('checkSvg').classList.remove('hidden');
+      document.getElementById('checkWrap').classList.remove('pending');
+      document.getElementById('headline').innerHTML = 'Payment received.<br>Your Social Receipt access is active.';
+      document.getElementById('subtitleText').textContent = 'Bookmark this page or screenshot it. Your access starts immediately.';
+      const badge = document.getElementById('planBadge');
+      badge.textContent = capitalize(plan || 'pro') + ' Plan';
+      badge.classList.remove('hidden');
     }
+
+    function showFailed(reason) {
+      document.getElementById('receiptDot').style.background = '#e07070';
+      document.getElementById('receiptStatusLabel').textContent = 'Payment Not Verified';
+      document.getElementById('spinner').classList.add('hidden');
+      document.getElementById('checkWrap').classList.remove('pending');
+      document.getElementById('checkWrap').classList.add('failed');
+      document.getElementById('checkSvg').classList.remove('hidden');
+      document.getElementById('checkSvg').querySelector('.check-path').setAttribute('points', '6 6 18 18');
+      document.getElementById('headline').textContent = 'We could not verify this payment.';
+      document.getElementById('subtitleText').textContent =
+        reason === 'not_configured'
+          ? 'Payment verification is not set up on this site yet. If you were charged, contact support below and we will unlock your access manually.'
+          : 'This link did not come from a completed Stripe checkout, or the session could not be confirmed. If you were charged, contact support below.';
+      const badge = document.getElementById('planBadge');
+      badge.textContent = 'Not confirmed';
+      badge.classList.remove('hidden');
+      badge.classList.add('failed');
+    }
+
+    function showNoSession() {
+      document.getElementById('receiptDot').style.background = 'rgba(245,244,240,0.3)';
+      document.getElementById('receiptStatusLabel').textContent = 'No Checkout Detected';
+      document.getElementById('spinner').classList.add('hidden');
+      document.getElementById('checkWrap').classList.remove('pending');
+      document.getElementById('headline').textContent = 'No payment to confirm here.';
+      document.getElementById('subtitleText').textContent = 'This page only confirms access right after a Stripe checkout. Open the app to start or upgrade.';
+    }
+
+    (function verify() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      if (!sessionId) { showNoSession(); return; }
+
+      fetch('/.netlify/functions/verify-checkout?session_id=' + encodeURIComponent(sessionId))
+        .then(function(resp) { return resp.json().catch(function(){ return {valid:false}; }); })
+        .then(function(data) {
+          if (data && data.valid) {
+            showConfirmed(data.plan);
+          } else {
+            showFailed(data && data.error);
+          }
+        })
+        .catch(function() { showFailed('network_error'); });
+    })();
 
     function savePage() {
       try {

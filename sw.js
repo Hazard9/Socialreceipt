@@ -4,13 +4,15 @@
   Version bump the CACHE_NAME when you deploy updates.
 */
 
-var CACHE_NAME = "social-receipt-v14";
-var OFFLINE_URL = "/social-receipt-v14.html";
+var CACHE_NAME = "social-receipt-v15";
+var OFFLINE_URL = "/index.html";
 
-/* Files to cache on install */
+/* Files to cache on install — every URL here must exist in the repo,
+   or cache.addAll() rejects and NOTHING gets precached (see the v14 bug
+   this replaced: it referenced a file that was never actually deployed). */
 var PRECACHE_URLS = [
   "/",
-  "/social-receipt-v14.html",
+  "/index.html",
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png"
@@ -20,10 +22,9 @@ var PRECACHE_URLS = [
 self.addEventListener("install", function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(PRECACHE_URLS.filter(function(url) {
-        /* Skip missing icons gracefully */
-        return true;
-      })).catch(function() {});
+      return cache.addAll(PRECACHE_URLS);
+    }).catch(function(err) {
+      console.log("SW precache failed:", err);
     }).then(function() {
       return self.skipWaiting();
     })
