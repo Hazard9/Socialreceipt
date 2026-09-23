@@ -4,12 +4,11 @@
   Version bump the CACHE_NAME when you deploy updates.
 */
 
-var CACHE_NAME = "social-receipt-v15";
+var CACHE_NAME = "social-receipt-v16";
 var OFFLINE_URL = "/index.html";
 
 /* Files to cache on install — every URL here must exist in the repo,
-   or cache.addAll() rejects and NOTHING gets precached (see the v14 bug
-   this replaced: it referenced a file that was never actually deployed). */
+   or cache.addAll() rejects and NOTHING gets precached. */
 var PRECACHE_URLS = [
   "/",
   "/index.html",
@@ -48,11 +47,10 @@ self.addEventListener("activate", function(event) {
   );
 });
 
-/* Fetch — cache first for app shell, network first for fonts */
+/* Fetch — cache first for app shell, network first for external fonts */
 self.addEventListener("fetch", function(event) {
   var url = event.request.url;
 
-  /* Google Fonts — network first, fallback to cache */
   if (url.indexOf("fonts.googleapis.com") !== -1 ||
       url.indexOf("fonts.gstatic.com") !== -1) {
     event.respondWith(
@@ -69,7 +67,6 @@ self.addEventListener("fetch", function(event) {
     return;
   }
 
-  /* App shell — cache first, network fallback */
   if (event.request.mode === "navigate" ||
       url.indexOf(".html") !== -1 ||
       url.indexOf("manifest.json") !== -1) {
@@ -83,7 +80,6 @@ self.addEventListener("fetch", function(event) {
           });
           return response;
         }).catch(function() {
-          /* Offline fallback */
           return caches.match(OFFLINE_URL);
         });
       })
@@ -91,7 +87,6 @@ self.addEventListener("fetch", function(event) {
     return;
   }
 
-  /* Default: try network, fall back to cache */
   event.respondWith(
     fetch(event.request).catch(function() {
       return caches.match(event.request);
