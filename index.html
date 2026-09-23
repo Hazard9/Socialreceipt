@@ -1162,15 +1162,23 @@ function runLiveJudgment(val, fbId, ftId) {
   var wc = val.trim().split(/\s+/).filter(Boolean).length;
   if (wc === 0) { fb.className = "micro-feedback"; return; }
 
-  var chasing   = /\b(i need|please|i miss|i really|why won.t|why don.t|are you|did you see)\b/.test(t);
+  var chasing   = /\b(i need|please|i miss|i really|why won.t|why don.t|are you|did you see|when will|any update|checking in)\b/.test(t);
   var overlong  = wc > 70;
   var needy     = /\b(sorry if|sorry for|i know this|does that make sense|i just wanted|i was hoping)\b/.test(t);
   var doubletext= /\b(anyway|also|and also|oh and|i also|wait|nevermind|never mind)\b/.test(t) && wc > 20;
-  var anxious   = /\b(nervous|anxious|scared|worried|freaking|panic)\b/.test(t);
+  var anxious   = /\b(nervous|anxious|scared|worried|freaking|panic|tired of this|so tired|cannot keep|can't keep|done explaining)\b/.test(t);
+  var frustration = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done|unbelievable|apparently|whatever)\b/.test(t);
+  var minimizing = /\b(no worries|no problem|totally understand|it.s fine|all good|not a big deal|no rush)\b/.test(t);
+  var deferential = /\b(take your time|whenever works|whenever you can|whenever you get a chance|probably busy|absolutely busy|i know you.re busy)\b/.test(t);
+  var minimizingCount = (t.match(/\b(no worries|no problem|totally understand|it.s fine|all good|not a big deal|no rush)\b/g)||[]).length;
+  var deferentialCount = (t.match(/\b(take your time|whenever works|whenever you can|whenever you get a chance|probably busy|absolutely busy|i know you.re busy)\b/g)||[]).length;
+  var contradiction = frustration && (minimizing || deferential);
+  var hiddenPressure = contradiction && (minimizingCount + deferentialCount >= 2);
+  var emotionalOverexplaining = wc > 35 && frustration && (minimizingCount + deferentialCount >= 2);
   var short     = wc >= 4 && wc <= 18;
   var confident = /\b(sounds good|let me know|happy to|looking forward|works for me)\b/.test(t);
   var positive  = /\b(excited|great|happy|definitely|love|glad|yes)\b/.test(t);
-  var clean     = wc >= 8 && !chasing && !needy && !overlong && !doubletext && !anxious;
+  var clean     = wc >= 8 && !chasing && !needy && !overlong && !doubletext && !anxious && !frustration && !contradiction;
 
   var label, cls;
   if      (overlong && chasing)  { label = "Too long \u2014 reads as over-invested";              cls = "red-signal"; }
@@ -1178,8 +1186,10 @@ function runLiveJudgment(val, fbId, ftId) {
   else if (chasing && needy)     { label = "This sounds like you\u2019re chasing";                cls = "red-signal"; }
   else if (doubletext)           { label = "Reads like a double-text \u2014 adds pressure";       cls = "red-signal"; }
   else if (needy)                { label = "Over-explaining detected \u2014 cuts your leverage";  cls = "red-signal"; }
-  else if (anxious)              { label = "Anxious tone \u2014 they will feel this";             cls = "red-signal"; }
-  else if (chasing)              { label = "This sounds like you\u2019re chasing";                cls = "red-signal"; }
+  else if (emotionalOverexplaining || hiddenPressure) { label = "Frustration hidden beneath polite language - needs a rewrite"; cls = "red-signal"; }
+  else if (contradiction)        { label = "The tone contradicts the words - needs a rewrite"; cls = "red-signal"; }
+  else if (anxious)              { label = "Anxious tone - they will feel this"; cls = "red-signal"; }
+  else if (chasing)              { label = "This sounds like you are chasing"; cls = "red-signal"; }                cls = "red-signal"; }
   else if (confident && short)   { label = "Clean and short \u2014 safe to send";                 cls = "green-signal"; }
   else if (positive && clean)    { label = "Warm tone, no red flags \u2014 looks good";           cls = "green-signal"; }
   else if (short)                { label = "Short and clean \u2014 good start";                   cls = "green-signal"; }
@@ -1411,16 +1421,27 @@ function renderPresendOutput(raw) {
   var pro = isPro();
   var a = analyzeText(raw);
   var words = raw.trim().split(/\s+/).filter(Boolean);
+  var lowerRaw = raw.toLowerCase();
   var overlong = words.length > 50;
-  var needy    = includesAny(raw.toLowerCase(),["please","i miss","i need","sorry if","sorry for","why won't","why don't"]);
-  var overExp  = includesAny(raw.toLowerCase(),["just wanted","i know this","i was thinking","i feel like","does that make sense"]);
-  var riskLevel = (overlong && needy) || (overlong && overExp) ? "high" : (overlong || needy || overExp) ? "medium" : "low";
+  var needy    = includesAny(lowerRaw,["please","i miss","i need","sorry if","sorry for","why won't","why don't"]);
+  var overExp  = includesAny(lowerRaw,["just wanted","i know this","i was thinking","i feel like","does that make sense"]);
+  var frustration = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done|unbelievable|apparently|whatever)\b/.test(lowerRaw);
+  var minimizingMatches = lowerRaw.match(/\b(no worries|no problem|totally understand|it's fine|it is fine|all good|not a big deal|no rush)\b/g)||[];
+  var deferentialMatches = lowerRaw.match(/\b(take your time|whenever works|whenever you can|whenever you get a chance|probably busy|absolutely busy|i know you're busy)\b/g)||[];
+  var contradiction = frustration && (minimizingMatches.length + deferentialMatches.length > 0);
+  var hiddenPressure = contradiction && (minimizingMatches.length + deferentialMatches.length >= 2);
+  var emotionalOverexplaining = words.length > 35 && frustration && (minimizingMatches.length + deferentialMatches.length >= 2);
+  var riskLevel = (overlong && needy) || (overlong && overExp) || (emotionalOverexplaining && (needy || overlong)) ? "high"
+    : (overlong || needy || overExp || contradiction || hiddenPressure || emotionalOverexplaining) ? "medium"
+    : "low";
   var riskLabel = riskLevel==="high" ? "HIGH. Do not send this." : riskLevel==="medium" ? "MEDIUM. Needs a rewrite." : "LOW. Clean to send.";
   var diagnosis = riskLevel==="high"
     ? "This message is <em>too long and reads as over-invested</em>. The person on the other end will feel pressure before they process the content."
     : riskLevel==="medium"
       ? "This message has <em>phrases that signal anxiety or need</em>. The core message is fine. The framing undercuts it."
-      : "This message reads <em>clean and low-pressure</em>. The risk of sending it is low.";
+      : (contradiction || hiddenPressure || emotionalOverexplaining)
+        ? "This message contains <em>frustration beneath overly accommodating language</em>. It may sound polite on the surface, but the contradiction can create pressure."
+        : "This message reads <em>clean and low-pressure</em>. The risk of sending it is low.";
 
   var rewritten = pro ? rewriteMessage(raw, null) : null;
 
@@ -1894,7 +1915,16 @@ function rewriteMessage(raw, receipt) {
   cleaned=sentences.join(" ").trim();
   cleaned=cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
   if(cleaned&&!/[.!?]$/.test(cleaned)) cleaned+=".";
-  if(cleaned.length<10||cleaned===raw){ return receipt?receipt.message:"Hey. Just wanted to follow up. Let me know when you get a chance."; }
+  if(cleaned.length<10||cleaned===raw){
+    var lowerOriginal = raw.toLowerCase();
+    if (/tired of this|so tired|honestly/.test(lowerOriginal) && /no worries|totally understand|take your time|probably busy|whenever works/.test(lowerOriginal)) {
+      return "I would like to get this resolved. Let me know when you are available to talk.";
+    }
+    if (/no worries|totally understand|take your time|probably busy|whenever works/.test(lowerOriginal)) {
+      return "I would like to move this forward. Let me know when you are available.";
+    }
+    return receipt && receipt.message && receipt.message !== raw ? receipt.message : "I would like to move this forward. Let me know when you are available.";
+  }
   return cleaned;
 }
 
