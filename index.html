@@ -1411,15 +1411,25 @@ function renderPresendOutput(raw) {
   var pro = isPro();
   var a = analyzeText(raw);
   var words = raw.trim().split(/\s+/).filter(Boolean);
+  var lowerRaw = raw.toLowerCase();
   var overlong = words.length > 50;
-  var needy    = includesAny(raw.toLowerCase(),["please","i miss","i need","sorry if","sorry for","why won't","why don't"]);
-  var overExp  = includesAny(raw.toLowerCase(),["just wanted","i know this","i was thinking","i feel like","does that make sense"]);
-  var riskLevel = (overlong && needy) || (overlong && overExp) ? "high" : (overlong || needy || overExp) ? "medium" : "low";
+  var needy    = /\\b(please|i miss|i need|sorry if|sorry for|why won't|why don't)\\b/.test(lowerRaw);
+  var overExp  = /\\b(just wanted|i know this|i was thinking|i feel like|does that make sense)\\b/.test(lowerRaw);
+  var frustration = /\\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done|unbelievable|apparently|whatever|not fair)\\b/.test(lowerRaw);
+  var minimizing = (lowerRaw.match(/\\b(no worries|no problem|totally understand|it's fine|it is fine|all good|not a big deal|no rush)\\b/g)||[]).length;
+  var deferential = (lowerRaw.match(/\\b(take your time|whenever works|whenever you can|whenever you get a chance|probably busy|absolutely busy|i know you're busy)\\b/g)||[]).length;
+  var accusation = /\\b(you're rewriting|you are rewriting|you always|you never|that's not fair|that is not fair|you made me|so i look like)\\b/.test(lowerRaw);
+  var contradiction = frustration && (minimizing + deferential > 0);
+  var hiddenPressure = contradiction && (minimizing + deferential >= 2);
+  var emotionalOverexplaining = words.length > 35 && frustration && (minimizing + deferential >= 2);
+  var riskLevel = (overlong && (needy || overExp)) || accusation && (frustration || words.length > 25) ? "high"
+    : (overlong || needy || overExp || contradiction || hiddenPressure || emotionalOverexplaining || accusation) ? "medium"
+    : "low";
   var riskLabel = riskLevel==="high" ? "HIGH. Do not send this." : riskLevel==="medium" ? "MEDIUM. Needs a rewrite." : "LOW. Clean to send.";
   var diagnosis = riskLevel==="high"
-    ? "This message is <em>too long and reads as over-invested</em>. The person on the other end will feel pressure before they process the content."
+    ? "This message is <em>too long or emotionally loaded</em>. The framing may create pressure before the content lands."
     : riskLevel==="medium"
-      ? "This message has <em>phrases that signal anxiety or need</em>. The core message is fine. The framing undercuts it."
+      ? "This message contains <em>mixed signals, accusation, or pressure beneath the wording</em>. The core point may be valid, but the framing needs a rewrite."
       : "This message reads <em>clean and low-pressure</em>. The risk of sending it is low.";
 
   var rewritten = pro ? rewriteMessage(raw, null) : null;
