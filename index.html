@@ -3081,7 +3081,43 @@ function checkIOSInstall() {
 }
 
 /* ── INIT ── */
+async function restoreDeveloperAccessFromPrompt() {
+  var email = window.prompt("Developer email");
+  if (!email) return;
+  var key = window.prompt("Developer access key");
+  if (!key) return;
+  try {
+    var response = await fetch("/.netlify/functions/dev-access", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({email: email, key: key})
+    });
+    var data = await response.json();
+    if (!data.ok) {
+      toast(data.error === "developer_recovery_not_configured"
+        ? "Developer recovery is not configured yet."
+        : "Developer credentials were not accepted.");
+      return;
+    }
+    localStorage.setItem("sr_pro", "1");
+    localStorage.setItem("sr_plan_type", "developer");
+    localStorage.setItem("sr_developer_access", "1");
+    toast("Developer access restored.");
+    setTimeout(function(){ window.location.href = window.location.pathname; }, 500);
+  } catch (e) {
+    toast("Could not reach developer recovery. Try again.");
+  }
+}
+
 function init() {
+  try {
+    var restoreParams = new URLSearchParams(window.location.search);
+    if (restoreParams.get("restore_developer") === "1") {
+      restoreParams.delete("restore_developer");
+      window.history.replaceState({}, document.title, window.location.pathname + (restoreParams.toString() ? "?" + restoreParams.toString() : "") + window.location.hash);
+      setTimeout(restoreDeveloperAccessFromPrompt, 400);
+    }
+  } catch (e) {}
   /* ANONYMOUS USER SYSTEM: create anon ID on first visit */
   getAnonId();
   /* PWA */
