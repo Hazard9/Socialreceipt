@@ -4,7 +4,7 @@
   Version bump the CACHE_NAME when you deploy updates.
 */
 
-var CACHE_NAME = "social-receipt-v16-stable-fix";
+var CACHE_NAME = "social-receipt-v17-final-fix";
 var OFFLINE_URL = "/index.html";
 
 /* Files to cache on install — every URL here must exist in the repo,
