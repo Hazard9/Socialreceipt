@@ -1890,24 +1890,42 @@ function replayCard(receipt) {
 
 /* ── REWRITE ENGINE ── */
 function rewriteMessage(raw, receipt) {
-  var cleaned = raw;
+  var original = raw.trim();
+  var lower = original.toLowerCase();
+
+  /* Handle mixed signals: frustration softened by minimizing language. */
+  var mixedSignal = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done)\b/i.test(lower)
+    && /\b(no worries|no problem|totally understand|it's fine|it is fine|all good|take your time|whenever works|probably busy|absolutely busy)\b/i.test(lower);
+
+  if (mixedSignal) {
+    return "I’m frustrated that this keeps happening. Please let me know a specific time that works.";
+  }
+
+  var cleaned = original;
   var fillers = ["hey so ","hey, ","hi so ","okay so ","so i ","i just ","just wanted to ","i was thinking ","i feel like ","i don't know if ","sorry if ","sorry but ","i know this might be "];
-  fillers.forEach(function(f){ var re=new RegExp("^"+f.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i"); cleaned=cleaned.replace(re,""); });
-  cleaned=cleaned.replace(/\b(i\s*)?just\s+(wanted|thought|hoped|was\s+wondering)\b/gi,"");
-  cleaned=cleaned.replace(/\bsorry\s+(for|if|to|about)\b[^.!?]*/gi,"");
-  cleaned=cleaned.replace(/\bdoes\s+that\s+make\s+sense\?/gi,"");
-  cleaned=cleaned.replace(/\bi\s+don.t\s+know\b/gi,"");
-  cleaned=cleaned.replace(/\bif\s+that(.s|\s+is)\s+(okay|cool|alright|fine)\b/gi,"");
-  cleaned=cleaned.replace(/\bjust\s+checking\s+in\b/gi,"checking in");
-  var sentences=cleaned.match(/[^.!?]+[.!?]*/g)||[cleaned];
-  if(sentences.length>2) sentences=sentences.slice(0,2);
-  cleaned=sentences.join(" ").trim();
-  cleaned=cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
-  if(cleaned&&!/[.!?]$/.test(cleaned)) cleaned+=".";
-  if(cleaned.length<10||cleaned===raw){ return receipt?receipt.message:"Hey. Just wanted to follow up. Let me know when you get a chance."; }
+  fillers.forEach(function(f) {
+    var re = new RegExp("^" + f.replace(/[.*+?^()|[\]\\]/g,"\\$&"),"i");
+    cleaned = cleaned.replace(re,"");
+  });
+  cleaned = cleaned.replace(/\b(honestly,?\s*)/gi,"");
+  cleaned = cleaned.replace(/\b(i\s*)?just\s+(wanted|thought|hoped|was\s+wondering)\b/gi,"");
+  cleaned = cleaned.replace(/\bsorry\s+(for|if|to|about)\b[^.!?]*/gi,"");
+  cleaned = cleaned.replace(/\bdoes\s+that\s+make\s+sense\?/gi,"");
+  cleaned = cleaned.replace(/\bi\s+don.t\s+know\b/gi,"");
+  cleaned = cleaned.replace(/\bif\s+that(.s|\s+is)\s+(okay|cool|alright|fine)\b/gi,"");
+  cleaned = cleaned.replace(/\bjust\s+checking\s+in\b/gi,"checking in");
+  var sentences = cleaned.match(/[^.!?]+[.!?]*/g) || [cleaned];
+  if (sentences.length > 2) sentences = sentences.slice(0,2);
+  cleaned = sentences.join(" ").replace(/\s{2,}/g," ").trim();
+  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  if (cleaned && !/[.!?]$/.test(cleaned)) cleaned += ".";
+
+  /* Never present the original as a rewrite. */
+  if (!cleaned || cleaned.toLowerCase() === original.toLowerCase()) {
+    return "I want to address this directly. Please let me know a specific time that works.";
+  }
   return cleaned;
 }
-
 /* ── SAVE / LOAD ── */
 function saveCurrentReceipt() {
   if(!state.currentReceipt)return;
