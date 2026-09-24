@@ -950,13 +950,17 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 ════════════════════════════════════════════ */
 function trackEvent(name, props) {
   try {
-    var cfg = window.SR_ANALYTICS;
-    if (cfg && cfg.ga4Id && typeof window.gtag === "function") {
-      window.gtag("event", name, props || {});
-    } else if (cfg && typeof cfg.send === "function") {
-      cfg.send(name, props || {});
-    } else if (window.location && window.location.hostname === "localhost") {
-      console.log("[trackEvent:no analytics configured]", name, props || {});
+    var payload = props || {};
+    /* Send directly through the GA4 queue whenever gtag exists. */
+    if (typeof window.gtag === "function") {
+      window.gtag("event", name, payload);
+      return;
+    }
+    /* Preserve events until the async Google tag becomes available. */
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(["event", name, payload]);
+    if (window.location && window.location.hostname === "localhost") {
+      console.log("[trackEvent:queued]", name, payload);
     }
   } catch (e) { /* analytics must never break the app */ }
 }
