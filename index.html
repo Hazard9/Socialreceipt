@@ -2296,7 +2296,7 @@ function saveEmailProfile() {
         trackEvent("email_capture_succeeded", { via: "kit" });
       } else if (data && data.error === "not_configured") {
         toast("Saved on this device. Email list signup is not connected yet.");
-        trackEvent("email_capture_succeeded", { via: "local_only" });
+        trackEvent("email_capture_failed", { reason: "not_configured", via: "local_only" });
       } else {
         toast("Saved on this device, but we could not reach the email list. Your access still works here.");
         trackEvent("email_capture_failed", { reason: (data && data.error) || "unknown" });
