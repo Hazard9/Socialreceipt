@@ -14,7 +14,6 @@ test("1. first visit shows the landing screen with pricing and no console errors
   await expect(page.locator("#landingScreen")).toBeVisible();
   await expect(page.locator("text=Start Free. Try Now.")).toBeVisible();
   await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Pro Monthly'))")).toContainText("$9");
-  await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Pro Yearly'))")).toContainText("$69");
   await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Lifetime Beta'))")).toContainText("$39");
   expect(errors).toEqual([]);
 });
@@ -78,7 +77,6 @@ test("5. opening the paywall shows accurate, consistent pricing and a free conti
   const overlay = page.locator("#paywallOverlay");
   await expect(overlay).toBeVisible();
   await expect(overlay).toContainText("$9");
-  await expect(overlay).toContainText("$69");
   await expect(overlay).toContainText("$39");
   // no fabricated original-price anchor
   await expect(overlay).not.toContainText("$79");
@@ -92,7 +90,6 @@ test("6. each plan button redirects to its correct real Stripe Payment Link", as
 
   const links = await page.evaluate(() => window.STRIPE_LINKS);
   expect(links.monthly).toMatch(/^https:\/\/buy\.stripe\.com\//);
-  expect(links.yearly).toMatch(/^https:\/\/buy\.stripe\.com\//);
   expect(links.lifetime).toMatch(/^https:\/\/buy\.stripe\.com\//);
 
   // Intercept navigation instead of actually leaving the page
@@ -277,7 +274,6 @@ test("18. Google Fonts and Stripe Payment Link domains resolve", async ({ page }
   const urls = [
     "https://fonts.googleapis.com/css2?family=DM+Sans",
     links.monthly,
-    links.yearly,
     links.lifetime,
   ];
   for (const url of urls) {

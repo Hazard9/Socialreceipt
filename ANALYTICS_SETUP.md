@@ -117,6 +117,30 @@ Create explorations for:
 
 Use event counts for receipts, results, email captures, verified checkouts, and upgrades.
 
+## Conversion lifecycle
+
+Current beta pricing is intentionally limited to:
+
+- Free: 3 receipts per month
+- Pro Monthly: $9/month
+- Lifetime Beta: $39 one time
+
+The yearly offer remains configured for the post-beta pricing stage but is not shown in the current beta buying path. When beta ends, remove Lifetime Beta from the UI and restore the yearly offer.
+
+The funnel distinguishes:
+
+- `email_capture_viewed`: the email prompt was shown
+- `email_capture_started`: the user submitted a valid email to the capture flow
+- `email_submitted`: the email was sent to the backend
+- `email_capture_completed`: Kit accepted the subscriber
+- `email_capture_failed`: the email was only saved locally or Kit rejected/unavailable
+- `outcome_recorded`: the user logged what happened after the interaction
+- `share_card_viewed` and `share_card_copied`: privacy-safe sharing actions
+- `repeat_check_started`: the user began another message analysis
+- `lifetime_offer_viewed`: the beta offer was shown after value was delivered
+
+A local-only email save must never be treated as a Kit subscriber.
+
 ## Verification
 
 Use GA4 DebugView with a test URL containing UTM parameters. Confirm that events contain only safe metadata. Test missing GA4 configuration and confirm the app still works. Do not use real private messages for analytics testing.
