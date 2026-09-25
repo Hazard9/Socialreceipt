@@ -380,7 +380,8 @@
       return plan.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }).trim();
     }
 
-    function showConfirmed(plan) {\n      if (window.SRAnalytics) { window.SRAnalytics.track('checkout_verified', { plan_type: 'pro' }); window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' }); }
+    function showConfirmed(plan) {
+      if (window.SRAnalytics) { window.SRAnalytics.track('checkout_verified', { plan_type: 'pro' }); window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' }); }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
       document.getElementById('spinner').classList.add('hidden');
