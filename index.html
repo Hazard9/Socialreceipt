@@ -1482,7 +1482,7 @@ function renderPresendOutput(raw) {
     html += "<div class=\"locked-gate-price\">$9/mo &nbsp;&middot;&nbsp; $39 lifetime</div>";
   }
 
-  html += "<div class=\"form-actions\" style=\"margin-top:14px;padding-bottom:4px\"><button class=\"ghost-btn\" onclick=\"openPresend()\">Check Another Message</button></div>";
+  html += "<div class=\"form-actions\" style=\"margin-top:14px;padding-bottom:4px\"><button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"pre_send\" onclick=\"openPresend()\">Check Another Message</button></div>";
   html += "</div>";
 
   var output = document.getElementById("receiptOutput");
@@ -1638,7 +1638,7 @@ function renderReceiptOutput(receipt, savedView) {
     html += rs("<div class=\"detail-card move-card\"><h3>This keeps your position</h3><p>"+receipt.next+"</p></div>");
     html += rs("<div class=\"rerun-bar\"><span class=\"rerun-label\">Re-run as</span><select class=\"rerun-select\" id=\"rerunFeeling\">"+feelings.map(function(f){return "<option value=\""+f+"\""+(f===receipt.feeling?" selected":"")+">"+f+"</option>";}).join("")+"</select><button class=\"rerun-btn\" onclick=\"rerunWithTweak()\">Re-run</button></div>");
     html += rs("<div class=\"receipt-divider\"><span>Suggested Message</span></div>");
-    html += rs("<div class=\"detail-card\"><h3>This keeps your position</h3><div class=\"message-box\" id=\"suggestedMessage\">"+receipt.message+"</div>"+oneLineFixHtml(receipt)+"<div class=\"one-tap-note\" style=\"margin-top:10px;margin-bottom:0\">This version keeps your position.</div><div class=\"one-tap-row\"><button class=\"one-tap-btn\" onclick=\"oneTapCopy('"+receipt.message.replace(/'/g,"&#39;")+"')\">&#9998; Copy + Send this version</button></div><div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copySuggested()\">Copy</button><button class=\"mini-btn\" onclick=\"regenerateMessage()\">Rewrite</button><button class=\"mini-btn\" onclick=\"openShare()\">Share</button><button class=\"mini-btn\" onclick=\"openGhostMode()\">Ghost</button></div></div>");
+    html += rs("<div class=\"detail-card\"><h3>This keeps your position</h3><div class=\"message-box\" id=\"suggestedMessage\">"+receipt.message+"</div>"+oneLineFixHtml(receipt)+"<div class=\"one-tap-note\" style=\"margin-top:10px;margin-bottom:0\">This version keeps your position.</div><div class=\"one-tap-row\"><button class=\"one-tap-btn\" onclick=\"oneTapCopy('"+receipt.message.replace(/'/g,"&#39;")+"')\">&#9998; Copy + Send this version</button></div><div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copySuggested()\">Copy</button><button class=\"mini-btn\" onclick=\"regenerateMessage()\">Rewrite</button><button class=\"mini-btn\" data-sr-event=\"result_share_started\" data-feature=\"receipt\" onclick=\"openShare()\">Share</button><button class=\"mini-btn\" onclick=\"openGhostMode()\">Ghost</button></div></div>");
 
     /* SEND OR DON'T — intervention */
     html += rs(sendOrDontHtml(receipt));
@@ -1653,7 +1653,7 @@ function renderReceiptOutput(receipt, savedView) {
     if (savedView && receipt.outcome && receipt.outcome!=="Not tracked yet") { html += rs(replayCard(receipt)); }
   }
 
-  html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" onclick=\"openCreate()\">Start new read</button></div>");
+  html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
 
   /* Viral share nudge for free users */
   if (!savedView && !pro) {
