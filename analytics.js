@@ -29,7 +29,7 @@
     try {
       var value = localStorage.getItem(key);
       if (value) return value;
-      value = (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'sr_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+      value = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : 'sr_' + Date.now() + '_' + Math.random().toString(36).slice(2);
       localStorage.setItem(key, value);
       return value;
     } catch (_) { return 'session_only'; }
@@ -97,7 +97,7 @@
       hook_variant: safeString(latest.hook_variant || '', 40),
       landing_page: safeString(window.location.pathname || '/', 120),
       page_path: safeString(window.location.pathname || '/', 120),
-      referrer_domain: safeString((document.referrer ? new URL(document.referrer).hostname : 'direct'), 120),
+      referrer_domain: (function () { try { return safeString((document.referrer ? new URL(document.referrer).hostname : 'direct'), 120); } catch (_) { return 'unknown'; } })(),
       first_touch_source: safeString(first.source || 'direct', 40),
       latest_touch_source: safeString(latest.source || 'direct', 40),
       plan_type: plan(),
