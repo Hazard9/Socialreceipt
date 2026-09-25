@@ -1663,6 +1663,11 @@ function renderReceiptOutput(receipt, savedView) {
     html += rs("<div class=\"saved-you-card\"><div class=\"saved-you-icon\">&#9889;</div><div class=\"saved-you-text\">You just avoided sending something that would have lowered your position.</div><div class=\"saved-you-sub\">The app flagged it before you sent it. That is the point.</div></div>");
   }
 
+  /* BETA CONVERSION — shown after the user experiences a result */
+  if (!savedView && !pro) {
+    html += rs("<div class=\"detail-card\" style=\"text-align:center;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px\">Lifetime Beta</div><p style=\"font-family:var(--font-serif);font-size:18px;color:var(--text);margin:0 0 7px\">Keep the decision layer for $39 once.</p><p style=\"font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px\">Unlimited access and all features released before public launch. Beta pricing ends when public pricing begins.</p><button class=\"secondary-btn\" data-sr-event=\"lifetime_offer_viewed\" data-feature=\"lifetime_beta\" onclick=\"openPaywall()\">Lock in Lifetime Beta</button></div>");
+  }
+
   /* NEXT MESSAGE LOOP — forced, not optional */
   if (!savedView) {
     html += rs("<div class=\"loop-cta\"><div class=\"loop-cta-sub\">Before you reply</div><p class=\"loop-cta-text\">Paste your next message before you send it.</p><button class=\"primary-btn\" onclick=\"openPresend()\">Analyze next message</button></div>");
@@ -1968,7 +1973,7 @@ function saveCurrentReceipt() {
         document.getElementById("emailModalTitle").textContent = "Want the exact move?";
         document.getElementById("emailModalSub").textContent = "This is the moment people lose the interaction. Enter your email to unlock the full analysis.";
         modal.classList.remove("hidden");
-        trackEvent("email_capture_started");
+        trackEvent("email_capture_viewed");
       }
     }, 800);
     return; /* Don't navigate yet — let email modal take focus */
@@ -1982,6 +1987,7 @@ function openSavedReceipt(id) {
 function updateOutcome(id,outcome) {
   var receipts=getReceipts().map(function(r){return r.id===id?Object.assign({},r,{outcome:outcome}):r;});
   setReceipts(receipts);
+  trackEvent("outcome_recorded", { outcome: outcome });
   var u=receipts.find(function(r){return r.id===id;});
   state.currentReceipt=u; renderReceiptOutput(u,true);
   toast("Outcome saved.");
@@ -2000,6 +2006,7 @@ function regenerateMessage() {
 /* ── SHARE ── */
 function openShare() {
   var r=state.currentReceipt; if(!r)return;
+  trackEvent("share_card_viewed");
   document.getElementById("shareVerdict").textContent=r.verdict;
   document.getElementById("shareHook").textContent = r.risk.toLowerCase().indexOf("high")!==-1
     ? "I was about to send something. This app said it would drop my position."
@@ -2015,6 +2022,7 @@ function openShare() {
 function closeShare() { document.getElementById("shareOverlay").classList.add("hidden"); }
 function copyShareText() {
   var r=state.currentReceipt; if(!r)return;
+  trackEvent("share_card_copied");
   var hook=r.risk.toLowerCase().indexOf("high")!==-1?"I was about to send something. This app said it would drop my position.":"I was overthinking this. The app gave me the actual read.";
   var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\ntry.socialreceipt.app";
   if(navigator.clipboard)navigator.clipboard.writeText(text);
@@ -2239,7 +2247,7 @@ function openLoginModal() {
   var modal = document.getElementById("emailModal");
   if (!modal) return;
   modal.classList.remove("hidden");
-  trackEvent("email_capture_started");
+  trackEvent("email_capture_viewed");
 }
 
 function closeEmailModal() {
@@ -2255,6 +2263,9 @@ function saveEmailProfile() {
     toast("Enter a valid email address.");
     return;
   }
+
+  trackEvent("email_capture_started");
+  trackEvent("email_submitted");
 
   var btn = document.getElementById("emailModalSubmitBtn");
   if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
@@ -2363,7 +2374,7 @@ function handlePaymentSuccess() {
           document.getElementById("emailModalTitle").textContent = "One more thing";
           document.getElementById("emailModalSub").textContent = "Save your email to keep Pro access if you switch devices.";
           modal.classList.remove("hidden");
-          trackEvent("email_capture_started");
+          trackEvent("email_capture_viewed");
         }
         toast("Payment confirmed. Pro is unlocked.");
         haptic([20, 40, 20]);
