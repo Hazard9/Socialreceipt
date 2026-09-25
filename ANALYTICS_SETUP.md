@@ -21,6 +21,7 @@ Supported URL values include:
 - `content_id`
 - `content_series`
 - `hook_variant`
+- `experiment_id`
 
 Example:
 
@@ -33,6 +34,7 @@ First-touch attribution is preserved in localStorage. Latest non-direct attribut
 The helper automatically emits:
 
 - `landing_page_view`
+- `content_attributed_visit`
 - `return_visit`
 - `cta_clicked`
 - `outbound_link_clicked`
@@ -140,6 +142,23 @@ The funnel distinguishes:
 - `lifetime_offer_viewed`: the beta offer was shown after value was delivered
 
 A local-only email save must never be treated as a Kit subscriber.
+
+## Content experiment links
+
+Use one unique link per video or hook. The app preserves first-touch attribution and updates latest non-direct attribution.
+
+Example:
+
+`https://socialreceipt.netlify.app/?utm_source=tiktok&utm_medium=organic&utm_campaign=chasing_series&utm_content=exact_moment&utm_term=hook_a&utm_experiment=chasing_v1`
+
+The content layer records which platform, campaign, series, video, hook, and experiment produced the visit. It does not change the user experience or collect message content.
+
+Recommended naming:
+
+- `utm_campaign`: campaign or problem series
+- `utm_content`: specific video or post
+- `utm_term`: hook variation
+- `utm_experiment`: controlled experiment name
 
 ## Verification
 

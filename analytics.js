@@ -48,6 +48,7 @@
       campaign: safeString(p.get('utm_campaign') || '', 80),
       content_id: safeString(p.get('utm_content') || p.get('content_id') || '', 80),
       content_series: safeString(p.get('content_series') || '', 80),
+      experiment_id: safeString(p.get('utm_experiment') || p.get('experiment_id') || p.get('utm_id') || '', 80),
       hook_variant: safeString(p.get('utm_term') || p.get('hook_variant') || '', 40)
     };
     current.platform = normalizePlatform(current.source);
@@ -94,6 +95,7 @@
       campaign: safeString(latest.campaign || '', 80),
       content_id: safeString(latest.content_id || '', 80),
       content_series: safeString(latest.content_series || '', 80),
+      experiment_id: safeString(latest.experiment_id || '', 80),
       hook_variant: safeString(latest.hook_variant || '', 40),
       landing_page: safeString(window.location.pathname || '/', 120),
       page_path: safeString(window.location.pathname || '/', 120),
@@ -148,7 +150,17 @@
   attribution();
   window.SRAnalytics = { track: track, attribution: attribution, meta: baseMeta, normalizePlatform: normalizePlatform };
   track('landing_page_view');
+  var landingMeta = baseMeta();
   if (baseMeta().returning_user === 'true') track('return_visit');
+  if (landingMeta.content_id || landingMeta.content_series || landingMeta.hook_variant || landingMeta.campaign || landingMeta.source !== 'direct') {
+    track('content_attributed_visit', {
+      experiment_id: landingMeta.experiment_id,
+      content_id: landingMeta.content_id,
+      content_series: landingMeta.content_series,
+      hook_variant: landingMeta.hook_variant,
+      campaign: landingMeta.campaign
+    });
+  }
   if (document.readyState === 'complete') trackPerformanceOnce();
   else window.addEventListener('load', trackPerformanceOnce, { once: true });
 
