@@ -380,7 +380,7 @@
       return plan.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }).trim();
     }
 
-    function showConfirmed(plan) {
+    function showConfirmed(plan) {\n      if (window.SRAnalytics) { window.SRAnalytics.track('checkout_verified', { plan_type: 'pro' }); window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' }); }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
       document.getElementById('spinner').classList.add('hidden');
@@ -461,5 +461,5 @@
       setTimeout(() => t.classList.remove('show'), 3000);
     }
   </script>
-</body>
+<script src="/analytics.js"></script>\n</body>
 </html>
