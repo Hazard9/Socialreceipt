@@ -397,12 +397,14 @@ function render(r){
 function analyze(){
   var raw = $("conversation").value;
   var r = CR.analyze(raw);
+  if (window.SRAnalytics) window.SRAnalytics.track(r.ok ? "conversation_replay_completed" : "analysis_error", { feature_name: "conversation_replay", result_level: r.ok ? "completed" : "error" });
   render(r);
 }
 
 $("sampleBtn").onclick = function(){ $("conversation").value = SAMPLE; analyze(); };
 $("analyzeBtn").onclick = analyze;
 $("copyDraftBtn").onclick = function(){
+  if (window.SRAnalytics) window.SRAnalytics.track("replay_draft_copied", { feature_name: "conversation_replay" });
   var text = $("draftBox").textContent;
   if (!text) return;
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -413,5 +415,6 @@ $("copyDraftBtn").onclick = function(){
 };
 })();
 </script>
+<script src="/analytics.js"></script>
 </body>
 </html>
