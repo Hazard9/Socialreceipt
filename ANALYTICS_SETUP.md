@@ -39,7 +39,7 @@ The helper automatically emits:
 - `email_capture_started`
 - `checkout_started`
 
-The application should call `window.SRAnalytics.track(eventName, params)` at confirmed product outcomes for:
+The existing application event wrapper now routes its confirmed product outcomes through `window.SRAnalytics.track(eventName, params)`. It maps the legacy event names safely as follows:\n\n- `free_started` -> `free_flow_started`\n- `email_capture_succeeded` -> `email_capture_completed`\n- `checkout_clicked` -> `checkout_started`\n- verified `checkout_returned` -> `checkout_verified` and `upgrade_completed`\n- failed `checkout_returned` -> `payment_verification_failed`\n\nExisting receipt creation, result viewing, paywall, email, checkout, and screenshot events are preserved. The application should call `window.SRAnalytics.track(eventName, params)` directly only for new confirmed product outcomes such as:
 
 - `free_flow_started`
 - `receipt_created`
