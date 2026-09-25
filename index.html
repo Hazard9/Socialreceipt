@@ -951,17 +951,32 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 function trackEvent(name, props) {
   try {
     var payload = props || {};
-    /* Send directly through the GA4 queue whenever gtag exists. */
-    if (typeof window.gtag === "function") {
-      window.gtag("event", name, payload);
+    var mapped = name;
+    var safe = {};
+    Object.keys(payload).forEach(function (key) {
+      if (["message","text","body","email","name","username","phone","rewrite","conversation","content"].indexOf(key) >= 0) return;
+      safe[key] = payload[key];
+    });
+    if (name === "free_started") mapped = "free_flow_started";
+    if (name === "email_capture_succeeded") mapped = "email_capture_completed";
+    if (name === "checkout_clicked") mapped = "checkout_started";
+    if (name === "checkout_returned" && safe.result === "verified") {
+      mapped = "checkout_verified";
+      safe.plan_type = "pro";
+    }
+    if (name === "checkout_returned" && safe.result === "failed") mapped = "payment_verification_failed";
+    if (name === "checkout_returned" && safe.result === "cancelled") mapped = "checkout_cancelled";
+    if (safe.risk && !safe.result_level) safe.result_level = String(safe.risk).toLowerCase();
+    if (typeof window.SRAnalytics === "object" && typeof window.SRAnalytics.track === "function") {
+      window.SRAnalytics.track(mapped, safe);
       return;
     }
-    /* Preserve events until the async Google tag becomes available. */
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push(["event", name, payload]);
-    if (window.location && window.location.hostname === "localhost") {
-      console.log("[trackEvent:queued]", name, payload);
+    if (typeof window.gtag === "function") {
+      window.gtag("event", mapped, safe);
+      return;
     }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(["event", mapped, safe]);
   } catch (e) { /* analytics must never break the app */ }
 }
 
@@ -3168,5 +3183,6 @@ function init() {
 }
 init();
 </script>
+<script src="/analytics.js"></script>
 </body>
 </html>

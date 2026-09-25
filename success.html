@@ -381,6 +381,7 @@
     }
 
     function showConfirmed(plan) {
+      if (window.SRAnalytics) { window.SRAnalytics.track('checkout_verified', { plan_type: 'pro' }); window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' }); }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
       document.getElementById('spinner').classList.add('hidden');
@@ -461,5 +462,6 @@
       setTimeout(() => t.classList.remove('show'), 3000);
     }
   </script>
+<script src="/analytics.js"></script>
 </body>
 </html>
