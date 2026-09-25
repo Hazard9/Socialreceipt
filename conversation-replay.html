@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Social Receipt | Conversation Replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#120D0B; --panel:#1C1512; --inset:#241A15; --border:#3D2C22; --border-soft:#2A1F19;
+    --text:#F3EADF; --dim:#B7A99B; --faint:#7C6F63;
+    --gold:#D7B25A; --gold-bright:#E9CC85; --gold-soft:rgba(215,178,90,.14); --gold-line:rgba(215,178,90,.35);
+    --green:#6FCF97; --green-soft:rgba(111,207,151,.12);
+    --red:#C0605A; --red-soft:rgba(192,96,90,.13);
+    --blue:#7FA8D9; --blue-soft:rgba(127,168,217,.13);
+    --serif:'DM Serif Display',Georgia,serif; --mono:'DM Mono','SFMono-Regular',Consolas,monospace; --sans:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    --radius:14px; --radius-sm:9px; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg)}
+  body{font-family:var(--sans);color:var(--text);-webkit-font-smoothing:antialiased;
+    padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, rgba(215,178,90,.08), transparent 60%), var(--bg);}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  a{color:var(--gold)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 70px}
+  .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:rgba(18,13,11,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-soft)}
+  .topbar-inner{max-width:760px;margin:0 auto;padding:14px 18px;display:flex;flex-direction:column}
+  .brand-name{font-family:var(--serif);font-size:20px}
+  .brand-sub{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-top:2px}
+  h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;color:var(--text)}
+  .eyebrow{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+  .eyebrow.gold{color:var(--gold)}
+  .hero{padding:26px 0 6px}
+  .hero h1{font-size:26px;line-height:1.3;margin-bottom:8px}
+  .hero p{color:var(--dim);font-size:14.5px;margin:0}
+  .badge{display:inline-block;border:1px solid var(--gold-line);color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:.05em;padding:5px 12px;border-radius:999px;margin-top:12px}
+  .panel{background:var(--panel);border:1px solid var(--border-soft);border-radius:var(--radius);padding:18px;margin:14px 0}
+  .panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .panel-title h3{font-size:15px}
+  .hint{color:var(--faint);font-size:13px;line-height:1.5;margin:6px 0 12px}
+  textarea{width:100%;min-height:200px;resize:vertical;background:var(--inset);border:1px solid var(--border);color:var(--text);
+    font-family:var(--mono);font-size:14px;line-height:1.6;padding:14px;border-radius:var(--radius-sm)}
+  textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+  .btn{font-family:var(--sans);font-size:14.5px;font-weight:600;border-radius:999px;border:1px solid var(--border);background:var(--inset);color:var(--text);
+    padding:11px 18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .btn-gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#23180A;border-color:transparent;font-weight:700}
+  .btn-ghost{background:transparent;border-color:var(--border-soft);color:var(--dim)}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btn-row .btn{flex:1}
+  .privacy{color:var(--faint);font-size:12px;margin-top:10px}
+  .result-section{display:none}
+  .result-section.show{display:block}
+  .summary-text{font-size:14.5px;line-height:1.6;color:var(--text);margin:0}
+  .rec-box{border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 16px;margin:6px 0}
+  .rec-move{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--gold);display:block;margin-bottom:6px}
+  .rec-text{font-size:14.5px;line-height:1.5;color:var(--text)}
+  .move-pill{display:inline-block;font-family:var(--mono);font-size:13px;padding:4px 12px;border-radius:999px;font-weight:600}
+  .move-SEND{background:var(--green-soft);color:var(--green)}
+  .move-SHORTEN{background:var(--gold-soft);color:var(--gold)}
+  .move-WAIT{background:var(--blue-soft);color:var(--blue)}
+  .move-STOP{background:var(--red-soft);color:var(--red)}
+  .timeline-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-soft)}
+  .timeline-item:last-child{border-bottom:none}
+  .tl-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);margin-top:6px;flex-shrink:0;box-shadow:0 0 0 4px var(--gold-soft)}
+  .tl-dot.empty{background:var(--faint);box-shadow:none}
+  .tl-label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--gold);display:block;margin-bottom:4px}
+  .tl-quote{font-style:italic;color:var(--text);font-size:14px;margin:2px 0}
+  .tl-note{color:var(--faint);font-size:12.5px;margin:0}
+  .flags{display:flex;flex-wrap:wrap;gap:8px}
+  .flag{border:1px solid var(--red-soft);background:var(--red-soft);color:#E9C6C2;border-radius:999px;padding:6px 12px;font-size:12.5px}
+  .flag.none{border-color:var(--green-soft);background:var(--green-soft);color:var(--green)}
+  .flag-evidence{display:block;font-size:11px;color:var(--faint);margin-top:8px;font-style:italic}
+  .draft-box{background:var(--inset);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:14px;font-style:italic;color:var(--text);margin:10px 0}
+  .handoff-note{font-size:13px;color:var(--dim);line-height:1.5;margin:0 0 10px}
+  .error-box{border:1px solid var(--red-soft);background:var(--red-soft);color:#E9C6C2;border-radius:var(--radius-sm);padding:12px 14px;font-size:13.5px;margin-top:10px;display:none}
+  .error-box.show{display:block}
+  footer.app-footer{text-align:center;padding:30px 18px 10px}
+  footer.app-footer .cta{font-family:var(--serif);font-size:17px;color:var(--text);margin-bottom:6px}
+  footer.app-footer .cta a{color:var(--gold)}
+  footer.app-footer .disclaimer{color:var(--faint);font-size:11.5px;max-width:480px;margin:12px auto 0;line-height:1.5}
+  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--gold);color:#23180A;font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:100}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner"><span class="brand-name">Social Receipt</span><span class="brand-sub">Conversation Replay</span></div></div>
+<div class="wrap">
+  <div class="hero">
+    <h1>See where the conversation changed.</h1>
+    <p>Paste the exchange. Find the turning point, the pattern that may be taking over, and the next move.</p>
+    <span class="badge">PRIVATE SECOND READ</span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h3>Paste the conversation</h3></div>
+    <p class="hint">One message per line. Start each line with who said it, "You:" or "Them:" if you can.</p>
+    <textarea id="conversation" placeholder="You: I wanted to talk about what happened yesterday.
+Them: I don't want to do this right now.
+You: I'm not trying to fight. I just want you to understand.
+Them: You're always making everything a big deal."></textarea>
+    <div id="errorBox" class="error-box"></div>
+    <div class="btn-row">
+      <button class="btn btn-gold" id="analyzeBtn">Replay conversation</button>
+      <button class="btn btn-ghost" id="sampleBtn">Load example</button>
+    </div>
+    <p class="privacy">This analyzes the text in your browser only. Nothing is uploaded, saved, or sent anywhere.</p>
+  </div>
+
+  <div id="resultSection" class="result-section">
+    <div class="panel">
+      <div class="panel-title"><h3>Conversation summary</h3></div>
+      <p class="summary-text" id="summaryText"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><h3>Recommended next move</h3><span class="move-pill" id="movePill"></span></div>
+      <div class="rec-box"><span class="rec-text" id="recText"></span></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><h3>Conversation timeline</h3></div>
+      <div id="timelineList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><h3>Pattern flags</h3></div>
+      <div class="flags" id="flagsList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><h3>Take this to Pre-Send Check</h3></div>
+      <p class="handoff-note">Conversation Replay doesn't re-run the message risk check itself, that verified read only happens in Pre-Send Check on the real message. Here's a draft based on the recommended move above.</p>
+      <div class="draft-box" id="draftBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-gold" id="copyDraftBtn">Copy draft</button>
+        <a class="btn btn-ghost" id="openPresendBtn" href="https://socialreceipt.netlify.app" target="_blank" rel="noopener">Open Pre-Send Check &#8250;</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="cta">Try Social Receipt free.</div>
+    <a href="https://socialreceipt.netlify.app" target="_blank" rel="noopener">socialreceipt.netlify.app</a>
+    <p class="disclaimer">Social Receipt offers communication guidance based on the words in front of it. It is not therapy, not a relationship diagnosis, and it cannot tell you what anyone actually meant or how they'll respond. It cannot identify narcissism, gaslighting, attachment styles, or any mental health condition.</p>
+  </footer>
+</div>
+<div id="toast"></div>
+
+<script>
+/* Conversation Replay analysis engine.
+   Pure functions, no DOM. Loaded both by the app page and by the test harness. */
+(function (root) {
+"use strict";
+
+var SPEAKER_RE = /^(you|them|me|her|him|he|she|i)\s*[:\-]\s*/i;
+
+function parseConversation(raw) {
+  raw = (raw || "").trim();
+  if (!raw) return { ok: false, error: "empty", lines: [] };
+  var rawLines = raw.split(/\r?\n+/).map(function (l) { return l.trim(); }).filter(Boolean);
+  if (!rawLines.length) return { ok: false, error: "empty", lines: [] };
+
+  var lines = rawLines.map(function (l) {
+    var m = l.match(SPEAKER_RE);
+    if (m) {
+      var who = m[1].toLowerCase();
+      var speaker = (who === "you" || who === "me" || who === "i") ? "you" : "them";
+      return { speaker: speaker, text: l.slice(m[0].length).trim(), raw: l, labeled: true };
+    }
+    return { speaker: null, text: l, raw: l, labeled: false };
+  });
+
+  var anyLabeled = lines.some(function (l) { return l.labeled; });
+  if (!anyLabeled) {
+    // No speaker labels at all: fall back to strict alternation starting with "you",
+    // clearly weaker evidence, callers should treat turn-taking signals as soft.
+    lines = lines.map(function (l, i) { return { speaker: i % 2 === 0 ? "you" : "them", text: l.text, raw: l.raw, labeled: false }; });
+  } else {
+    // Fill any unlabeled interior line by alternating from its last known neighbor,
+    // rather than dropping it, so a stray line doesn't break the whole read.
+    var last = "them";
+    lines = lines.map(function (l) {
+      if (l.labeled) { last = l.speaker; return l; }
+      var guess = last === "you" ? "them" : "you";
+      last = guess;
+      return { speaker: guess, text: l.text, raw: l.raw, labeled: false };
+    });
+  }
+
+  if (lines.length === 1) return { ok: false, error: "too_short", lines: lines };
+  return { ok: true, error: null, lines: lines };
+}
+
+/* ---- pattern detection: every flag below is tied to a concrete, quotable match ---- */
+var PATTERN_DEFS = [
+  { key: "over_explaining", label: "Over-explaining",
+    test: function (l) { return /\b(because|i just|i only meant|what i meant was|let me explain|i already explained|i said this|like i said)\b/i.test(l.text); } },
+  { key: "reassurance", label: "Pressure for reassurance",
+    test: function (l) { return /\b(please just|can you (at least|just)|do you still|are we (ok|okay)|why won'?t you|i need you to|just answer|can you answer)\b/i.test(l.text) || (/\?\s*$/.test(l.text) && /\b(please)\b/i.test(l.text)); } },
+  { key: "defending_intent", label: "Defending intent",
+    test: function (l) { return /\b(i'?m not trying to|i didn'?t mean|that'?s not what i|i wasn'?t trying to|i don'?t mean to|not trying to fight|not mad|not angry|i'?m calm)\b/i.test(l.text); } },
+  { key: "topic_shift", label: "Topic shift",
+    test: function (l) { return /\b(this isn'?t even about|now you'?re bringing up|that'?s a different (issue|thing)|don'?t change the subject|while we'?re at it)\b/i.test(l.text); } },
+  { key: "escalating", label: "Escalating language",
+    test: function (l) { return /\b(always|never|every time|every single time|nothing i (say|do)|unbelievable|ridiculous|done with this|i'?m done)\b/i.test(l.text) || /!{2,}/.test(l.text) || /\b[A-Z]{4,}\b/.test(l.text.replace(/\bI\b/g, "")); } }
+];
+
+function detectPatterns(lines) {
+  var found = {};
+  var evidence = {};
+  lines.forEach(function (l) {
+    PATTERN_DEFS.forEach(function (p) {
+      if (p.test(l)) { found[p.key] = true; if (!evidence[p.key]) evidence[p.key] = l; }
+    });
+  });
+
+  // Structural flags, computed over the whole line list rather than one line at a time.
+  var consecutiveYou = 0, maxConsecutiveYou = 0, chaseLine = null;
+  lines.forEach(function (l) {
+    if (l.speaker === "you") { consecutiveYou++; if (consecutiveYou >= 2 && !chaseLine) chaseLine = l; }
+    else consecutiveYou = 0;
+    maxConsecutiveYou = Math.max(maxConsecutiveYou, consecutiveYou);
+  });
+  if (maxConsecutiveYou >= 2) { found.double_texting = true; evidence.double_texting = chaseLine; }
+
+  var youQuestions = lines.filter(function (l) { return l.speaker === "you" && /\?\s*$/.test(l.text); });
+  if (youQuestions.length >= 2) { found.repeated_question = true; evidence.repeated_question = youQuestions[youQuestions.length - 1]; }
+
+  if (lines.length >= 6) {
+    var firstWords = keywordSet(lines[0].text);
+    var laterRepeat = lines.slice(3).some(function (l) { return overlap(keywordSet(l.text), firstWords) >= 2; });
+    if (laterRepeat) { found.looping = true; evidence.looping = lines[lines.length - 1]; }
+  }
+
+  var order = ["escalating", "double_texting", "looping", "repeated_question", "reassurance", "over_explaining", "defending_intent", "topic_shift"];
+  var labels = { escalating: "Escalating language", double_texting: "Double-texting or chasing", looping: "Conversation looping",
+    repeated_question: "Repeated unanswered question", reassurance: "Pressure for reassurance", over_explaining: "Over-explaining",
+    defending_intent: "Defending intent", topic_shift: "Topic shift" };
+
+  return order.filter(function (k) { return found[k]; }).map(function (k) { return { key: k, label: labels[k], evidence: evidence[k] }; });
+}
+
+function keywordSet(text) {
+  var stop = { the: 1, a: 1, i: 1, you: 1, to: 1, and: 1, is: 1, it: 1, of: 1, that: 1, this: 1, in: 1, was: 1, for: 1, on: 1, "i'm": 1, "don't": 1 };
+  return text.toLowerCase().replace(/[^a-z'\s]/g, "").split(/\s+/).filter(function (w) { return w.length > 3 && !stop[w]; });
+}
+function overlap(a, b) { var bs = {}; b.forEach(function (w) { bs[w] = 1; }); return a.filter(function (w) { return bs[w]; }).length; }
+
+/* ---- turning point: first line carrying dismissive / blame-shift language ---- */
+var TURN_RE = /\b(you always|you'?re the one|you never|i don'?t want to (do this|talk)|that'?s not fair|you'?re making|why are you)\b/i;
+function findTurningPoint(lines) {
+  for (var i = 1; i < lines.length; i++) {
+    if (TURN_RE.test(lines[i].text)) return i;
+  }
+  return null;
+}
+
+/* ---- timeline: five fixed slots, each honestly hedged when evidence is thin ---- */
+function buildTimeline(lines, turnIdx, patterns) {
+  var hasKey = function (k) { return patterns.some(function (p) { return p.key === k; }); };
+  var beginning = lines[0];
+  var current = lines[lines.length - 1];
+
+  var turning = turnIdx !== null ? lines[turnIdx] : null;
+
+  var pressureIdx = null;
+  var searchFrom = turnIdx !== null ? turnIdx : 1;
+  for (var i = searchFrom; i < lines.length; i++) {
+    if (TURN_RE.test(lines[i].text)) continue;
+    if (/\b(always|never|every time|unbelievable|i'?m done|!{2,})\b/i.test(lines[i].text) || (i > 0 && lines[i].speaker === lines[i - 1].speaker)) {
+      pressureIdx = i; break;
+    }
+  }
+
+  var firstTopic = keywordSet(beginning.text);
+  var lastTopic = keywordSet(current.text);
+  var stillPresent = overlap(firstTopic, lastTopic) >= 1;
+
+  return [
+    { label: "Beginning of the conversation", line: beginning, note: "The exchange starts here." },
+    { label: "Possible turning point", line: turning, note: turning ? "The tone shifts around here." : "No strong shift was detected in the wording; this exchange may not have a single clear turning point." },
+    { label: "Where pressure increased", line: pressureIdx !== null ? lines[pressureIdx] : null, note: pressureIdx !== null ? "Language or pacing here adds pressure rather than resolving the point." : "Pressure does not clearly increase later in this exchange." },
+    { label: "Where the original issue may have been lost", line: stillPresent ? null : current, note: stillPresent ? "The original topic is still present in the most recent message." : "The most recent message no longer clearly connects to the original topic." },
+    { label: "Current position", line: current, note: "This is the most recent message, and where the next decision gets made." }
+  ];
+}
+
+/* ---- recommendation: one of SEND / SHORTEN / WAIT / STOP, never blended ---- */
+function recommendMove(patterns, lines) {
+  var keys = patterns.map(function (p) { return p.key; });
+  var has = function (k) { return keys.indexOf(k) !== -1; };
+  var severe = has("escalating") && (has("looping") || has("double_texting"));
+  var lastYou = [].concat(lines).reverse().find(function (l) { return l.speaker === "you"; });
+
+  if (severe || keys.length >= 4) {
+    return { move: "STOP", text: "Stop. The conversation is no longer moving toward the original point, another message right now is likely to add pressure instead of resolving it." };
+  }
+  if (has("looping") || has("double_texting") || has("repeated_question")) {
+    return { move: "WAIT", text: "Wait. Adding another message right now may increase pressure without resolving the original issue." };
+  }
+  if (has("over_explaining") || has("reassurance") || has("defending_intent") || has("topic_shift")) {
+    return { move: "SHORTEN", text: "Shorten this to one clear point, then wait for an answer." };
+  }
+  return { move: "SEND", text: "Send only if the message states one specific point without reopening the entire argument." };
+}
+
+function buildSummary(lines, patterns, turnIdx) {
+  var n = lines.length;
+  if (!patterns.length) return "This exchange of " + n + " messages does not show a strong pressure pattern in the wording. That does not guarantee the timing is right, only that the language itself looks reasonably direct.";
+  var names = patterns.slice(0, 3).map(function (p) { return p.label.toLowerCase(); });
+  var namesText = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0];
+  var turnText = turnIdx !== null ? " The tone appears to shift partway through." : "";
+  return "Across " + n + " messages, this exchange shows signs of " + namesText + "." + turnText + " That is a possible pattern based on the wording, not a judgment about either person.";
+}
+
+function suggestedDraft(lines, move) {
+  var lastYou = [].concat(lines).reverse().find(function (l) { return l.speaker === "you"; });
+  if (!lastYou) return "";
+  if (move === "SHORTEN") {
+    var firstSentence = lastYou.text.split(/(?<=[.?!])\s+/)[0];
+    return firstSentence;
+  }
+  return lastYou.text;
+}
+
+function analyze(raw) {
+  var parsed = parseConversation(raw);
+  if (!parsed.ok) return { ok: false, error: parsed.error };
+  var lines = parsed.lines;
+  var patterns = detectPatterns(lines);
+  var turnIdx = findTurningPoint(lines);
+  var timeline = buildTimeline(lines, turnIdx, patterns);
+  var rec = recommendMove(patterns, lines);
+  var summary = buildSummary(lines, patterns, turnIdx);
+  var draft = suggestedDraft(lines, rec.move);
+  return { ok: true, lines: lines, patterns: patterns, turnIdx: turnIdx, timeline: timeline, recommendation: rec, summary: summary, draft: draft };
+}
+
+var api = { parseConversation: parseConversation, detectPatterns: detectPatterns, findTurningPoint: findTurningPoint, buildTimeline: buildTimeline, recommendMove: recommendMove, buildSummary: buildSummary, suggestedDraft: suggestedDraft, analyze: analyze };
+
+if (typeof module !== "undefined" && module.exports) module.exports = api;
+else root.ConversationReplay = api;
+
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var CR = window.ConversationReplay;
+
+var SAMPLE = "You: I wanted to talk about what happened yesterday.\nThem: I don't want to do this right now.\nYou: I'm not trying to fight. I just want you to understand where I'm coming from.\nThem: You're always making everything a big deal, every time.\nYou: That's not fair. I already explained this.\nYou: Can you please just answer me?";
+
+function esc(s){ var d=document.createElement("div"); d.textContent=s==null?"":String(s); return d.innerHTML; }
+function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },1800); }
+
+function render(r){
+  var errBox = $("errorBox");
+  if (!r.ok) {
+    errBox.classList.add("show");
+    errBox.textContent = r.error === "empty" ? "Paste a conversation first." : "That's too short to replay, add at least two lines back and forth.";
+    $("resultSection").classList.remove("show");
+    return;
+  }
+  errBox.classList.remove("show");
+
+  $("summaryText").textContent = r.summary;
+
+  $("movePill").textContent = r.recommendation.move;
+  $("movePill").className = "move-pill move-" + r.recommendation.move;
+  $("recText").textContent = r.recommendation.text;
+
+  var tlHtml = r.timeline.map(function(item){
+    var quote = item.line ? '<p class="tl-quote">"' + esc(item.line.text) + '"</p>' : "";
+    return '<div class="timeline-item"><span class="tl-dot' + (item.line?'':' empty') + '"></span>' +
+      '<div><span class="tl-label">' + esc(item.label) + '</span>' + quote + '<p class="tl-note">' + esc(item.note) + '</p></div></div>';
+  }).join("");
+  $("timelineList").innerHTML = tlHtml;
+
+  var flagsHtml = r.patterns.length
+    ? r.patterns.map(function(p){
+        var ev = p.evidence ? '<span class="flag-evidence">"' + esc(p.evidence.text) + '"</span>' : "";
+        return '<span class="flag">' + esc(p.label) + ev + '</span>';
+      }).join("")
+    : '<span class="flag none">No strong pattern detected in the wording</span>';
+  $("flagsList").innerHTML = flagsHtml;
+
+  $("draftBox").textContent = r.draft || "(no message from you to draft from)";
+
+  $("resultSection").classList.add("show");
+}
+
+function analyze(){
+  var raw = $("conversation").value;
+  var r = CR.analyze(raw);
+  render(r);
+}
+
+$("sampleBtn").onclick = function(){ $("conversation").value = SAMPLE; analyze(); };
+$("analyzeBtn").onclick = analyze;
+$("copyDraftBtn").onclick = function(){
+  var text = $("draftBox").textContent;
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ toast("Draft copied"); }, function(){ toast("Could not copy, select the text manually"); });
+  } else {
+    toast("Could not copy, select the text manually");
+  }
+};
+})();
+</script>
+</body>
+</html>
