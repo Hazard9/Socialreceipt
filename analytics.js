@@ -74,7 +74,7 @@
   }
   function plan() {
     try {
-      if (localStorage.getItem('sr_pro') === 'true') return 'pro';
+      if (localStorage.getItem('sr_pro') === 'true' || localStorage.getItem('sr_pro') === '1') return 'pro';
       return 'free';
     } catch (_) { return 'unknown'; }
   }
