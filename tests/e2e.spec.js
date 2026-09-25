@@ -13,6 +13,7 @@ test("1. first visit shows the landing screen with pricing and no console errors
   await page.reload();
   await expect(page.locator("#landingScreen")).toBeVisible();
   await expect(page.locator("text=Start Free. Try Now.")).toBeVisible();
+  await expect(page.locator(".landing-example")).toContainText("The strongest move may be to wait.");
   await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Pro Monthly'))")).toContainText("$9");
   await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Lifetime Beta'))")).toContainText("$39");
   expect(errors).toEqual([]);
