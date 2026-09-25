@@ -689,12 +689,11 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <button class="primary-btn" data-sr-cta="landing_free_check" onclick="startFree()">Start Free. Try Now.</button>
     <div class="landing-free-note">Takes 30 seconds. No sign-up. No data stored.</div>
     <div class="landing-divider"></div>
-    <div class="landing-pricing-label">Simple pricing. Cancel anytime.</div>
+    <div class="landing-pricing-label">Simple pricing. Start free. Upgrade when it matters.</div>
     <div class="pricing-cards">
       <div class="pricing-card"><div class="pricing-card-name">Free</div><div class="pricing-card-price"><span class="pricing-card-amount">$0</span></div><ul class="pricing-features"><li>3 receipts per month</li><li>Verdict + signal cards</li><li>What not to do</li><li>Hidden signal</li></ul></div>
       <div class="pricing-card featured"><div class="pricing-card-badge">Most Popular</div><div class="pricing-card-name">Pro Monthly</div><div class="pricing-card-price"><span class="pricing-card-amount">$9</span><span class="pricing-card-period">/mo</span></div><ul class="pricing-features"><li>Unlimited receipts</li><li>Full analysis + corrections</li><li>Pre-Send check on every message</li><li>Rewrite Engine</li><li>Cold Read mode</li><li>Pattern profile</li></ul><button class="primary-btn" data-sr-cta="landing_monthly_checkout" onclick="startCheckout('monthly')" style="margin-top:12px">Get Pro. $9/mo</button></div>
-      <div class="pricing-card"><div class="pricing-card-badge" style="background:var(--green);color:#0c0b09">Best Value</div><div class="pricing-card-name">Pro Yearly</div><div class="pricing-card-price"><span class="pricing-card-amount">$69</span><span class="pricing-card-period">/yr</span></div><ul class="pricing-features"><li>Everything in Pro Monthly</li><li>Save 36% vs monthly</li><li>Priority feature access</li><li>Full behavioral profile</li></ul><button class="primary-btn" data-sr-cta="landing_yearly_checkout" onclick="startCheckout('yearly')" style="margin-top:12px;background:linear-gradient(135deg,var(--green),#2a9a5c);box-shadow:0 8px 24px rgba(61,184,112,0.25)">Get Yearly. $69/yr</button></div>
-      <div class="pricing-card"><div class="pricing-card-name">Lifetime Beta</div><div class="pricing-card-price"><span class="pricing-card-amount">$39</span><span class="pricing-card-period">once</span></div><ul class="pricing-features"><li>Everything in Pro forever</li><li>Early adopter pricing</li><li>All future features</li><li>Lock in before launch</li></ul><button class="secondary-btn" data-sr-cta="landing_lifetime_checkout" onclick="startCheckout('lifetime')" style="margin-top:12px">Get Lifetime. $39</button></div>
+      <div class="pricing-card featured"><div class="pricing-card-badge" style="background:var(--green);color:#0c0b09">Beta Offer</div><div class="pricing-card-name">Lifetime Beta</div><div class="pricing-card-price"><span class="pricing-card-amount">$39</span><span class="pricing-card-period">once</span></div><ul class="pricing-features"><li>Everything in Pro forever</li><li>Early adopter pricing</li><li>All future features</li><li>Lock in before public launch</li></ul><button class="secondary-btn" data-sr-cta="landing_lifetime_checkout" onclick="startCheckout('lifetime')" style="margin-top:12px">Get Lifetime. $39</button></div>
     </div>
     <p style="font-size:11px;color:var(--muted-2);text-align:center;font-family:var(--font-mono);letter-spacing:0.04em;line-height:1.6;">Payments via Stripe. Cancel anytime.<br>Nothing leaves your device on Free plan.</p>
   </div>
@@ -714,11 +713,10 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Timing is the part most people get wrong</strong><span>The right message at the wrong moment still loses position. This shows you the window.</span></div></div>
     </div>
     <p style="font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin:0 0 14px;">Free tells you what is happening. Pro helps you decide what to send next: the exact move, the rewritten message, and the timing window, unlimited.</p>
-    <div class="paywall-price-row"><div class="paywall-price-main">$9</div><div class="paywall-price-info"><span class="paywall-price-period">per month</span><span class="paywall-price-orig">or $39 lifetime</span></div></div>
+    <div class="paywall-price-row"><div class="paywall-price-main">$9</div><div class="paywall-price-info"><span class="paywall-price-period">per month</span><span class="paywall-price-orig">or $39 lifetime beta</span></div></div>
     <div class="paywall-actions">
       <button class="primary-btn" data-sr-cta="paywall_monthly_checkout" onclick="startCheckout('monthly')">Unlock Pro. $9/mo</button>
-      <button class="secondary-btn" data-sr-cta="paywall_yearly_checkout" onclick="startCheckout('yearly')" style="border-color:rgba(61,184,112,0.3);color:var(--green)">Best value. $69/year (save 36%)</button>
-      <button class="ghost-btn" data-sr-cta="paywall_lifetime_checkout" onclick="startCheckout('lifetime')" style="font-size:13px">Lifetime access. $39</button>
+      <button class="ghost-btn" data-sr-cta="paywall_lifetime_checkout" onclick="startCheckout('lifetime')" style="font-size:13px">Lock in Lifetime Beta. $39</button>
     </div>
     <div class="paywall-dismiss" onclick="dismissPaywall()">Continue on Free</div>
   </div>
