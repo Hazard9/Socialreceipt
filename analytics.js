@@ -130,10 +130,43 @@
     window.dispatchEvent(new CustomEvent('sr:analytics', { detail: { event: eventName, params: payload } }));
   }
 
+  // Safe funnel instrumentation. These events contain no message content.
+  function trackPerformanceOnce() {
+    try {
+      if (!window.performance || !performance.getEntriesByType) return;
+      var nav = performance.getEntriesByType('navigation')[0];
+      if (!nav || window.__srPerformanceTracked) return;
+      window.__srPerformanceTracked = true;
+      track('page_performance', {
+        load_ms: Math.round(nav.loadEventEnd || nav.duration || 0),
+        dom_content_loaded_ms: Math.round(nav.domContentLoadedEventEnd || 0),
+        transfer_size: Math.round(nav.transferSize || 0)
+      });
+    } catch (_) {}
+  }
+
   attribution();
   window.SRAnalytics = { track: track, attribution: attribution, meta: baseMeta, normalizePlatform: normalizePlatform };
   track('landing_page_view');
   if (baseMeta().returning_user === 'true') track('return_visit');
+  if (document.readyState === 'complete') trackPerformanceOnce();
+  else window.addEventListener('load', trackPerformanceOnce, { once: true });
+
+  if (typeof IntersectionObserver === 'function') {
+    var seenCtas = [];
+    var ctaObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var cta = el.getAttribute('data-sr-cta');
+        if (!cta || seenCtas.indexOf(cta) >= 0) return;
+        seenCtas.push(cta);
+        track('cta_viewed', { content_id: cta });
+        ctaObserver.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('[data-sr-cta]').forEach(function (el) { ctaObserver.observe(el); });
+  }
 
   document.addEventListener('click', function (event) {
     var el = event.target.closest('[data-sr-event], [data-sr-cta], a[href]');
