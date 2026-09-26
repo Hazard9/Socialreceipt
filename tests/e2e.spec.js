@@ -25,6 +25,8 @@ test("2. starting Free hides the landing screen and shows the app", async ({ pag
   await page.click("text=Start Free. Try Now.");
   await expect(page.locator("#landingScreen")).toBeHidden();
   await expect(page.locator("#homeScreen")).toBeVisible();
+  await expect(page.locator("#homeScreen")).toContainText("About to send");
+  await expect(page.locator("#homeScreen")).toContainText("Received something");
   await expect(page.locator("#dailyRitualCard")).toContainText("What are you about to send?");
   await expect(page.locator("#homeProgressCard")).toContainText("Your progress");
   await expect(page.locator("#homeReflectionCard")).toContainText("Weekly reflection");
