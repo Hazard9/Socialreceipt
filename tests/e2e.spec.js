@@ -236,6 +236,25 @@ test("11. text must be confirmed before a screenshot can be analyzed", async ({ 
   await expect(page.locator("#interactionText")).toHaveValue("Hey are we still on for Friday?");
 });
 
+test("11b. email capture is visible from the home screen", async ({ page }) => {
+  await skipToApp(page);
+  await expect(page.locator("#homeEmailCaptureCard")).toBeVisible();
+  await expect(page.locator("#homeEmailCaptureCard")).toContainText("Add my email");
+  await page.click("#homeEmailCaptureCard button");
+  await expect(page.locator("#emailModal")).toBeVisible();
+  await expect(page.locator("#emailInput")).toBeVisible();
+});
+
+test("11c. talk-to-text controls are available for message entry", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('.nav-btn[data-screen="createScreen"]');
+  await expect(page.locator('button[aria-label="Talk to text for your interaction"]')).toBeVisible();
+  await page.click('button[onclick="setCreateMode(\'before\')"]');
+  await expect(page.locator('button[aria-label="Talk to text for your message"]')).toBeVisible();
+  await page.click('button[onclick="setCreateMode(\'cold\')"]');
+  await expect(page.locator('button[aria-label="Talk to text for the conversation"]')).toBeVisible();
+});
+
 test("12. email capture reports real success when the backend confirms it", async ({ page }) => {
   await skipToApp(page);
   await page.route("**/.netlify/functions/subscribe-email", (route) => {
