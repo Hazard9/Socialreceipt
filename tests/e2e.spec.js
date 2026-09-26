@@ -50,6 +50,8 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await expect(page.locator("#receiptOutput")).toContainText("Your decision");
   await expect(page.locator("#receiptOutput")).toContainText("The move from here");
   await expect(page.locator("#receiptOutput")).toContainText("Cleaner move");
+  await expect(page.locator("#receiptOutput")).toContainText("Close the loop");
+  await expect(page.locator("#receiptOutput")).toContainText("Save for later");
   // Free users hit the gate with an honest explanation of what Pro adds, not a fake result
   await expect(page.locator("#receiptOutput")).toContainText("Continue on Free");
 });
