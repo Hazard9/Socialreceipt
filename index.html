@@ -718,6 +718,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Timing is the part most people get wrong</strong><span>The right message at the wrong moment still loses position. This shows you the window.</span></div></div>
     </div>
     <div class="detail-card" style="margin:12px 0;border-color:var(--border-warm);background:rgba(201,168,76,.06)"><div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">Lifetime Beta means ownership</div><p style="margin:0;color:var(--text);font-size:13px;line-height:1.5">Keep the full decision layer, your pattern history, and future pre-launch features for $39 once. No recurring charge.</p></div>
+    <div id="paywallOwnershipProof" class="detail-card" style="margin:0 0 14px;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px"></div>
     <div class="detail-card" style="margin:0 0 14px;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">What ownership adds</div>
       <div style="display:grid;gap:6px;color:var(--muted);font-size:12px;line-height:1.4">
@@ -1106,10 +1107,25 @@ function startFree() {
 }
 
 /* ── PAYWALL ── */
+function renderPaywallOwnershipProof() {
+  var el = document.getElementById("paywallOwnershipProof");
+  if (!el) return;
+  var receipts = getReceipts();
+  var tracked = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; }).length;
+  var holds = receipts.filter(function(r){ return r.bestMove === "Wait"; }).length;
+  var positive = receipts.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; }).length;
+  if (!receipts.length) {
+    el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px'>What you would own</div><p style='margin:0;color:var(--muted);font-size:12px;line-height:1.5'>A personal decision record that gets more useful as you add real interactions, patterns, and outcomes.</p>";
+    return;
+  }
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px'>Your record so far</div><p style='margin:0 0 9px;color:var(--text);font-size:13px;line-height:1.45'>You have already started building something personal.</p><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:6px'><div class='metric-card'><span>Reads</span><strong style='font-size:14px'>"+receipts.length+"</strong></div><div class='metric-card'><span>Tracked</span><strong style='font-size:14px'>"+tracked+"</strong></div><div class='metric-card'><span>Held</span><strong style='font-size:14px'>"+holds+"</strong></div></div><p style='margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.4'>Lifetime keeps this history, your patterns, and future beta capabilities together. "+(positive ? positive+" positive or resolved outcome"+(positive === 1 ? "" : "s")+" already logged." : "Track outcomes to see the record become more useful.")+"</p>";
+}
+
 function openPaywall(spikeMsg) {
   var spike = document.getElementById("paywallSpike");
   if (spikeMsg && spike) { spike.textContent = spikeMsg; spike.style.display = "block"; }
   else if (spike) { spike.style.display = "none"; }
+  renderPaywallOwnershipProof();
   document.getElementById("paywallOverlay").classList.remove("hidden");
   haptic([10,20]);
   trackEvent("paywall_viewed");
