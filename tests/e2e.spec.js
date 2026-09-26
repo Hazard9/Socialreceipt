@@ -5,6 +5,7 @@ const path = require("path");
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
+  await page.reload();
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
