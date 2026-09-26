@@ -1738,6 +1738,25 @@ function updateUserRewriteComparison() {
     return;
   }
   text.textContent = value;
+  var original = (state.currentReceipt && state.currentReceipt.rawText) || "";
+  var suggested = (state.currentReceipt && state.currentReceipt.suggested) || "";
+  function comparisonMetrics(message) {
+    var words = message.trim() ? message.trim().split(/\s+/).length : 0;
+    var pressure = (message.match(/\b(please|just|really|need|why|asap|now)\b/gi) || []).length;
+    var questions = (message.match(/\?/g) || []).length;
+    return { words: words, pressure: pressure, questions: questions };
+  }
+  var before = comparisonMetrics(original);
+  var mine = comparisonMetrics(value);
+  var recommended = comparisonMetrics(suggested);
+  var metricHtml = "<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px'><div class='metric-card'><span>Words</span><strong style='font-size:12px'>"+before.words+" → "+mine.words+"</strong></div><div class='metric-card'><span>Pressure cues</span><strong style='font-size:12px'>"+before.pressure+" → "+mine.pressure+"</strong></div><div class='metric-card'><span>Questions</span><strong style='font-size:12px'>"+before.questions+" → "+mine.questions+"</strong></div></div>";
+  var metrics = document.getElementById("userRewriteMetrics");
+  if (!metrics) {
+    metrics = document.createElement("div");
+    metrics.id = "userRewriteMetrics";
+    preview.appendChild(metrics);
+  }
+  metrics.innerHTML = metricHtml + "<p style='margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.4'>These are message-shape signals, not a judgment of intent. The recommended version is "+recommended.words+" words with "+recommended.pressure+" pressure cues.</p>";
   preview.style.display = "block";
   trackEvent("message_version_tested", { feature: "rewrite_comparison" });
   haptic([8,20]);
