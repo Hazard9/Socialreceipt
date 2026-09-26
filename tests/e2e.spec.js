@@ -85,6 +85,17 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await expect(page.locator("#receiptOutput")).toContainText("Continue on Free");
 });
 
+test("3b. a shared invite records first-receipt activation safely", async ({ page }) => {
+  await page.goto("/?sr_ref=test_referral");
+  await page.evaluate(() => {
+    localStorage.setItem("sr_seen_landing", "1");
+    localStorage.setItem("sr_onboarded", "1");
+  });
+  await page.reload();
+  await createReceipt(page);
+  await expect.poll(async () => page.evaluate(() => localStorage.getItem("sr_referral_activation_recorded"))).toBe("1");
+});
+
 test("4. reaching the monthly free limit opens the paywall on the 4th receipt", async ({ page }) => {
   // The free limit (FREE_LIMIT=3) counts SAVED receipts per calendar month,
   // so each of the first 3 must be saved to actually consume the quota.
