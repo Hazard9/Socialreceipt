@@ -2409,6 +2409,12 @@ function renderInsights() {
       html += "<div class=\"metric-card\"><span>Default Mistake</span><strong style=\"font-size:14px\">"+profile.defaultMistake+"</strong></div>";
       html += "</div>";
 
+      html += "<div class=\"receipt-divider\"><span>What I have learned about myself</span></div>";
+      html += "<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:linear-gradient(135deg,var(--gold-glow-2),rgba(255,245,220,0.015));margin-bottom:12px\">";
+      html += "<p style=\"font-family:var(--font-serif);font-size:17px;line-height:1.45;color:var(--text);margin:0 0 14px\">" + escapeHtml(profile.learnedAboutSelf) + "</p>";
+      html += "<div style=\"display:grid;gap:8px\"><div class=\"metric-card\"><span>Possible blind spot</span><strong style=\"font-size:13px;font-weight:400;line-height:1.4\">" + escapeHtml(profile.blindSpot) + "</strong></div><div class=\"metric-card\"><span>Next practice</span><strong style=\"font-size:13px;font-weight:400;line-height:1.4;color:var(--green)\">" + escapeHtml(profile.nextPractice) + "</strong></div></div>";
+      html += "<p style=\"margin:12px 0 0;color:var(--muted-2);font-size:11px;line-height:1.4\">A reflection from your recorded patterns, not a diagnosis or a fixed identity.</p></div>";
+
       /* Score bars */
       html += "<div class=\"receipt-divider\"><span>Communication Scores</span></div>";
       html += "<div class=\"detail-card\" style=\"margin-bottom:12px\">";
@@ -2855,10 +2861,35 @@ function buildBehavioralProfile(receipts) {
     ? "Based on "+total+" reads. This profile is strong enough to guide your next decision, but it can still change as your record grows."
     : "Based on "+total+" reads. This is an early signal, not a fixed label. More tracked outcomes will sharpen it.";
 
+  var learnedAboutSelf = "You are learning to separate urgency from importance. The next useful step is to keep logging what happened after the impulse passed.";
+  var blindSpot = "The moment that feels most urgent may be the moment that deserves the most space.";
+  var nextPractice = "Before sending, name the outcome you want and give the other person room to participate.";
+  if (chaseCount / total > 0.55) {
+    learnedAboutSelf = "When the other person creates distance, you tend to work harder to restore connection. The extra effort can become the signal they remember.";
+    blindSpot = "You may be treating another person's silence as a problem you are responsible for solving.";
+    nextPractice = "Send one clear message, then let their response become information.";
+  } else if (overExpCt >= 2) {
+    learnedAboutSelf = "When you feel misunderstood, you add context to make the message safer. The added explanation may be making your position harder to see.";
+    blindSpot = "More explanation can feel like clarity to you while landing as pressure to the other person.";
+    nextPractice = "Write the full explanation privately, then send only the sentence that needs to be understood.";
+  } else if (silenceCt >= 2) {
+    learnedAboutSelf = "Silence creates an urge to create movement. Your record suggests the second message is often about relieving uncertainty, not changing the situation.";
+    blindSpot = "A response from them and relief for you are not always the same thing.";
+    nextPractice = "Wait long enough to learn whether the next move is actually yours.";
+  } else if (anxCount / total > 0.5) {
+    learnedAboutSelf = "Anxiety is showing up as a demand for certainty. Your clearest decisions tend to come after the feeling has stopped driving the timing.";
+    blindSpot = "The intensity of the feeling can make a neutral situation look like an emergency.";
+    nextPractice = "Name the feeling, delay the send, then reread the message as if it came from someone else.";
+  } else if (better / total > 0.6) {
+    learnedAboutSelf = "You are already capable of making calmer decisions. The evidence suggests the skill is not missing. It is easier to access when you pause.";
+    blindSpot = "You may be underestimating how often restraint is already working for you.";
+    nextPractice = "Repeat the conditions that produced your strongest outcomes.";
+  }
+
   return {
     total, dominantPattern, riskTrigger, strength, defaultMistake,
     selfControlScore, patternScore, leverageScore,
-    patternConfidence, evidenceNote,
+    patternConfidence, evidenceNote, learnedAboutSelf, blindSpot, nextPractice,
     powerMove, weeklyInsight,
     mostCommonScenario: mostCommon(scenarios),
     mostCommonFeeling:  mostCommon(feelings),
