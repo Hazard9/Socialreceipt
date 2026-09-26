@@ -2365,6 +2365,13 @@ function renderInsights() {
   html += "<div class=\"metric-card\"><span>Most common scenario</span><strong style=\"font-size:16px\">"+mostCommon(receipts.map(function(r){return r.scenario;}))+"</strong></div>";
   html += "</div>";
 
+  if (tracked.length > 0) {
+    var positive = tracked.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; }).length;
+    var held = receipts.filter(function(r){ return r.bestMove === "Wait"; }).length;
+    var pct = Math.round((positive / tracked.length) * 100);
+    html += "<div class='detail-card' style='border-color:var(--border);background:linear-gradient(145deg,rgba(61,184,112,.05),rgba(255,245,220,.015));margin-bottom:12px'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px'>Your value ledger</div><h3 style='margin:0 0 6px;font-family:var(--font-serif);font-size:19px;font-weight:400'>The record is becoming useful.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Social Receipt is most valuable when you return to compare the read with what actually happened.</p><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:7px'><div class='metric-card'><span>Tracked</span><strong style='font-size:15px'>"+tracked.length+"</strong></div><div class='metric-card'><span>Positive / resolved</span><strong style='font-size:15px;color:var(--green)'>"+pct+"%</strong></div><div class='metric-card'><span>Held position</span><strong style='font-size:15px'>"+held+"</strong></div></div></div>";
+  }
+
   /* Pattern insight */
   html += "<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:linear-gradient(135deg,var(--gold-glow-2),rgba(255,245,220,0.015));margin-bottom:12px\"><h3>Pattern Insight</h3><p style=\"font-style:italic;font-family:var(--font-serif);font-size:15px;color:var(--text);margin:0\">"+generatePatternInsight(receipts)+"</p></div>";
 
