@@ -2424,6 +2424,12 @@ function renderInsights() {
         html += "</div>";
       }
 
+      if (profile.changeSummary) {
+        var change = profile.changeSummary;
+        html += "<div class=\"receipt-divider\"><span>Change over time</span></div>";
+        html += "<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:linear-gradient(145deg,var(--gold-glow-2),rgba(255,245,220,.015));margin-bottom:12px\"><h3 style=\"margin:0 0 6px;font-family:var(--font-serif);font-size:19px;font-weight:400\">"+escapeHtml(change.headline)+"</h3><p style=\"margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.5\">"+escapeHtml(change.note)+"</p><div style=\"display:grid;grid-template-columns:repeat(3,1fr);gap:7px\"><div class=\"metric-card\"><span>Positive outcomes</span><strong style=\"font-size:13px;color:var(--green)\">"+change.earlierPositive+"% → "+change.recentPositive+"%</strong></div><div class=\"metric-card\"><span>Chasing</span><strong style=\"font-size:13px\">"+change.earlierChasing+"% → "+change.recentChasing+"%</strong></div><div class=\"metric-card\"><span>Holding</span><strong style=\"font-size:13px\">"+change.earlierWait+"% → "+change.recentWait+"%</strong></div></div></div>";
+      }
+
       /* Score bars */
       html += "<div class=\"receipt-divider\"><span>Communication Scores</span></div>";
       html += "<div class=\"detail-card\" style=\"margin-bottom:12px\">";
@@ -2810,6 +2816,47 @@ function enrichReceiptMetadata(receipt) {
    BEHAVIORAL PROFILE ENGINE
    PROFILE ENGINE — compute from receipt history
 ════════════════════════════════════════════ */
+function buildPersonalChangeSummary(receipts) {
+  if (receipts.length < 6) return null;
+  var midpoint = Math.floor(receipts.length / 2);
+  var earlier = receipts.slice(midpoint);
+  var recent = receipts.slice(0, midpoint);
+  function rate(items, predicate) {
+    return Math.round((items.filter(predicate).length / items.length) * 100);
+  }
+  var earlierChasing = rate(earlier, function(r){ return (r.energy || "").indexOf("chasing") !== -1; });
+  var recentChasing = rate(recent, function(r){ return (r.energy || "").indexOf("chasing") !== -1; });
+  var earlierOver = rate(earlier, function(r){ return (r.energy || "").indexOf("over-explaining") !== -1; });
+  var recentOver = rate(recent, function(r){ return (r.energy || "").indexOf("over-explaining") !== -1; });
+  var earlierPositive = rate(earlier, function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; });
+  var recentPositive = rate(recent, function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; });
+  var earlierWait = rate(earlier, function(r){ return r.bestMove === "Wait"; });
+  var recentWait = rate(recent, function(r){ return r.bestMove === "Wait"; });
+  var improvements = [];
+  if (recentChasing < earlierChasing) improvements.push("chasing is down");
+  if (recentOver < earlierOver) improvements.push("over-explaining is down");
+  if (recentPositive > earlierPositive) improvements.push("positive outcomes are up");
+  if (recentWait > earlierWait) improvements.push("you are holding more often");
+  var headline = improvements.length
+    ? "Your recent decisions are changing the pattern."
+    : "Your record is establishing a baseline.";
+  var note = improvements.length
+    ? "Compared with your earlier reads, "+improvements.join(", ")+". This is a direction of change, not a final score."
+    : "The recent half of your record is similar to the earlier half. Keep tracking outcomes so the next comparison has more evidence.";
+  return {
+    headline: headline,
+    note: note,
+    earlierChasing: earlierChasing,
+    recentChasing: recentChasing,
+    earlierOver: earlierOver,
+    recentOver: recentOver,
+    earlierPositive: earlierPositive,
+    recentPositive: recentPositive,
+    earlierWait: earlierWait,
+    recentWait: recentWait
+  };
+}
+
 function buildScenarioPatternInsights(receipts) {
   var groups = {};
   receipts.forEach(function(r) {
@@ -2935,6 +2982,7 @@ function buildBehavioralProfile(receipts) {
     patternConfidence, evidenceNote, learnedAboutSelf, blindSpot, nextPractice,
     powerMove, weeklyInsight,
     scenarioInsights: buildScenarioPatternInsights(receipts),
+    changeSummary: buildPersonalChangeSummary(receipts),
     mostCommonScenario: mostCommon(scenarios),
     mostCommonFeeling:  mostCommon(feelings),
     highestRiskCategory: mostCommon(scenarios.filter(function(_,i){ return risks[i] && risks[i].toLowerCase().indexOf("high")!==-1; })) || "None yet"
