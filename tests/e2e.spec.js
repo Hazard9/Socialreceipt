@@ -5,6 +5,7 @@ const path = require("path");
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
+  await page.reload();
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
@@ -46,6 +47,7 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await skipToApp(page);
   await createReceipt(page);
   await expect(page.locator("#receiptOutput")).toContainText(/Quick Verdict|Silence Detected/);
+  await expect(page.locator("#receiptOutput")).toContainText("Your decision");
   // Free users hit the gate with an honest explanation of what Pro adds, not a fake result
   await expect(page.locator("#receiptOutput")).toContainText("Continue on Free");
 });
