@@ -507,6 +507,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .upload-zone-sub{font-size:12px;color:var(--muted-2);font-weight:300;}
 #uploadPreviewImg{width:100%;border-radius:var(--radius-md);border:1px solid var(--border);margin-bottom:11px;display:none;max-height:200px;object-fit:cover;}
 .ocr-note{font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;padding:8px 11px;background:var(--gold-glow-2);border:1px solid var(--border-warm);border-radius:var(--radius-sm);}
+.input-with-voice{position:relative;}.input-with-voice textarea{padding-bottom:52px;}.voice-input-btn{position:absolute;right:9px;bottom:9px;padding:8px 11px;border:1px solid var(--border-warm);border-radius:999px;background:var(--gold-glow-2);color:var(--gold-2);font-size:11px;cursor:pointer;}.voice-input-btn.listening{background:rgba(201,64,64,.14);border-color:rgba(201,64,64,.4);color:#e07070;}.voice-status{min-height:18px;margin:5px 2px 0;color:var(--muted-2);font-family:var(--font-mono);font-size:10px;letter-spacing:.03em;}
 
 /* Score bars for insights */
 .score-bar-row{margin-bottom:10px;}
@@ -1216,19 +1217,19 @@ function renderFormArea() {
 function afterFormHtml() {
   return '<div class="form-card card"><div class="step-label"><div class="step-count">1</div><h2>What was this?</h2></div><div class="pill-grid" id="scenarioPills"></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">2</div><h2>How did it happen?</h2></div><div class="pill-grid" id="formatPills"></div></div>' +
-    '<div class="form-card card"><div class="step-label"><div class="step-count">3</div><h2>What happened?</h2></div><textarea id="interactionText" placeholder="Paste the exchange, describe the moment, or summarize. The more specific, the sharper the read." oninput="onTextInput(this)"></textarea><div class="micro-feedback" id="microFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="microFeedbackText"></span></div></div>' +
+    '<div class="form-card card"><div class="step-label"><div class="step-count">3</div><h2>What happened?</h2></div><div class="input-with-voice"><textarea id="interactionText" placeholder="Paste the exchange, describe the moment, or summarize. The more specific, the sharper the read." oninput="onTextInput(this)"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;interactionText&quot;,&quot;voiceStatus&quot;)" aria-label="Talk to text for your interaction">&#127908; Talk to text</button></div><div class="voice-status" id="voiceStatus" aria-live="polite"></div><div class="micro-feedback" id="microFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="microFeedbackText"></span></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">4</div><h2>How do you feel?</h2></div><div class="pill-grid" id="feelingPills"></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">5</div><h2>What do you want?</h2></div><div class="pill-grid" id="outcomePills"></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="generateReceipt()">Generate Receipt</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
 function presendFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
 function coldReadFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">&#128065;</div><h2>Paste the conversation</h2></div><textarea id="coldText" placeholder="Paste the full exchange here. Include both sides. Label each person as \'Me:\' and \'Them:\' if possible." rows="8"></textarea></div>' +
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">&#128065;</div><h2>Paste the conversation</h2></div><div class="input-with-voice"><textarea id="coldText" placeholder="Paste the full exchange here. Include both sides. Label each person as 'Me:' and 'Them:' if possible." rows="8"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;coldText&quot;,&quot;coldVoiceStatus&quot;)" aria-label="Talk to text for the conversation">&#127908; Talk to text</button></div><div class="voice-status" id="coldVoiceStatus" aria-live="polite"></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="runColdRead()">Read the Dynamic</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
@@ -1279,6 +1280,27 @@ function runLiveJudgment(val, fbId, ftId) {
 function onPresendInput(el) {
   clearTimeout(_liveTimer);
   _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "presendFeedback", "presendFeedbackText"); }, 160);
+}
+/* TALK TO TEXT: browser-native speech recognition only. Audio and transcripts stay in the browser. */
+var _voiceRecognition = null;
+function startVoiceInput(targetId, statusId) {
+  var Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var target = document.getElementById(targetId);
+  var status = document.getElementById(statusId);
+  if (!target || !status) return;
+  if (!Speech) { status.textContent = "Talk to text is not supported in this browser. You can still paste or type."; toast("Talk to text is unavailable in this browser."); return; }
+  if (_voiceRecognition) { try { _voiceRecognition.stop(); } catch (_) {} _voiceRecognition = null; }
+  var recognition = new Speech();
+  _voiceRecognition = recognition;
+  recognition.lang = navigator.language || "en-US";
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  var starting = target.value ? target.value.trim() + " " : "";
+  recognition.onstart = function(){ status.textContent = "Listening… speak now."; var btn = target.parentNode.querySelector(".voice-input-btn"); if (btn) btn.classList.add("listening"); trackEvent("voice_input_started", {feature:"talk_to_text"}); };
+  recognition.onresult = function(event){ var transcript = ""; for (var i=event.resultIndex;i<event.results.length;i++) transcript += event.results[i][0].transcript; target.value = starting + transcript.trim(); target.dispatchEvent(new Event("input", {bubbles:true})); status.textContent = event.results[event.results.length-1].isFinal ? "Voice added. Review it before analyzing." : "Listening…"; };
+  recognition.onerror = function(event){ status.textContent = event.error === "not-allowed" ? "Microphone permission was not granted. You can still type or paste." : "Voice input stopped. Review what was added."; trackEvent("voice_input_failed", {feature:"talk_to_text", reason:event.error || "unknown"}); };
+  recognition.onend = function(){ var btn = target.parentNode.querySelector(".voice-input-btn"); if (btn) btn.classList.remove("listening"); if (status.textContent === "Listening…") status.textContent = "Voice input stopped. Review what was added."; _voiceRecognition = null; trackEvent("voice_input_completed", {feature:"talk_to_text"}); };
+  try { recognition.start(); } catch (_) { status.textContent = "Voice input could not start. You can still type or paste."; _voiceRecognition = null; }
 }
 
 /* ── NAVIGATION ── */
@@ -2596,7 +2618,21 @@ function renderHomePattern() {
   el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your pattern so far · "+escapeHtml(profile.patternConfidence)+"</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+escapeHtml(profile.dominantPattern)+"</h3><p style='margin:0 0 9px;color:var(--muted);font-size:12px;line-height:1.5'>"+escapeHtml(profile.weeklyInsight)+"</p><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px'><div class='metric-card'><span>Strongest move</span><strong style='font-size:13px'>"+escapeHtml(profile.strength)+"</strong></div><div class='metric-card'><span>Watch for</span><strong style='font-size:13px'>"+escapeHtml(profile.defaultMistake)+"</strong></div></div><p style='margin:0 0 10px;color:var(--muted-2);font-size:11px;line-height:1.4'>"+escapeHtml(profile.evidenceNote)+"</p><button class='ghost-btn' data-sr-event='pattern_profile_opened' data-feature='pattern_profile' onclick='showScreen(&quot;insightsScreen&quot;)'>Open full pattern profile</button>";
 }
 
+function ensureEmailCaptureCard() {
+  var home = document.getElementById("homeScreen");
+  if (!home || document.getElementById("homeEmailCaptureCard")) return;
+  var recent = document.getElementById("recentReceipts");
+  var card = document.createElement("div");
+  card.id = "homeEmailCaptureCard";
+  card.className = "detail-card";
+  card.style.cssText = "margin:0 0 12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.02))";
+  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Keep your progress</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Save your receipts and get your next read.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Add your email to keep your profile linked on this device and receive Social Receipt updates. Your message text stays private.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Add my email</button>";
+  if (recent) recent.parentNode.insertBefore(card, recent);
+  else home.appendChild(card);
+}
+
 function renderHome() {
+  ensureEmailCaptureCard();
   var receipts=getReceipts();
   var today=new Date().toDateString();
   var todayR=receipts.filter(function(r){return new Date(r.createdAt).toDateString()===today;});
