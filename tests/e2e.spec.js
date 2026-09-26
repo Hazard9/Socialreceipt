@@ -45,6 +45,22 @@ async function createReceipt(page, text) {
   await page.waitForSelector("#receiptOutput.active", { timeout: 5000 });
 }
 
+test("2b. returning users see a personal pattern after three reads", async ({ page }) => {
+  await page.evaluate(() => {
+    const now = new Date().toISOString();
+    localStorage.setItem("sr_seen_landing", "1");
+    localStorage.setItem("socialReceipts", JSON.stringify([
+      {id:"a",createdAt:now,feeling:"Anxious",scenario:"Text / DM",energy:"You chasing",risk:"High",verdict:"Hold",bestMove:"Wait",outcome:"Not tracked yet"},
+      {id:"b",createdAt:now,feeling:"Calm",scenario:"Text / DM",energy:"You over-explaining",risk:"Medium",verdict:"Read",bestMove:"Wait",outcome:"Better than expected"},
+      {id:"c",createdAt:now,feeling:"Calm",scenario:"Work",energy:"Balanced",risk:"Low",verdict:"Clear",bestMove:"Send",outcome:"Resolved"}
+    ]));
+  });
+  await page.reload();
+  await expect(page.locator("#homePatternCard")).toBeVisible();
+  await expect(page.locator("#homePatternCard")).toContainText("Your pattern so far");
+  await expect(page.locator("#homePatternCard")).toContainText("Open full pattern profile");
+});
+
 test("3. creating a normal receipt shows a verdict and a Pro upsell for free users", async ({ page }) => {
   await skipToApp(page);
   await createReceipt(page);
