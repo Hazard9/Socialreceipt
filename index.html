@@ -1121,6 +1121,11 @@ function renderPaywallOwnershipProof() {
   el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px'>Your record so far</div><p style='margin:0 0 9px;color:var(--text);font-size:13px;line-height:1.45'>You have already started building something personal.</p><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:6px'><div class='metric-card'><span>Reads</span><strong style='font-size:14px'>"+receipts.length+"</strong></div><div class='metric-card'><span>Tracked</span><strong style='font-size:14px'>"+tracked+"</strong></div><div class='metric-card'><span>Held</span><strong style='font-size:14px'>"+holds+"</strong></div></div><p style='margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.4'>Lifetime keeps this history, your patterns, and future beta capabilities together. "+(positive ? positive+" positive or resolved outcome"+(positive === 1 ? "" : "s")+" already logged." : "Track outcomes to see the record become more useful.")+"</p>";
 }
 
+/*
+  Privacy boundary: receipt text, pattern state, outcomes, risk history,
+  referral credits, and personal progress stay on-device. Funnel analytics
+  may record event names and approved acquisition fields only.
+*/
 function openPaywall(spikeMsg) {
   var spike = document.getElementById("paywallSpike");
   if (spikeMsg && spike) { spike.textContent = spikeMsg; spike.style.display = "block"; }
@@ -1129,6 +1134,7 @@ function openPaywall(spikeMsg) {
   document.getElementById("paywallOverlay").classList.remove("hidden");
   haptic([10,20]);
   trackEvent("paywall_viewed");
+  trackEvent("ownership_proof_viewed");
 }
 function dismissPaywall() { document.getElementById("paywallOverlay").classList.add("hidden"); }
 /*
