@@ -235,6 +235,13 @@ test("15. clearing localStorage returns the user to the landing screen", async (
   await expect(page.locator("#landingScreen")).toBeVisible();
 });
 
+test("15b. insights shows content experiment tracking context", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('.nav-btn[data-screen="insightsScreen"]');
+  await expect(page.locator("#insightDashboard")).toContainText("Content Experiment Tracking");
+  await expect(page.locator("#insightDashboard")).toContainText("Tracked funnel events");
+});
+
 test("16. no horizontal overflow at 360, 390, and 412px", async ({ page, browser }) => {
   for (const width of [360, 390, 412]) {
     const context = await browser.newContext({ viewport: { width, height: 800 } });
