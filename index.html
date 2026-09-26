@@ -1084,7 +1084,8 @@ function getFreeUsed() {
   var now = new Date(); var mo = now.getFullYear()+"-"+now.getMonth();
   return getReceipts().filter(function(r){var d=new Date(r.createdAt);return (d.getFullYear()+"-"+d.getMonth())===mo;}).length;
 }
-function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT; }
+function getReferralCredits() { return parseInt(localStorage.getItem("sr_referral_credits") || "0", 10); }
+function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT + getReferralCredits(); }
 
 /* ── LANDING ── */
 function startFree() {
@@ -1445,15 +1446,21 @@ function recordReferralActivation(receipt) {
   try {
     var params = new URLSearchParams(window.location.search);
     var referral = params.get("sr_ref");
-    if (!referral || localStorage.getItem("sr_referral_activation_recorded") === "1") return false;
+    if (!referral || localStorage.getItem("sr_referral_activation_recorded") === "1") return;
     localStorage.setItem("sr_referral_activation_recorded", "1");
-    trackEvent("referral_activation_candidate", {
-      referral_code: referral,
-      activation: "first_receipt",
-      scenario: receipt.scenario
-    });
-    return true;
-  } catch (e) { return false; }
+    trackEvent("referral_activation_candidate", { referral_code: referral, activation: "first_receipt", scenario: receipt.scenario });
+    fetch("/.netlify/functions/referral-activate", {
+      method: "POST",
+      credentials: "include",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ referral_code: referral, recipient_id: getAnonId() })
+    }).then(function(response){ return response.json(); }).then(function(data){
+      if (data && data.ok) {
+        trackEvent("referral_activation_recorded", { activation: "first_receipt", awarded: !!data.awarded });
+        toast("Invite recorded. The referrer can earn a bonus read after verification.");
+      }
+    }).catch(function(){});
+  } catch (e) {}
 }
 
 function generateReceipt() {
@@ -1477,7 +1484,7 @@ function generateReceipt() {
     renderReceiptOutput(receipt, false);
     haptic([15,30,60]);
     trackEvent("receipt_created", { scenario: receipt.scenario, mode: receipt.mode, pro: isPro() });
-    if (recordReferralActivation(receipt)) toast("Invite recorded. Referral credit is verified after this first read.");
+    recordReferralActivation(receipt);
   }, 1300);
 }
 
@@ -2191,10 +2198,21 @@ function sharePayload() {
     url: url
   };
 }
+function registerReferralCode() {
+  try {
+    return fetch("/.netlify/functions/referral-register", {
+      method: "POST",
+      credentials: "include",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ referral_code: getReferralCode() })
+    }).then(function(response){ return response.json(); }).catch(function(){ return null; });
+  } catch (e) { return Promise.resolve(null); }
+}
 async function shareReceipt() {
   var payload = sharePayload();
   if (!payload) return;
-  trackEvent("referral_share_started", { share_surface: "result" });
+  registerReferralCode();
+    trackEvent("referral_share_started", { share_surface: "result" });
   if (navigator.share) {
     try {
       await navigator.share(payload);
@@ -3431,6 +3449,19 @@ async function restoreDeveloperAccessFromPrompt() {
   }
 }
 
+async function claimReferralCredit() {
+  try {
+    var response = await fetch("/.netlify/functions/referral-claim", { method: "POST", credentials: "include" });
+    var data = await response.json();
+    if (data && data.ok && data.credit) {
+      var credits = getReferralCredits() + 1;
+      localStorage.setItem("sr_referral_credits", String(credits));
+      trackEvent("referral_credit_claimed", { credit_type: "free_read" });
+      setTimeout(function(){ toast("You earned one extra free read from a verified referral."); }, 500);
+    }
+  } catch (e) {}
+}
+
 function init() {
   try {
     var restoreParams = new URLSearchParams(window.location.search);
@@ -3442,6 +3473,7 @@ function init() {
   } catch (e) {}
   /* ANONYMOUS USER SYSTEM: create anon ID on first visit */
   getAnonId();
+  claimReferralCredit();
   /* PWA */
   initPWA();
   checkIOSInstall();
