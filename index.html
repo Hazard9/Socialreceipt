@@ -1662,6 +1662,29 @@ function contentReportingHtml() {
   return "<div class='receipt-divider' style='margin-top:16px'><span>Content Experiment Tracking</span></div><div class='detail-card' style='margin-bottom:12px'><h3>What this visit can be connected to</h3><p style='margin-bottom:12px'>Use the same tagged link for each video. GA4 can then compare these fields against receipts, repeat use, email capture, and purchases.</p><div class='insight-grid'>"+rows+"</div><p style='margin:12px 0 0;color:var(--muted-2);font-size:11px;line-height:1.5'>Tracked funnel events: "+events.join(" · ")+"</p></div>";
 }
 
+function threeWayComparisonHtml(receipt) {
+  var original = receipt.rawText || "";
+  var suggested = receipt.message || receipt.next || "";
+  return "<div class='three-way-card detail-card' style='border-color:var(--border-warm);margin-top:0'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Message version test</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>See the difference before you send</h3><p style='margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.5'>Compare your original, your own rewrite, and the Social Receipt version. Keep the one that holds your position.</p><div style='display:grid;gap:8px'><div class='metric-card'><span>Original draft</span><strong style='font-size:12px;font-weight:400;color:var(--muted)'>"+escapeHtml(original)+"</strong></div><label class='metric-card' style='display:block'><span>Your rewrite</span><textarea id='userRewriteInput' rows='3' placeholder='Try your own calmer version...'></textarea></label><div id='userRewritePreview' class='metric-card' style='display:none'><span>Your rewrite read</span><strong id='userRewritePreviewText' style='font-size:12px;font-weight:400'></strong></div><div class='metric-card' style='border-color:rgba(61,184,112,.28)'><span style='color:var(--green)'>Social Receipt version</span><strong style='font-size:12px;font-weight:400;color:var(--text)'>"+escapeHtml(suggested)+"</strong></div></div><button class='secondary-btn' style='margin-top:10px' data-sr-event='message_version_tested' data-feature='rewrite_comparison' onclick='updateUserRewriteComparison()'>Compare my rewrite</button></div>";
+}
+
+function updateUserRewriteComparison() {
+  var input = document.getElementById("userRewriteInput");
+  var preview = document.getElementById("userRewritePreview");
+  var text = document.getElementById("userRewritePreviewText");
+  if (!input || !preview || !text) return;
+  var value = input.value.trim();
+  if (!value) {
+    toast("Add your rewrite first.");
+    return;
+  }
+  text.textContent = value;
+  preview.style.display = "block";
+  trackEvent("message_version_tested", { feature: "rewrite_comparison" });
+  haptic([8,20]);
+  toast("Three versions ready to compare.");
+}
+
 function renderReceiptOutput(receipt, savedView) {
   var pro      = isPro();
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
@@ -1693,6 +1716,8 @@ function renderReceiptOutput(receipt, savedView) {
   html += rs(positionMeterHtml(receipt));
 
   html += rs(decisionBridgeHtml(receipt, pro));
+
+  html += rs(threeWayComparisonHtml(receipt));
 
   html += rs(trustNoteHtml());
 
