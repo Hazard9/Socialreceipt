@@ -1612,7 +1612,7 @@ function renderReceiptOutput(receipt, savedView) {
   html += rs(positionMeterHtml(receipt));
 
   /* DECISION SUMMARY — translate the analysis into one usable decision */
-  html += rs("<div class=\\"detail-card\\" style=\\"border-color:var(--border-warm);background:rgba(201,168,76,0.055)\\"><div style=\\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\\">Your decision</div><h3 style=\\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\\">"+receipt.bestMove+"</h3><p style=\\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\\">"+receipt.timing+". Social Receipt reads patterns in the message, not the other person\\'s mind.</p></div>");
+  html += rs("<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:rgba(201,168,76,0.055)\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Your decision</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">"+receipt.bestMove+"</h3><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\">"+receipt.timing+". Social Receipt reads patterns in the message, not the other person's mind.</p></div>");
 
   /* HARD INTERRUPT — behavior control system */
   if (!savedView) {
