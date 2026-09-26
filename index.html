@@ -2415,6 +2415,15 @@ function renderInsights() {
       html += "<div style=\"display:grid;gap:8px\"><div class=\"metric-card\"><span>Possible blind spot</span><strong style=\"font-size:13px;font-weight:400;line-height:1.4\">" + escapeHtml(profile.blindSpot) + "</strong></div><div class=\"metric-card\"><span>Next practice</span><strong style=\"font-size:13px;font-weight:400;line-height:1.4;color:var(--green)\">" + escapeHtml(profile.nextPractice) + "</strong></div></div>";
       html += "<p style=\"margin:12px 0 0;color:var(--muted-2);font-size:11px;line-height:1.4\">A reflection from your recorded patterns, not a diagnosis or a fixed identity.</p></div>";
 
+      if (profile.scenarioInsights && profile.scenarioInsights.length) {
+        html += "<div class=\"receipt-divider\"><span>Patterns by situation</span></div>";
+        html += "<div style=\"display:grid;gap:9px;margin-bottom:12px\">";
+        profile.scenarioInsights.forEach(function(item) {
+          html += "<div class=\"detail-card\" style=\"border-color:var(--border)\"><div style=\"display:flex;justify-content:space-between;gap:8px;align-items:baseline\"><h3 style=\"margin:0;font-family:var(--font-serif);font-size:17px;font-weight:400\">"+escapeHtml(item.scenario)+"</h3><span style=\"font:10px var(--font-mono);color:var(--muted-2)\">"+item.count+" reads</span></div><p style=\"margin:7px 0;color:var(--text);font-size:12px;line-height:1.45\">"+escapeHtml(item.pattern)+"</p><p style=\"margin:0;color:var(--green);font-size:11px;line-height:1.4\">Next practice: "+escapeHtml(item.practice)+"</p></div>";
+        });
+        html += "</div>";
+      }
+
       /* Score bars */
       html += "<div class=\"receipt-divider\"><span>Communication Scores</span></div>";
       html += "<div class=\"detail-card\" style=\"margin-bottom:12px\">";
@@ -2801,6 +2810,40 @@ function enrichReceiptMetadata(receipt) {
    BEHAVIORAL PROFILE ENGINE
    PROFILE ENGINE — compute from receipt history
 ════════════════════════════════════════════ */
+function buildScenarioPatternInsights(receipts) {
+  var groups = {};
+  receipts.forEach(function(r) {
+    var scenario = r.scenario || "Other";
+    if (!groups[scenario]) groups[scenario] = [];
+    groups[scenario].push(r);
+  });
+  return Object.keys(groups).map(function(scenario) {
+    var items = groups[scenario];
+    if (items.length < 2) return null;
+    var chasing = items.filter(function(r){ return (r.energy || "").indexOf("chasing") !== -1; }).length;
+    var overExplaining = items.filter(function(r){ return (r.energy || "").indexOf("over-explaining") !== -1; }).length;
+    var anxious = items.filter(function(r){ return r.feeling === "Anxious"; }).length;
+    var waits = items.filter(function(r){ return r.bestMove === "Wait"; }).length;
+    var positive = items.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; }).length;
+    var pattern = "Your signal is still forming here.";
+    var practice = "Keep logging outcomes in this situation.";
+    if (chasing / items.length >= 0.5) {
+      pattern = "You tend to carry more energy than the other person here.";
+      practice = "Make one clear move, then leave room for their investment.";
+    } else if (overExplaining / items.length >= 0.5) {
+      pattern = "Uncertainty makes you add more explanation here.";
+      practice = "Reduce the message to the sentence that actually needs to land.";
+    } else if (anxious / items.length >= 0.5) {
+      pattern = "This situation often activates urgency for you.";
+      practice = "Separate the feeling of urgency from the need to act.";
+    } else if (waits >= 2 && positive >= 1) {
+      pattern = "Waiting has produced some of your strongest evidence here.";
+      practice = "Protect the pause before deciding the next move.";
+    }
+    return {scenario:scenario,count:items.length,pattern:pattern,practice:practice,positive:positive,waits:waits};
+  }).filter(function(item){ return item !== null; }).sort(function(a,b){ return b.count - a.count; }).slice(0, 4);
+}
+
 function buildBehavioralProfile(receipts) {
   if (!receipts.length) return null;
 
@@ -2891,6 +2934,7 @@ function buildBehavioralProfile(receipts) {
     selfControlScore, patternScore, leverageScore,
     patternConfidence, evidenceNote, learnedAboutSelf, blindSpot, nextPractice,
     powerMove, weeklyInsight,
+    scenarioInsights: buildScenarioPatternInsights(receipts),
     mostCommonScenario: mostCommon(scenarios),
     mostCommonFeeling:  mostCommon(feelings),
     highestRiskCategory: mostCommon(scenarios.filter(function(_,i){ return risks[i] && risks[i].toLowerCase().indexOf("high")!==-1; })) || "None yet"
