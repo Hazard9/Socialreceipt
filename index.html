@@ -828,6 +828,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <div id="homePatternCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)"></div>
     <div id="homeReflectionCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:linear-gradient(145deg,rgba(61,184,112,.06),rgba(255,245,220,.015))"></div>
     <div id="homeOwnershipCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.08),rgba(255,245,220,.015))"></div>
+    <div id="homeEvidenceCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:linear-gradient(145deg,rgba(61,184,112,.05),rgba(255,245,220,.015))"></div>
     <!-- STREAK — soft addiction loop -->
     <div class="streak-card" id="homeProgressCard" style="display:flex;margin-top:8px">
       <div class="streak-icon">&#9733;</div>
@@ -2455,6 +2456,26 @@ function renderProgress() {
   el.textContent = parts.join(" · ");
 }
 
+function renderHomeEvidence() {
+  var el = document.getElementById("homeEvidenceCard");
+  if (!el) return;
+  var receipts = getReceipts();
+  var tracked = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; });
+  if (tracked.length < 2) { el.style.display = "none"; return; }
+  var positive = tracked.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; }).length;
+  var held = receipts.filter(function(r){ return r.bestMove === "Wait"; }).length;
+  var positivePct = Math.round((positive / tracked.length) * 100);
+  var pro = isProUser();
+  el.style.display = "block";
+  var insight = positivePct >= 60
+    ? "Your calmer decisions are producing evidence."
+    : "You are building evidence. The pattern gets clearer with another tracked outcome.";
+  var detail = pro
+    ? "You have tracked "+tracked.length+" outcomes. "+positive+" were better than expected or resolved, and "+held+" decisions called for waiting. Keep logging what happened so the pattern can guide the next move."
+    : "You have tracked "+tracked.length+" outcomes, with "+positive+" better than expected or resolved. Free shows the signal. Pro keeps the complete history and pattern context available as it grows.";
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px'>Evidence from your decisions</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+insight+"</h3><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 10px'><div class='metric-card'><span>Tracked</span><strong style='font-size:15px'>"+tracked.length+"</strong></div><div class='metric-card'><span>Positive</span><strong style='font-size:15px;color:var(--green)'>"+positivePct+"%</strong></div><div class='metric-card'><span>Wait calls</span><strong style='font-size:15px'>"+held+"</strong></div></div><p style='margin:0;color:var(--muted);font-size:12px;line-height:1.5'>"+detail+"</p>";
+}
+
 function renderHomeOwnership() {
   var el = document.getElementById("homeOwnershipCard");
   if (!el) return;
@@ -2529,6 +2550,7 @@ function renderHome() {
   renderHomePattern();
   renderHomeReflection();
   renderHomeOwnership();
+  renderHomeEvidence();
 }
 function renderAll() { renderHome(); renderReceiptList("historyList",null); renderInsights(); }
 
