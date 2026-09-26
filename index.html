@@ -1581,6 +1581,26 @@ function renderColdReadOutput(raw) {
 }
 
 /* ── RENDER RECEIPT (after mode) ── */
+function decisionBridgeHtml(receipt, pro) {
+  var original = receipt.rawText || receipt.message || "";
+  var suggested = receipt.message || receipt.next || "";
+  var html = "<div class='decision-bridge detail-card' style='border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))'>";
+  html += "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px'>The move from here</div>";
+  html += "<h3 style='margin:0 0 6px;font-family:var(--font-serif);font-size:20px;font-weight:400'>"+receipt.bestMove+" is the move.</h3>";
+  html += "<p style='margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.5'>"+receipt.timing+". Read the signal, compare the message, then choose deliberately.</p>";
+  html += "<div class='decision-compare' style='display:grid;gap:8px;margin:12px 0'>";
+  html += "<div style='padding:10px;border:1px solid var(--border);border-radius:10px'><span style='display:block;color:var(--muted-2);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Your draft</span><span style='font-size:12px;color:var(--muted)'>"+original+"</span></div>";
+  html += "<div style='padding:10px;border:1px solid rgba(61,184,112,.28);border-radius:10px'><span style='display:block;color:var(--green);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Cleaner move</span><span style='font-size:12px;color:var(--text)'>"+suggested+"</span></div>";
+  html += "</div>";
+  html += "<div style='display:flex;gap:8px;flex-wrap:wrap'>";
+  html += "<button class='secondary-btn' data-sr-event='message_comparison_viewed' onclick='trackEvent(&quot;message_comparison_viewed&quot;)'>Compare the two</button>";
+  html += "<button class='ghost-btn' data-sr-event='repeat_check_started' onclick='openCreate()'>Test the next message</button>";
+  html += "</div>";
+  if (!pro) html += "<p style='margin:12px 0 0;color:var(--gold);font:11px var(--font-mono);line-height:1.5'>Pro keeps the rewrite, timing window, pattern profile, and outcome loop available every time.</p>";
+  html += "</div>";
+  return html;
+}
+
 function renderReceiptOutput(receipt, savedView) {
   var pro      = isPro();
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
@@ -1610,6 +1630,8 @@ function renderReceiptOutput(receipt, savedView) {
 
   /* POSITION METER — visual anchor */
   html += rs(positionMeterHtml(receipt));
+
+  html += rs(decisionBridgeHtml(receipt, pro));
 
   /* DECISION SUMMARY — translate the analysis into one usable decision */
   html += rs("<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:rgba(201,168,76,0.055)\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Your decision</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">"+receipt.bestMove+"</h3><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\">"+receipt.timing+". Social Receipt reads patterns in the message, not the other person's mind.</p></div>");
@@ -1674,7 +1696,7 @@ function renderReceiptOutput(receipt, savedView) {
 
   /* BETA CONVERSION — shown after the user experiences a result */
   if (!savedView && !pro) {
-    html += rs("<div class=\"detail-card\" style=\"text-align:center;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px\">Lifetime Beta</div><p style=\"font-family:var(--font-serif);font-size:18px;color:var(--text);margin:0 0 7px\">Keep the decision layer for $39 once.</p><p style=\"font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px\">Unlimited access and all features released before public launch. Beta pricing ends when public pricing begins.</p><button class=\"secondary-btn\" data-sr-event=\"lifetime_offer_viewed\" data-feature=\"lifetime_beta\" onclick=\"openPaywall()\">Lock in Lifetime Beta</button></div>");
+    html += rs("<div class=\"detail-card\" style=\"text-align:center;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px\">Lifetime Beta</div><p style=\"font-family:var(--font-serif);font-size:18px;color:var(--text);margin:0 0 7px\">Keep the decision layer for $39 once.</p><p style=\"font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px\">Unlimited access, every Pro capability, and all features released before public launch. The $39 beta price disappears when public pricing begins.</p><button class=\"secondary-btn\" data-sr-event=\"lifetime_offer_viewed\" data-feature=\"lifetime_beta\" onclick=\"openPaywall()\">Lock in Lifetime Beta</button></div>");
   }
 
   /* NEXT MESSAGE LOOP — forced, not optional */
