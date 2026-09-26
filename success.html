@@ -353,6 +353,10 @@
     <p class="subtitle" id="subtitleText">This takes a moment. Do not close this tab.</p>
 
     <div class="plan-badge hidden" id="planBadge">Pro Plan</div>
+    <div class="ownership-note hidden" id="ownershipNote">
+      <strong>Your decision layer is now yours.</strong>
+      <span>Open the app to keep your pattern history, comparison tools, and future ownership features together in one place.</span>
+    </div>
 
     <hr class="divider">
 
@@ -392,6 +396,8 @@
       const badge = document.getElementById('planBadge');
       badge.textContent = capitalize(plan || 'pro') + ' Plan';
       badge.classList.remove('hidden');
+      const ownershipNote = document.getElementById('ownershipNote');
+      if (ownershipNote) ownershipNote.classList.remove('hidden');
     }
 
     function showFailed(reason) {
