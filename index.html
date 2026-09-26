@@ -804,6 +804,13 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       </div>
       <div class="panic-btn-icon">&#9888;</div>
     </button>
+    <div class="section-title" style="margin-top:14px"><h2>Choose the moment</h2><span>Fast path</span></div>
+    <div class="quick-grid">
+      <button class="option-card" onclick="startEmergencyMode('send')"><div class="option-icon">&#8593;</div><strong>About to send</strong><small>Check the draft before it leaves.</small></button>
+      <button class="option-card" onclick="startEmergencyMode('received')"><div class="option-icon">&#8595;</div><strong>Received something</strong><small>Read the signal before reacting.</small></button>
+      <button class="option-card" onclick="startEmergencyMode('followup')"><div class="option-icon">&#8635;</div><strong>Need to follow up</strong><small>Know whether to send or wait.</small></button>
+      <button class="option-card" onclick="startEmergencyMode('overexplain')"><div class="option-icon">&#8801;</div><strong>Over-explaining</strong><small>Cut the message without losing meaning.</small></button>
+    </div>
     <!-- DAILY RITUAL — action-first return state -->
     <div class="detail-card" id="dailyRitualCard" style="margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.07),rgba(255,245,220,.015))">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Before you send</div>
@@ -1254,6 +1261,25 @@ function openCreate() {
   showScreen("createScreen");
   setCreateMode("after");
 }
+function startEmergencyMode(mode) {
+  var config = {
+    send: { mode: "before", text: "Paste the message you are about to send." },
+    received: { mode: "after", text: "Paste what they sent you and let Social Receipt read the signal." },
+    followup: { mode: "after", text: "Paste the last exchange before you follow up." },
+    overexplain: { mode: "before", text: "Paste the message you are worried is too much." }
+  }[mode] || { mode: "before", text: "Paste the message you are considering." };
+  trackEvent("emergency_mode_started", { mode: mode });
+  showScreen("createScreen");
+  setCreateMode(config.mode);
+  var ta = document.getElementById("interactionText");
+  if (ta) {
+    ta.placeholder = config.text;
+    ta.focus();
+  }
+  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
+  haptic([8,20]);
+}
+
 function openPresend() {
   showScreen("createScreen");
   setCreateMode("before");
