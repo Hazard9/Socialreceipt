@@ -2471,20 +2471,24 @@ function renderHomeEvidence() {
   if (tracked.length < 2) { el.style.display = "none"; return; }
   var positive = tracked.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; }).length;
   var held = receipts.filter(function(r){ return r.bestMove === "Wait"; }).length;
+  var riskHeld = receipts.filter(function(r){ return r.bestMove === "Wait" && r.risk && r.risk.toLowerCase().indexOf("high") !== -1; }).length;
   var positivePct = Math.round((positive / tracked.length) * 100);
   var pro = isProUser();
   el.style.display = "block";
   var insight = positivePct >= 60
     ? "Your calmer decisions are producing evidence."
     : "You are building evidence. The pattern gets clearer with another tracked outcome.";
+  var protectionLine = riskHeld
+    ? "Your record includes "+riskHeld+" high-risk read"+(riskHeld === 1 ? "" : "s")+" where the recommended move was to pause. That is evidence of restraint, not a promise about what would have happened."
+    : "Keep tracking the moments where you pause. That is how the record becomes personal instead of generic.";
   var detail = pro
-    ? "You have tracked "+tracked.length+" outcomes. "+positive+" were better than expected or resolved, and "+held+" decisions called for waiting. Keep logging what happened so the pattern can guide the next move."
-    : "You have tracked "+tracked.length+" outcomes, with "+positive+" better than expected or resolved. Free shows the signal. Pro keeps the complete history and pattern context available as it grows.";
+    ? "You have tracked "+tracked.length+" outcomes. "+positive+" were better than expected or resolved, and "+held+" decisions called for waiting. "+protectionLine
+    : "You have tracked "+tracked.length+" outcomes, with "+positive+" better than expected or resolved. "+protectionLine+" Free shows the signal. Pro keeps the complete history and pattern context available as it grows.";
   var pending = receipts.filter(function(r){ return !r.outcome || r.outcome === "Not tracked yet"; }).length;
   var nextAction = pending
     ? "<button class='ghost-btn' data-sr-event='return_outcome_loop_started' data-feature='outcome_tracking' onclick='showScreen(&quot;historyScreen&quot;)'>Close the loop on "+pending+" "+(pending === 1 ? "open read":"open reads")+"</button>"
     : "<button class='ghost-btn' data-sr-event='return_check_started' data-feature='repeat_check' onclick='openCreate()'>Run your next check</button>";
-  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px'>Evidence from your decisions</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+insight+"</h3><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 10px'><div class='metric-card'><span>Tracked</span><strong style='font-size:15px'>"+tracked.length+"</strong></div><div class='metric-card'><span>Positive</span><strong style='font-size:15px;color:var(--green)'>"+positivePct+"%</strong></div><div class='metric-card'><span>Wait calls</span><strong style='font-size:15px'>"+held+"</strong></div></div><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+detail+"</p>"+nextAction;
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px'>Evidence from your decisions</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+insight+"</h3><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 10px'><div class='metric-card'><span>Tracked</span><strong style='font-size:15px'>"+tracked.length+"</strong></div><div class='metric-card'><span>Positive</span><strong style='font-size:15px;color:var(--green)'>"+positivePct+"%</strong></div><div class='metric-card'><span>Risk holds</span><strong style='font-size:15px'>"+riskHeld+"</strong></div></div><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+detail+"</p>"+nextAction;
 }
 
 function renderHomeOwnership() {
