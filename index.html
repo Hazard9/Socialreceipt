@@ -1742,8 +1742,8 @@ function updateUserRewriteComparison() {
   var suggested = (state.currentReceipt && state.currentReceipt.suggested) || "";
   function comparisonMetrics(message) {
     var words = message.trim() ? message.trim().split(/\s+/).length : 0;
-    var pressure = (message.match(/\\b(please|just|really|need|why|???|asap|now)\\b/gi) || []).length;
-    var questions = (message.match(/\\?/g) || []).length;
+    var pressure = (message.match(/\b(please|just|really|need|why|asap|now)\b/gi) || []).length;
+    var questions = (message.match(/\?/g) || []).length;
     return { words: words, pressure: pressure, questions: questions };
   }
   var before = comparisonMetrics(original);
