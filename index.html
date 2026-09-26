@@ -2402,6 +2402,7 @@ function renderInsights() {
     if (profile) {
       html += "<div class=\"receipt-divider\" style=\"margin-top:4px\"><span>Behavioral Profile</span></div>";
       html += "<div class=\"insight-grid\" style=\"margin-bottom:12px\">";
+      html += "<div class=\"metric-card\"><span>Pattern signal</span><strong style=\"font-size:14px\">"+profile.patternConfidence+"</strong></div>";
       html += "<div class=\"metric-card\"><span>Dominant Pattern</span><strong style=\"font-size:16px\">"+profile.dominantPattern+"</strong></div>";
       html += "<div class=\"metric-card\"><span>Risk Trigger</span><strong style=\"font-size:16px\">"+profile.riskTrigger+"</strong></div>";
       html += "<div class=\"metric-card\"><span>Communication Strength</span><strong style=\"font-size:14px\">"+profile.strength+"</strong></div>";
@@ -2549,7 +2550,7 @@ function renderHomePattern() {
   var profile = buildBehavioralProfile(receipts);
   if (!profile) return;
   el.style.display = "block";
-  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your pattern so far</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+escapeHtml(profile.dominantPattern)+"</h3><p style='margin:0 0 9px;color:var(--muted);font-size:12px;line-height:1.5'>"+escapeHtml(profile.weeklyInsight)+"</p><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px'><div class='metric-card'><span>Strongest move</span><strong style='font-size:13px'>"+escapeHtml(profile.strength)+"</strong></div><div class='metric-card'><span>Watch for</span><strong style='font-size:13px'>"+escapeHtml(profile.defaultMistake)+"</strong></div></div><button class='ghost-btn' data-sr-event='pattern_profile_opened' data-feature='pattern_profile' onclick='showScreen(&quot;insightsScreen&quot;)'>Open full pattern profile</button>";
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your pattern so far · "+escapeHtml(profile.patternConfidence)+"</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+escapeHtml(profile.dominantPattern)+"</h3><p style='margin:0 0 9px;color:var(--muted);font-size:12px;line-height:1.5'>"+escapeHtml(profile.weeklyInsight)+"</p><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px'><div class='metric-card'><span>Strongest move</span><strong style='font-size:13px'>"+escapeHtml(profile.strength)+"</strong></div><div class='metric-card'><span>Watch for</span><strong style='font-size:13px'>"+escapeHtml(profile.defaultMistake)+"</strong></div></div><p style='margin:0 0 10px;color:var(--muted-2);font-size:11px;line-height:1.4'>"+escapeHtml(profile.evidenceNote)+"</p><button class='ghost-btn' data-sr-event='pattern_profile_opened' data-feature='pattern_profile' onclick='showScreen(&quot;insightsScreen&quot;)'>Open full pattern profile</button>";
 }
 
 function renderHome() {
@@ -2847,10 +2848,17 @@ function buildBehavioralProfile(receipts) {
 
   /* Weekly insight */
   var weeklyInsight = generatePatternInsight(receipts);
+  var dominantCount = Math.max(chaseCount, anxCount, overExpCt, silenceCt, better);
+  var patternConfidence = total >= 5 ? "Established signal" : "Early signal";
+  if (dominantCount / total < 0.5) patternConfidence = "Emerging signal";
+  var evidenceNote = total >= 5
+    ? "Based on "+total+" reads. This profile is strong enough to guide your next decision, but it can still change as your record grows."
+    : "Based on "+total+" reads. This is an early signal, not a fixed label. More tracked outcomes will sharpen it.";
 
   return {
     total, dominantPattern, riskTrigger, strength, defaultMistake,
     selfControlScore, patternScore, leverageScore,
+    patternConfidence, evidenceNote,
     powerMove, weeklyInsight,
     mostCommonScenario: mostCommon(scenarios),
     mostCommonFeeling:  mostCommon(feelings),
