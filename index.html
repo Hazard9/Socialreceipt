@@ -1441,6 +1441,21 @@ function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,ve
 }
 
 /* ── GENERATE (gated) ── */
+function recordReferralActivation(receipt) {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var referral = params.get("sr_ref");
+    if (!referral || localStorage.getItem("sr_referral_activation_recorded") === "1") return false;
+    localStorage.setItem("sr_referral_activation_recorded", "1");
+    trackEvent("referral_activation_candidate", {
+      referral_code: referral,
+      activation: "first_receipt",
+      scenario: receipt.scenario
+    });
+    return true;
+  } catch (e) { return false; }
+}
+
 function generateReceipt() {
   if (!canCreate()) { openPaywall("You are about to send this without seeing the outcome pattern."); return; }
   var raw = document.getElementById("interactionText") ? document.getElementById("interactionText").value.trim() : "";
@@ -1462,6 +1477,7 @@ function generateReceipt() {
     renderReceiptOutput(receipt, false);
     haptic([15,30,60]);
     trackEvent("receipt_created", { scenario: receipt.scenario, mode: receipt.mode, pro: isPro() });
+    if (recordReferralActivation(receipt)) toast("Invite recorded. Referral credit is verified after this first read.");
   }, 1300);
 }
 
