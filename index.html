@@ -1601,6 +1601,23 @@ function decisionBridgeHtml(receipt, pro) {
   return html;
 }
 
+function outcomePromptHtml(receipt) {
+  return "<div class='outcome-prompt detail-card' style='margin-top:0'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Close the loop</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:18px;font-weight:400'>What happens after this decision?</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Save the read now. Come back after they respond and see whether the pattern held.</p><div class='outcome-row'><button class='outcome-btn' onclick='saveReceiptWithOutcome("Still unclear")'>Save for later</button><button class='outcome-btn' onclick='saveReceiptWithOutcome("Better than expected")'>It worked</button><button class='outcome-btn' onclick='saveReceiptWithOutcome("No response")'>No response</button></div></div>";
+}
+
+function saveReceiptWithOutcome(outcome) {
+  if (!state.currentReceipt) return;
+  var receipt = Object.assign({}, state.currentReceipt, { outcome: outcome });
+  var receipts = getReceipts().filter(function(r){ return r.id !== receipt.id; });
+  receipts.unshift(receipt);
+  setReceipts(receipts);
+  state.currentReceipt = receipt;
+  trackEvent("outcome_recorded", { outcome: outcome, source: "result_prompt" });
+  haptic([12,30]);
+  toast("Saved. You can update the outcome later.");
+  renderReceiptOutput(receipt, true);
+}
+
 function renderReceiptOutput(receipt, savedView) {
   var pro      = isPro();
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
@@ -1632,6 +1649,8 @@ function renderReceiptOutput(receipt, savedView) {
   html += rs(positionMeterHtml(receipt));
 
   html += rs(decisionBridgeHtml(receipt, pro));
+
+  if (!savedView) html += rs(outcomePromptHtml(receipt));
 
   /* DECISION SUMMARY — translate the analysis into one usable decision */
   html += rs("<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:rgba(201,168,76,0.055)\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Your decision</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">"+receipt.bestMove+"</h3><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\">"+receipt.timing+". Social Receipt reads patterns in the message, not the other person's mind.</p></div>");
