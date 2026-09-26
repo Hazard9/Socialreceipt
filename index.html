@@ -1593,7 +1593,7 @@ function decisionBridgeHtml(receipt, pro) {
   html += "<div style='padding:10px;border:1px solid rgba(61,184,112,.28);border-radius:10px'><span style='display:block;color:var(--green);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Cleaner move</span><span style='font-size:12px;color:var(--text)'>"+suggested+"</span></div>";
   html += "</div>";
   html += "<div style='display:flex;gap:8px;flex-wrap:wrap'>";
-  html += "<button class='secondary-btn' data-sr-event='message_comparison_viewed' onclick='trackEvent("message_comparison_viewed",{scenario:state.currentReceipt&&state.currentReceipt.scenario})'>Compare the two</button>";
+  html += "<button class='secondary-btn' data-sr-event='message_comparison_viewed' onclick='trackEvent(&quot;message_comparison_viewed&quot;)'>Compare the two</button>";
   html += "<button class='ghost-btn' data-sr-event='repeat_check_started' onclick='openCreate()'>Test the next message</button>";
   html += "</div>";
   if (!pro) html += "<p style='margin:12px 0 0;color:var(--gold);font:11px var(--font-mono);line-height:1.5'>Pro keeps the rewrite, timing window, pattern profile, and outcome loop available every time.</p>";
