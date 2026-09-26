@@ -812,6 +812,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <button class="secondary-btn" data-sr-event="daily_ritual_started" data-feature="daily_ritual" onclick="openPresend()">Start a pre-send check</button>
     </div>
     <div id="homePatternCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)"></div>
+    <div id="homeReflectionCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:linear-gradient(145deg,rgba(61,184,112,.06),rgba(255,245,220,.015))"></div>
     <!-- STREAK — soft addiction loop -->
     <div class="streak-card" id="homeProgressCard" style="display:flex;margin-top:8px">
       <div class="streak-icon">&#9733;</div>
@@ -2325,6 +2326,30 @@ function renderProgress() {
   el.textContent = parts.join(" · ");
 }
 
+function renderHomeReflection() {
+  var el = document.getElementById("homeReflectionCard");
+  if (!el) return;
+  var receipts = getReceipts();
+  var now = Date.now();
+  var week = receipts.filter(function(r){ return r.createdAt && now - new Date(r.createdAt).getTime() <= 7 * 24 * 60 * 60 * 1000; });
+  if (!week.length) {
+    el.style.display = "block";
+    el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px'>Weekly reflection</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Your week has not started yet.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Log one real interaction this week. The value compounds when you return to see what happened.</p><button class='ghost-btn' data-sr-event='reflection_started' data-feature='weekly_reflection' onclick='openCreate()'>Start this week’s first read</button>";
+    return;
+  }
+  var tracked = week.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; });
+  var positive = week.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; });
+  var waited = week.filter(function(r){ return r.bestMove === "Wait"; });
+  var waitWins = waited.filter(function(r){ return r.outcome === "Better than expected" || r.outcome === "Resolved"; });
+  var insight = positive.length > 0
+    ? "Your calmer decisions are producing evidence. Keep checking before you send."
+    : tracked.length > 0
+      ? "You are collecting evidence. One more tracked outcome will sharpen the pattern."
+      : "The read is only half the value. Come back after the interaction and log what happened.";
+  el.style.display = "block";
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px'>Weekly reflection</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>What did your last "+week.length+" read teach you?</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+insight+"</p><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px'><div class='metric-card'><span>Reads</span><strong style='font-size:16px'>"+week.length+"</strong></div><div class='metric-card'><span>Outcomes</span><strong style='font-size:16px'>"+tracked.length+"</strong></div><div class='metric-card'><span>Positive</span><strong style='font-size:16px'>"+positive.length+"</strong></div></div><p style='margin:0 0 10px;color:var(--muted-2);font-size:11px'>"+(waitWins ? waitWins+" wait decision"+(waitWins===1?"":"s")+" worked" : "Track the outcome to learn what works for you.")+"</p><button class='ghost-btn' data-sr-event='reflection_opened' data-feature='weekly_reflection' onclick='showScreen(&quot;insightsScreen&quot;)'>Review your pattern</button>";
+}
+
 function renderHomePattern() {
   var el = document.getElementById("homePatternCard");
   if (!el) return;
@@ -2350,6 +2375,7 @@ function renderHome() {
   renderStreak();
   renderProgress();
   renderHomePattern();
+  renderHomeReflection();
 }
 function renderAll() { renderHome(); renderReceiptList("historyList",null); renderInsights(); }
 
