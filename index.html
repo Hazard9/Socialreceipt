@@ -803,7 +803,18 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       </div>
       <div class="panic-btn-icon">&#9888;</div>
     </button>
+    <!-- DAILY RITUAL — action-first return state -->
+    <div class="detail-card" id="dailyRitualCard" style="margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.07),rgba(255,245,220,.015))">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Before you send</div>
+      <h3 id="dailyRitualTitle" style="margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400">What are you about to send?</h3>
+      <p id="dailyRitualText" style="margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.5">Paste the message here first. A ten-second pause can change the read.</p>
+      <button class="secondary-btn" data-sr-event="daily_ritual_started" data-feature="daily_ritual" onclick="openPresend()">Start a pre-send check</button>
+    </div>
     <!-- STREAK — soft addiction loop -->
+    <div class="streak-card" id="homeProgressCard" style="display:flex;margin-top:8px">
+      <div class="streak-icon">&#9733;</div>
+      <div><div style="font-family:var(--font-mono);font-size:10px;color:var(--muted-2);letter-spacing:.08em;text-transform:uppercase">Your progress</div><div class="streak-text" id="homeProgressText">0 reads</div></div>
+    </div>
     <div class="streak-card" id="homeStreakCard" style="display:none">
       <div class="streak-icon">&#128293;</div>
       <div class="streak-text" id="homeStreakText">Loading...</div>
@@ -2272,6 +2283,21 @@ function renderInsights() {
 }
 
 /* ── RENDER HOME ── */
+function renderProgress() {
+  var receipts = getReceipts();
+  var tracked = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; }).length;
+  var avoided = parseInt(localStorage.getItem("sr_streak_avoided") || "0");
+  var holds = parseInt(localStorage.getItem("sr_streak_holds") || "0");
+  var saves = parseInt(localStorage.getItem("sr_streak_saves") || "0");
+  var el = document.getElementById("homeProgressText");
+  if (!el) return;
+  var parts = [receipts.length + " read" + (receipts.length === 1 ? "" : "s")];
+  if (avoided) parts.push(avoided + " bad send" + (avoided === 1 ? "" : "s") + " stopped");
+  if (holds) parts.push(holds + " position held");
+  if (tracked) parts.push(tracked + " outcome" + (tracked === 1 ? "" : "s") + " logged");
+  el.textContent = parts.join(" · ");
+}
+
 function renderHome() {
   var receipts=getReceipts();
   var today=new Date().toDateString();
@@ -2281,6 +2307,7 @@ function renderHome() {
   renderReceiptList("recentReceipts",3);
   updateHomeStatus();
   renderStreak();
+  renderProgress();
 }
 function renderAll() { renderHome(); renderReceiptList("historyList",null); renderInsights(); }
 
