@@ -46,6 +46,7 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await skipToApp(page);
   await createReceipt(page);
   await expect(page.locator("#receiptOutput")).toContainText(/Quick Verdict|Silence Detected/);
+  await expect(page.locator("#receiptOutput")).toContainText("Your decision");
   // Free users hit the gate with an honest explanation of what Pro adds, not a fake result
   await expect(page.locator("#receiptOutput")).toContainText("Continue on Free");
 });
