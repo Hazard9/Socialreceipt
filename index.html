@@ -820,6 +820,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     </div>
     <div id="homePatternCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)"></div>
     <div id="homeReflectionCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:linear-gradient(145deg,rgba(61,184,112,.06),rgba(255,245,220,.015))"></div>
+    <div id="homeOwnershipCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.08),rgba(255,245,220,.015))"></div>
     <!-- STREAK — soft addiction loop -->
     <div class="streak-card" id="homeProgressCard" style="display:flex;margin-top:8px">
       <div class="streak-icon">&#9733;</div>
@@ -2211,7 +2212,7 @@ function registerReferralCode() {
 async function shareReceipt() {
   var payload = sharePayload();
   if (!payload) return;
-  registerReferralCode();
+  await registerReferralCode();
     trackEvent("referral_share_started", { share_surface: "result" });
   if (navigator.share) {
     try {
@@ -2428,6 +2429,24 @@ function renderProgress() {
   el.textContent = parts.join(" · ");
 }
 
+function renderHomeOwnership() {
+  var el = document.getElementById("homeOwnershipCard");
+  if (!el) return;
+  var receipts = getReceipts();
+  var credits = getReferralCredits();
+  if (receipts.length < 2 && credits < 1) { el.style.display = "none"; return; }
+  var tracked = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; }).length;
+  var avoided = receipts.filter(function(r){ return r.bestMove === "Wait" || r.verdict === "Hold"; }).length;
+  var pro = isProUser();
+  el.style.display = "block";
+  if (pro) {
+    el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your ownership layer</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Your history is working for you.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+receipts.length+" reads, "+tracked+" tracked outcomes, and "+avoided+" decisions where you paused before sending. Keep building the pattern instead of starting over.</p><button class='ghost-btn' data-sr-event='ownership_history_opened' data-feature='ownership_layer' onclick='showScreen(&quot;insightsScreen&quot;)'>Open my decision history</button>";
+  } else {
+    var creditLine = credits ? " You also have "+credits+" referral "+(credits === 1 ? "read":"reads")+" ready." : "";
+    el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your decision history</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>The value compounds when you return.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>You have "+receipts.length+" reads and "+tracked+" tracked "+(tracked === 1 ? "outcome":"outcomes")+"."+creditLine+" Pro keeps the full pattern history, comparison tools, and decision layer available without restarting each month.</p><button class='ghost-btn' data-sr-cta='home_value_upgrade' onclick='openPaywall(&quot;Your history is becoming useful. Keep the full decision layer working for you.&quot;)'>See what ownership adds</button>";
+  }
+}
+
 function renderHomeReflection() {
   var el = document.getElementById("homeReflectionCard");
   if (!el) return;
@@ -2478,6 +2497,7 @@ function renderHome() {
   renderProgress();
   renderHomePattern();
   renderHomeReflection();
+  renderHomeOwnership();
 }
 function renderAll() { renderHome(); renderReceiptList("historyList",null); renderInsights(); }
 
