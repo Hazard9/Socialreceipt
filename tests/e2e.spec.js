@@ -68,6 +68,10 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await createReceipt(page);
   await expect(page.locator("#receiptOutput")).toContainText(/Quick Verdict|Silence Detected/);
   await expect(page.locator("#receiptOutput")).toContainText("Your decision");
+  await page.getByText("Share this receipt").click();
+  await expect(page.locator("#shareOverlay")).toBeVisible();
+  await expect(page.locator("#shareOverlay")).toContainText("Share result");
+  await expect(page.locator("#shareOverlay")).toContainText("No private message text is included");
   await expect(page.locator("#receiptOutput")).toContainText("Message version test");
   await expect(page.locator("#receiptOutput")).toContainText("Compare my rewrite");
   await expect(page.locator("#receiptOutput")).toContainText("The move from here");

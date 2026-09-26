@@ -768,7 +768,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="share-footer">try.socialreceipt.app</div>
     </div>
     <div class="share-actions">
-      <button class="primary-btn" onclick="copyShareText()">Copy + Share</button>
+      <button class="primary-btn" onclick="shareReceipt()">Share result</button>
       <button class="ghost-btn" onclick="closeShare()">Close</button>
     </div>
   </div>
@@ -2127,6 +2127,48 @@ function regenerateMessage() {
 }
 
 /* ── SHARE ── */
+function getReferralCode() {
+  var key = "sr_referral_code";
+  var code = localStorage.getItem(key);
+  if (!code) {
+    code = "sr_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+    localStorage.setItem(key, code);
+  }
+  return code;
+}
+function sharePayload() {
+  var r = state.currentReceipt;
+  if (!r) return null;
+  var hook = r.risk.toLowerCase().indexOf("high") !== -1
+    ? "I was about to send something. Social Receipt told me to pause."
+    : "I was overthinking this. Social Receipt gave me the actual read.";
+  var url = window.location.origin + window.location.pathname + "?sr_ref=" + encodeURIComponent(getReferralCode()) + "&utm_source=share&utm_medium=referral&utm_campaign=receipt_share";
+  return {
+    title: "Social Receipt",
+    text: hook + "\n\n\"" + r.verdict + "\"\n\nNo private message text included. Try it before you send.",
+    url: url
+  };
+}
+async function shareReceipt() {
+  var payload = sharePayload();
+  if (!payload) return;
+  trackEvent("referral_share_started", { share_surface: "result" });
+  if (navigator.share) {
+    try {
+      await navigator.share(payload);
+      trackEvent("referral_share_completed", { share_surface: "native" });
+      haptic([10,30]);
+      closeShare();
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") {
+        trackEvent("referral_share_cancelled", { share_surface: "native" });
+        return;
+      }
+    }
+  }
+  copyShareText();
+}
 function openShare() {
   var r=state.currentReceipt; if(!r)return;
   trackEvent("share_card_viewed");
@@ -2145,7 +2187,7 @@ function openShare() {
 function closeShare() { document.getElementById("shareOverlay").classList.add("hidden"); }
 function copyShareText() {
   var r=state.currentReceipt; if(!r)return;
-  trackEvent("share_card_copied");
+  trackEvent("referral_share_completed", { share_surface: "copy_fallback" });
   var hook=r.risk.toLowerCase().indexOf("high")!==-1?"I was about to send something. This app said it would drop my position.":"I was overthinking this. The app gave me the actual read.";
   var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\nNo private message text included.\ntry.socialreceipt.app";
   if(navigator.clipboard)navigator.clipboard.writeText(text);

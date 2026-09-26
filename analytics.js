@@ -49,7 +49,8 @@
       content_id: safeString(p.get('utm_content') || p.get('content_id') || '', 80),
       content_series: safeString(p.get('content_series') || '', 80),
       experiment_id: safeString(p.get('utm_experiment') || p.get('experiment_id') || p.get('utm_id') || '', 80),
-      hook_variant: safeString(p.get('utm_term') || p.get('hook_variant') || '', 40)
+      hook_variant: safeString(p.get('utm_term') || p.get('hook_variant') || '', 40),
+      referral_code: safeString(p.get('sr_ref') || '', 40)
     };
     current.platform = normalizePlatform(current.source);
     if (!current.source) current.source = current.platform;
@@ -97,6 +98,7 @@
       content_series: safeString(latest.content_series || '', 80),
       experiment_id: safeString(latest.experiment_id || '', 80),
       hook_variant: safeString(latest.hook_variant || '', 40),
+      referral_code: safeString(latest.referral_code || '', 40),
       landing_page: safeString(window.location.pathname || '/', 120),
       page_path: safeString(window.location.pathname || '/', 120),
       referrer_domain: (function () { try { return safeString((document.referrer ? new URL(document.referrer).hostname : 'direct'), 120); } catch (_) { return 'unknown'; } })(),
@@ -152,13 +154,14 @@
   track('landing_page_view');
   var landingMeta = baseMeta();
   if (baseMeta().returning_user === 'true') track('return_visit');
-  if (landingMeta.content_id || landingMeta.content_series || landingMeta.hook_variant || landingMeta.campaign || landingMeta.source !== 'direct') {
+  if (landingMeta.content_id || landingMeta.content_series || landingMeta.hook_variant || landingMeta.campaign || landingMeta.referral_code || landingMeta.source !== 'direct') {
     track('content_attributed_visit', {
       experiment_id: landingMeta.experiment_id,
       content_id: landingMeta.content_id,
       content_series: landingMeta.content_series,
       hook_variant: landingMeta.hook_variant,
-      campaign: landingMeta.campaign
+      campaign: landingMeta.campaign,
+      referral_code: landingMeta.referral_code
     });
   }
   if (document.readyState === 'complete') trackPerformanceOnce();
