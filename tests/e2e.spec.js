@@ -66,6 +66,8 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await createReceipt(page);
   await expect(page.locator("#receiptOutput")).toContainText(/Quick Verdict|Silence Detected/);
   await expect(page.locator("#receiptOutput")).toContainText("Your decision");
+  await expect(page.locator("#receiptOutput")).toContainText("Message version test");
+  await expect(page.locator("#receiptOutput")).toContainText("Compare my rewrite");
   await expect(page.locator("#receiptOutput")).toContainText("The move from here");
   await expect(page.locator("#receiptOutput")).toContainText("Cleaner move");
   await expect(page.locator("#receiptOutput")).toContainText("Close the loop");
