@@ -106,6 +106,8 @@ test("5. opening the paywall shows accurate, consistent pricing and a free conti
   await expect(overlay).toBeVisible();
   await expect(overlay).toContainText("$9");
   await expect(overlay).toContainText("$39");
+  await expect(overlay).toContainText("Lifetime Beta means ownership");
+  await expect(overlay).toContainText("No recurring charge");
   // no fabricated original-price anchor
   await expect(overlay).not.toContainText("$79");
   await expect(page.locator(".paywall-dismiss")).toBeVisible();
