@@ -763,7 +763,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="share-hook" id="shareHook">I was about to send something. This app said it would drop my position.</div>
       <div class="share-verdict" id="shareVerdict"></div>
       <div class="share-signals" id="shareSignals"></div>
-      <div class="share-viral-line">Send this to someone who overthinks like you do.</div>
+      <div class="share-viral-line">Send this to someone who overthinks like you do.</div><div class="share-privacy-note">No private message text is included in the share card.</div>
       <div class="share-footer">try.socialreceipt.app</div>
     </div>
     <div class="share-actions">
@@ -1618,6 +1618,18 @@ function saveReceiptWithOutcome(outcome) {
   renderReceiptOutput(receipt, true);
 }
 
+function trustNoteHtml() {
+  return "<div class='trust-note detail-card' style='border-color:var(--border);background:rgba(255,245,220,.02)'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px'>Use the read correctly</div><p style='margin:0;color:var(--muted);font-size:12px;line-height:1.55'><strong style='color:var(--text)'>Social Receipt reads patterns in the message, not another person’s mind.</strong> Use the result to slow down, compare your options, and make your own decision.</p></div>";
+}
+
+function acquisitionContextHtml() {
+  var a = window.SRAnalytics && typeof window.SRAnalytics.attribution === "function" ? window.SRAnalytics.attribution() : null;
+  var t = a && a.latest_touch ? a.latest_touch : {};
+  var source = t.platform || t.source || "direct";
+  var content = t.content_id || t.content_series || "Not attributed";
+  return "<div class='detail-card' style='margin-bottom:12px;border-color:var(--border)'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px'>This visit came from</div><p style='margin:0;color:var(--text);font-size:14px'>"+source+"</p><p style='margin:5px 0 0;color:var(--muted);font-size:12px'>"+content+"</p><p style='margin:8px 0 0;color:var(--muted-2);font-size:11px'>This is visit context only. It does not expose anyone else’s data.</p></div>";
+}
+
 function renderReceiptOutput(receipt, savedView) {
   var pro      = isPro();
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
@@ -1649,6 +1661,8 @@ function renderReceiptOutput(receipt, savedView) {
   html += rs(positionMeterHtml(receipt));
 
   html += rs(decisionBridgeHtml(receipt, pro));
+
+  html += rs(trustNoteHtml());
 
   if (!savedView) html += rs(outcomePromptHtml(receipt));
 
@@ -2074,7 +2088,7 @@ function copyShareText() {
   var r=state.currentReceipt; if(!r)return;
   trackEvent("share_card_copied");
   var hook=r.risk.toLowerCase().indexOf("high")!==-1?"I was about to send something. This app said it would drop my position.":"I was overthinking this. The app gave me the actual read.";
-  var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\ntry.socialreceipt.app";
+  var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\nNo private message text included.\ntry.socialreceipt.app";
   if(navigator.clipboard)navigator.clipboard.writeText(text);
   haptic([10,30]); toast("Copied. Ready to share."); closeShare();
 }
@@ -2152,6 +2166,8 @@ function renderInsights() {
   var html     = "";
 
   /* Header */
+  html += acquisitionContextHtml();
+
   html += "<div class=\"insight-grid\" style=\"margin-bottom:12px\">";
   html += "<div class=\"metric-card\"><span>Total receipts</span><strong>"+receipts.length+"</strong></div>";
   html += "<div class=\"metric-card\"><span>Tracked outcomes</span><strong>"+tracked.length+"</strong></div>";
