@@ -1618,6 +1618,8 @@ function saveReceiptWithOutcome(outcome) {
   renderReceiptOutput(receipt, true);
 }
 
+function escapeHtml(value) { return String(value == null ? "" : value).replace(/[&<>\"']/g, function(ch) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]; }); }
+
 function trustNoteHtml() {
   return "<div class='trust-note detail-card' style='border-color:var(--border);background:rgba(255,245,220,.02)'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px'>Use the read correctly</div><p style='margin:0;color:var(--muted);font-size:12px;line-height:1.55'><strong style='color:var(--text)'>Social Receipt reads patterns in the message, not another person’s mind.</strong> Use the result to slow down, compare your options, and make your own decision.</p></div>";
 }
@@ -1625,8 +1627,8 @@ function trustNoteHtml() {
 function acquisitionContextHtml() {
   var a = window.SRAnalytics && typeof window.SRAnalytics.attribution === "function" ? window.SRAnalytics.attribution() : null;
   var t = a && a.latest_touch ? a.latest_touch : {};
-  var source = t.platform || t.source || "direct";
-  var content = t.content_id || t.content_series || "Not attributed";
+  var source = escapeHtml(t.platform || t.source || "direct");
+  var content = escapeHtml(t.content_id || t.content_series || "Not attributed");
   return "<div class='detail-card' style='margin-bottom:12px;border-color:var(--border)'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px'>This visit came from</div><p style='margin:0;color:var(--text);font-size:14px'>"+source+"</p><p style='margin:5px 0 0;color:var(--muted);font-size:12px'>"+content+"</p><p style='margin:8px 0 0;color:var(--muted-2);font-size:11px'>This is visit context only. It does not expose anyone else’s data.</p></div>";
 }
 
