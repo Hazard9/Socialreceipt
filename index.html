@@ -774,7 +774,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="share-verdict" id="shareVerdict"></div>
       <div class="share-signals" id="shareSignals"></div>
       <div class="share-viral-line">Send this to someone who overthinks like you do.</div><div class="share-privacy-note">No private message text is included in the share card.</div>
-      <div class="share-footer">try.socialreceipt.app</div>
+      <div class="share-footer">socialreceipt.netlify.app</div>
     </div>
     <div class="share-actions">
       <button class="primary-btn" onclick="shareReceipt()">Share result</button>
@@ -2078,7 +2078,7 @@ function closeGhostMode() {
 function copyGhostText() {
   var r = state.currentReceipt;
   if (!r) return;
-  var text = "Who messed this up? (names hidden)\n\n\"" + r.verdict + "\"\n\nInterest: " + r.interest + " | Risk: " + r.risk + " | Energy: " + r.energy + "\n\nanalyzed by try.socialreceipt.app";
+  var text = "Who messed this up? (names hidden)\n\n\"" + r.verdict + "\"\n\nInterest: " + r.interest + " | Risk: " + r.risk + " | Energy: " + r.energy + "\n\nanalyzed by socialreceipt.netlify.app";
   if (navigator.clipboard) navigator.clipboard.writeText(text);
   haptic([10, 30]);
   toast("Ghost receipt copied. Send it to the group chat.");
@@ -2321,7 +2321,7 @@ function copyShareText() {
   var r=state.currentReceipt; if(!r)return;
   trackEvent("referral_share_completed", { share_surface: "copy_fallback" });
   var hook=r.risk.toLowerCase().indexOf("high")!==-1?"I was about to send something. This app said it would drop my position.":"I was overthinking this. The app gave me the actual read.";
-  var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\nNo private message text included.\ntry.socialreceipt.app";
+  var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\nNo private message text included.\nsocialreceipt.netlify.app";
   if(navigator.clipboard)navigator.clipboard.writeText(text);
   haptic([10,30]); toast("Copied. Ready to share."); closeShare();
 }
