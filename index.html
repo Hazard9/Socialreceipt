@@ -810,6 +810,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <p id="dailyRitualText" style="margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.5">Paste the message here first. A ten-second pause can change the read.</p>
       <button class="secondary-btn" data-sr-event="daily_ritual_started" data-feature="daily_ritual" onclick="openPresend()">Start a pre-send check</button>
     </div>
+    <div id="homePatternCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)"></div>
     <!-- STREAK — soft addiction loop -->
     <div class="streak-card" id="homeProgressCard" style="display:flex;margin-top:8px">
       <div class="streak-icon">&#9733;</div>
@@ -2298,6 +2299,20 @@ function renderProgress() {
   el.textContent = parts.join(" · ");
 }
 
+function renderHomePattern() {
+  var el = document.getElementById("homePatternCard");
+  if (!el) return;
+  var receipts = getReceipts();
+  if (receipts.length < 3) {
+    el.style.display = "none";
+    return;
+  }
+  var profile = buildBehavioralProfile(receipts);
+  if (!profile) return;
+  el.style.display = "block";
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your pattern so far</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>"+escapeHtml(profile.dominantPattern)+"</h3><p style='margin:0 0 9px;color:var(--muted);font-size:12px;line-height:1.5'>"+escapeHtml(profile.weeklyInsight)+"</p><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px'><div class='metric-card'><span>Strongest move</span><strong style='font-size:13px'>"+escapeHtml(profile.strength)+"</strong></div><div class='metric-card'><span>Watch for</span><strong style='font-size:13px'>"+escapeHtml(profile.defaultMistake)+"</strong></div></div><button class='ghost-btn' data-sr-event='pattern_profile_opened' data-feature='pattern_profile' onclick='showScreen(&quot;insightsScreen&quot;)'>Open full pattern profile</button>";
+}
+
 function renderHome() {
   var receipts=getReceipts();
   var today=new Date().toDateString();
@@ -2308,6 +2323,7 @@ function renderHome() {
   updateHomeStatus();
   renderStreak();
   renderProgress();
+  renderHomePattern();
 }
 function renderAll() { renderHome(); renderReceiptList("historyList",null); renderInsights(); }
 
