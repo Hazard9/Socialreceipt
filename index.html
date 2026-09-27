@@ -2461,6 +2461,7 @@ function renderInsights() {
       html += "<div class=\"receipt-divider\" style=\"margin-top:4px\"><span>Behavioral Profile</span></div>";
       html += "<div class=\"insight-grid\" style=\"margin-bottom:12px\">";
       html += "<div class=\"metric-card\"><span>Pattern signal</span><strong style=\"font-size:14px\">"+profile.patternConfidence+"</strong></div>";
+      html += "<div class=\"metric-card\"><span>Outcome evidence</span><strong style=\"font-size:14px\">"+profile.trackedOutcomes+"/"+profile.total+" tracked</strong></div>";
       html += "<div class=\"metric-card\"><span>Dominant Pattern</span><strong style=\"font-size:16px\">"+profile.dominantPattern+"</strong></div>";
       html += "<div class=\"metric-card\"><span>Risk Trigger</span><strong style=\"font-size:16px\">"+profile.riskTrigger+"</strong></div>";
       html += "<div class=\"metric-card\"><span>Communication Strength</span><strong style=\"font-size:14px\">"+profile.strength+"</strong></div>";
@@ -3026,6 +3027,8 @@ function buildBehavioralProfile(receipts) {
   var better     = receipts.filter(function(r){ return r.outcome==="Better than expected"||r.outcome==="Resolved"; }).length;
   var waitWins   = receipts.filter(function(r){ return r.bestMove==="Wait"&&(r.outcome==="Better than expected"||r.outcome==="Resolved"); }).length;
   var usedSugMsg = receipts.filter(function(r){ return r.outcome==="I used the suggested message"; }).length;
+  var trackedOutcomes = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; }).length;
+  var evidenceCoverage = Math.round((trackedOutcomes / total) * 100);
 
   /* Scores: 0-100 */
   var selfControlScore   = Math.max(0, Math.min(100, 100 - Math.round((chaseCount + overExpCt + silenceCt) / total * 120)));
@@ -3062,11 +3065,11 @@ function buildBehavioralProfile(receipts) {
   /* Weekly insight */
   var weeklyInsight = generatePatternInsight(receipts);
   var dominantCount = Math.max(chaseCount, anxCount, overExpCt, silenceCt, better);
-  var patternConfidence = total >= 5 ? "Established signal" : "Early signal";
-  if (dominantCount / total < 0.5) patternConfidence = "Emerging signal";
-  var evidenceNote = total >= 5
-    ? "Based on "+total+" reads. This profile is strong enough to guide your next decision, but it can still change as your record grows."
-    : "Based on "+total+" reads. This is an early signal, not a fixed label. More tracked outcomes will sharpen it.";
+  var patternConfidence = total >= 5 && trackedOutcomes >= 3 ? "Established signal" : "Early signal";
+  if (dominantCount / total < 0.5 || (total >= 3 && trackedOutcomes < 2)) patternConfidence = "Emerging signal";
+  var evidenceNote = total >= 5 && trackedOutcomes >= 3
+    ? "Based on "+total+" reads and "+trackedOutcomes+" tracked outcomes. This profile can guide your next decision, but it can still change as your record grows."
+    : "Based on "+total+" reads, with "+trackedOutcomes+" tracked "+(trackedOutcomes === 1 ? "outcome":"outcomes")+". This is an early signal, not a fixed label. Tracking what happened next will sharpen it.";
 
   var learnedAboutSelf = "You are learning to separate urgency from importance. The next useful step is to keep logging what happened after the impulse passed.";
   var blindSpot = "The moment that feels most urgent may be the moment that deserves the most space.";
@@ -3096,7 +3099,7 @@ function buildBehavioralProfile(receipts) {
   return {
     total, dominantPattern, riskTrigger, strength, defaultMistake,
     selfControlScore, patternScore, leverageScore,
-    patternConfidence, evidenceNote, learnedAboutSelf, blindSpot, nextPractice,
+    patternConfidence, evidenceNote, trackedOutcomes, evidenceCoverage, learnedAboutSelf, blindSpot, nextPractice,
     powerMove, weeklyInsight,
     scenarioInsights: buildScenarioPatternInsights(receipts),
     changeSummary: buildPersonalChangeSummary(receipts),
