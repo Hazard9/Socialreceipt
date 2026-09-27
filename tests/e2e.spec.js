@@ -409,7 +409,7 @@ test("15c. pattern profile shows outcome evidence separately from read count", a
   await page.click('.nav-btn[data-screen="insightsScreen"]');
   await expect(page.locator("#insightDashboard")).toContainText("Outcome evidence");
   await expect(page.locator("#insightDashboard")).toContainText("2/3 tracked");
-  await expect(page.locator("#insightDashboard")).toContainText("Emerging signal");
+  await expect(page.locator("#insightDashboard")).toContainText("Early signal");
 });
 
 test("15b. insights shows content experiment tracking context", async ({ page }) => {
