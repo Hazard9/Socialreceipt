@@ -2322,7 +2322,8 @@ function copyShareText() {
   var r=state.currentReceipt; if(!r)return;
   trackEvent("referral_share_completed", { share_surface: "copy_fallback" });
   var hook=r.risk.toLowerCase().indexOf("high")!==-1?"I was about to send something. This app said it would drop my position.":"I was overthinking this. The app gave me the actual read.";
-  var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\nNo private message text included.\nsocialreceipt.netlify.app";
+  var payload = sharePayload();
+  var text=hook+"\n\n\""+r.verdict+"\"\n\nInterest: "+r.interest+"\nRisk: "+r.risk+"\nConfidence: "+r.confidence+"%\n\nSend this to someone who overthinks like you do.\nNo private message text included.\n"+(payload ? payload.url : window.location.origin);
   if(navigator.clipboard)navigator.clipboard.writeText(text);
   haptic([10,30]); toast("Copied. Ready to share."); closeShare();
 }
