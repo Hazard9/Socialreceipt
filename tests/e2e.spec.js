@@ -365,6 +365,21 @@ test("14b. returning users see Continue Your Record", async ({ page }) => {
   await expect(page.locator("#homeReturnCard")).toContainText("Continue your record");
 });
 
+test("14c. returning users see progress since their last visit", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => {
+    localStorage.setItem("sr_return_snapshot_v1", JSON.stringify({ total: 1, tracked: 0, pending: 1 }));
+    localStorage.setItem("socialReceipts", JSON.stringify([
+      {id:"prior",createdAt:new Date().toISOString(),scenario:"Text / DM",outcome:"Not tracked yet"},
+      {id:"new",createdAt:new Date().toISOString(),scenario:"Work",outcome:"Resolved"}
+    ]));
+  });
+  await page.evaluate(() => renderHomeReturnCard());
+  await expect(page.locator("#homeReturnCard")).toContainText("Since your last visit");
+  await expect(page.locator("#homeReturnCard")).toContainText("1 new read");
+  await expect(page.locator("#homeReturnCard")).toContainText("1 new outcome");
+});
+
 test("15. clearing localStorage returns the user to the landing screen", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.clear());
