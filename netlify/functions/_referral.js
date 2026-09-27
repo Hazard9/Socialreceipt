@@ -26,5 +26,10 @@ function cookieValue(event, name) {
   var match = raw.split(";").map(function(part){ return part.trim(); }).find(function(part){ return part.indexOf(name + "=") === 0; });
   return match ? decodeURIComponent(match.slice(name.length + 1)) : "";
 }
-function store() {\n  const siteID = process.env.NETLIFY_SITE_ID;\n  const token = process.env.NETLIFY_AUTH_TOKEN;\n  if (!siteID || !token) throw new Error("NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN are required for referral storage");\n  return getStore({ name: STORE_NAME, consistency: "strong", siteID, token });\n}
+function store() {
+  const siteID = process.env.NETLIFY_SITE_ID;
+  const token = process.env.NETLIFY_AUTH_TOKEN;
+  if (!siteID || !token) throw new Error("NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN are required for referral storage");
+  return getStore({ name: STORE_NAME, consistency: "strong", siteID, token });
+}
 module.exports = { json, readBody, validCode, cookieValue, store };
