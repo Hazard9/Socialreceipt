@@ -85,6 +85,24 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await expect(page.locator("#receiptOutput")).toContainText("Continue on Free");
 });
 
+test("3a. clipboard sharing preserves referral attribution without private text", async ({ page }) => {
+  await skipToApp(page);
+  await createReceipt(page);
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: (value) => { window.__copiedShareText = value; return Promise.resolve(); } }
+    });
+  });
+  await page.getByRole("button", { name: "Share the insight" }).click();
+  await page.getByRole("button", { name: "Share result" }).click();
+  await expect.poll(async () => page.evaluate(() => window.__copiedShareText || "")).toContain("sr_ref=");
+  const copied = await page.evaluate(() => window.__copiedShareText || "");
+  expect(copied).toContain("No private message text included.");
+  expect(copied).not.toContain("They said");
+});
+
 test("3b. a shared invite records first-receipt activation safely", async ({ page }) => {
   await page.goto("/?sr_ref=test_referral");
   await page.evaluate(() => {
