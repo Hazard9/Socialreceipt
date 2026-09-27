@@ -13,7 +13,8 @@ exports.handler = async function(event) {
     return json(200, { ok: true }, {
       "Set-Cookie": "sr_ref_owner=" + encodeURIComponent(code) + "; Path=/; Max-Age=31536000; Secure; SameSite=Lax"
     });
-  } catch (_) {
+  } catch (err) {
+    console.error("referral-register_store_error", { name: err && err.name ? err.name : "Error", message: err && err.message ? String(err.message).slice(0, 240) : "unknown" });
     return json(503, { ok: false, error: "referral_store_unavailable" });
   }
 };
