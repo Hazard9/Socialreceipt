@@ -20,6 +20,7 @@
 */
 
 const STRIPE_API = "https://api.stripe.com/v1/checkout/sessions/";
+const KIT_API_BASE = "https://api.kit.com/v4";
 
 exports.handler = async function (event) {
   if (event.httpMethod !== "GET") {
@@ -92,13 +93,61 @@ exports.handler = async function (event) {
 
   if (!plan) plan = "pro";
 
+  const email =
+    (session.customer_details && session.customer_details.email) ||
+    (session.customer_email || null);
+
+  // Best-effort routing only. A Kit failure must never invalidate a verified
+  // Stripe payment or prevent the app from granting access.
+  if (plan === "lifetime" && email) await routeLifetimePurchase(email);
+
   return json(200, {
     valid: true,
     plan: plan,
-    email: (session.customer_details && session.customer_details.email) || null,
+    email: email,
     sessionId: session.id,
   });
 };
+
+async function routeLifetimePurchase(email) {
+  const apiKey = String(process.env.KIT_API_KEY || "").trim();
+  const tagId = String(process.env.KIT_LIFETIME_TAG_ID || "").trim();
+  if (!apiKey || !tagId) return;
+
+  try {
+    const subscriberResponse = await kitRequest("/subscribers", apiKey, {
+      method: "POST",
+      body: { email_address: email },
+    });
+    if (!subscriberResponse.ok) {
+      console.error("verify-checkout_kit_subscriber_error", { status: subscriberResponse.status });
+      return;
+    }
+
+    const subscriberId = subscriberResponse.body && subscriberResponse.body.subscriber && subscriberResponse.body.subscriber.id;
+    if (!subscriberId) return;
+
+    const tagResponse = await kitRequest(
+      "/tags/" + encodeURIComponent(tagId) + "/subscribers/" + encodeURIComponent(subscriberId),
+      apiKey,
+      { method: "POST" }
+    );
+    if (!tagResponse.ok) console.error("verify-checkout_kit_tag_error", { status: tagResponse.status });
+  } catch (err) {
+    console.error("verify-checkout_kit_routing_error", { name: err && err.name ? err.name : "Error" });
+  }
+}
+
+async function kitRequest(path, apiKey, options) {
+  const response = await fetch(KIT_API_BASE + path, {
+    method: options.method,
+    headers: { Accept: "application/json", "Content-Type": "application/json", "X-Kit-Api-Key": apiKey },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  let body = null;
+  try { body = await response.json(); } catch (err) { body = null; }
+  return { ok: response.ok, status: response.status, body };
+}
 
 function json(statusCode, body) {
   return {
