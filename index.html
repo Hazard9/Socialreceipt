@@ -1898,9 +1898,9 @@ function renderReceiptOutput(receipt, savedView) {
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
 
-  /* Viral share nudge for free users */
+  /* Result value prompt: make saving and privacy-safe sharing the next obvious action. */
   if (!savedView && !pro) {
-    html += rs("<div style=\"text-align:center;padding:10px 4px\"><span style=\"font-family:var(--font-mono);font-size:11px;color:var(--muted-2);letter-spacing:0.06em\">Someone you know is about to send the wrong message. <span style=\"color:var(--gold);cursor:pointer\" onclick=\"openShare()\">Share this receipt \u2192</span></span></div>");
+    html += rs("<div class=\"detail-card\" style=\"text-align:center;padding:15px 14px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.07),rgba(255,245,220,0.015))\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">Keep this read useful</div><p style=\"margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5\">Save the decision for your record, or share the insight without including the private message.</p><div style=\"display:flex;gap:8px;justify-content:center;flex-wrap:wrap\"><button class=\"secondary-btn\" data-sr-event=\"result_save_prompt_clicked\" data-feature=\"result_value_prompt\" onclick=\"saveCurrentReceipt()\">Save this read</button><button class=\"ghost-btn\" data-sr-event=\"result_share_prompt_clicked\" data-feature=\"result_value_prompt\" onclick=\"openShare()\">Share the insight</button></div></div>");
   }
 
   /* SAVED YOU moment — belief builder (only when outcome is positive) */
