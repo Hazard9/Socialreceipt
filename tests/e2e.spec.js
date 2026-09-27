@@ -374,7 +374,7 @@ test("14c. returning users see progress since their last visit", async ({ page }
       {id:"new",createdAt:new Date().toISOString(),scenario:"Work",outcome:"Resolved"}
     ]));
   });
-  await page.evaluate(() => renderHome());
+  await page.evaluate(() => renderHomeReturnCard());
   await expect(page.locator("#homeReturnCard")).toContainText("Since your last visit");
   await expect(page.locator("#homeReturnCard")).toContainText("1 new read");
   await expect(page.locator("#homeReturnCard")).toContainText("1 new outcome");
