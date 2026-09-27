@@ -1718,6 +1718,15 @@ function decisionBridgeHtml(receipt, pro) {
   return html;
 }
 
+function recordValueBridgeHtml(receipt) {
+  var receipts = getReceipts();
+  var tracked = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; }).length;
+  var next = receipts.length >= 3
+    ? "<button class='ghost-btn' data-sr-event='record_pattern_review_clicked' data-feature='record_value_bridge' onclick='showScreen(&quot;insightsScreen&quot;)'>Review your pattern</button>"
+    : "<button class='ghost-btn' data-sr-event='record_next_read_clicked' data-feature='record_value_bridge' onclick='openCreate()'>Run another read</button>";
+  return "<div class='detail-card' style='margin-top:10px;border-color:var(--border-warm);background:rgba(201,168,76,.045)'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Your record just changed</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:18px;font-weight:400'>This read is now part of your record.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>You have "+receipts.length+" saved "+(receipts.length === 1 ? "read":"reads")+" and "+tracked+" tracked "+(tracked === 1 ? "outcome":"outcomes")+". The value compounds when you compare the read with what actually happened.</p><div style='display:flex;gap:8px;flex-wrap:wrap'><button class='secondary-btn' data-sr-event='record_history_opened' data-feature='record_value_bridge' onclick='showScreen(&quot;historyScreen&quot;)'>Open your record</button>" + next + "</div></div>";
+}
+
 function outcomePromptHtml(receipt) {
   return "<div class='outcome-prompt detail-card' style='margin-top:0'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Close the loop</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:18px;font-weight:400'>What happens after this decision?</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Save the read now. Come back after they respond and see whether the pattern held.</p><div class='outcome-row'><button class='outcome-btn' onclick='saveReceiptWithOutcome(&quot;Still unclear&quot;)'>Save for later</button><button class='outcome-btn' onclick='saveReceiptWithOutcome(&quot;Better than expected&quot;)'>It worked</button><button class='outcome-btn' onclick='saveReceiptWithOutcome(&quot;No response&quot;)'>No response</button></div></div>";
 }
@@ -1892,7 +1901,10 @@ function renderReceiptOutput(receipt, savedView) {
     if (callout && !savedView) {
       html += rs("<div class=\"pattern-callout\"><div class=\"pattern-callout-eyebrow\">"+callout.icon+" Pattern detected</div><p class=\"pattern-callout-text\">"+callout.text+"</p><p class=\"pattern-callout-sub\">"+callout.sub+"</p></div>");
     }
-    if (savedView) { html += rs(outcomeTracker(receipt)); }
+    if (savedView) {
+      html += rs(outcomeTracker(receipt));
+      html += rs(recordValueBridgeHtml(receipt));
+    }
     if (savedView && receipt.outcome && receipt.outcome!=="Not tracked yet") { html += rs(replayCard(receipt)); }
   }
 
