@@ -2634,6 +2634,12 @@ function ensureEmailCaptureCard() {
 }
 
 var _returnRecordViewed = false;
+function readReturnSnapshot() {
+  try { return JSON.parse(localStorage.getItem("sr_return_snapshot_v1") || "null"); } catch (_) { return null; }
+}
+function writeReturnSnapshot(snapshot) {
+  try { localStorage.setItem("sr_return_snapshot_v1", JSON.stringify(snapshot)); } catch (_) {}
+}
 function renderHomeReturnCard() {
   var el = document.getElementById("homeReturnCard");
   if (!el) return;
@@ -2643,8 +2649,17 @@ function renderHomeReturnCard() {
     return;
   }
   var pending = receipts.filter(function(r){ return !r.outcome || r.outcome === "Not tracked yet"; }).length;
+  var tracked = receipts.length - pending;
   var latest = receipts[0];
   var total = receipts.length;
+  var previous = readReturnSnapshot();
+  var newReads = previous ? Math.max(0, total - Number(previous.total || 0)) : 0;
+  var newOutcomes = previous ? Math.max(0, tracked - Number(previous.tracked || 0)) : 0;
+  var changeLine = previous
+    ? (newReads || newOutcomes
+      ? "Since your last visit: "+newReads+" new "+(newReads === 1 ? "read":"reads")+" and "+newOutcomes+" new "+(newOutcomes === 1 ? "outcome":"outcomes")+" recorded."
+      : "Your record is ready for its next update.")
+    : "Your record becomes more useful as you return and track what happened.";
   var action = pending
     ? "<button class='secondary-btn' data-sr-event='continue_record_clicked' data-feature='continue_record' onclick='showScreen(&quot;historyScreen&quot;)'>Close the loop on "+pending+" open "+(pending === 1 ? "read" : "reads")+"</button>"
     : "<button class='secondary-btn' data-sr-event='continue_record_clicked' data-feature='continue_record' onclick='openCreate()'>Run your next check</button>";
@@ -2653,8 +2668,13 @@ function renderHomeReturnCard() {
     : "";
   var latestLabel = latest && latest.scenario ? "Your latest "+escapeHtml(latest.scenario.toLowerCase())+" read is still part of your record." : "Your latest read is still part of your record.";
   el.style.display = "block";
-  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Continue your record</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Welcome back. Your history is here.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+latestLabel+" You have "+total+" saved "+(total === 1 ? "read" : "reads")+" and the pattern becomes more useful when you return.</p><div style='display:flex;gap:8px;flex-wrap:wrap'>"+action+patternAction+"</div>";
-  if (!_returnRecordViewed) { _returnRecordViewed = true; trackEvent("return_record_viewed", { feature: "continue_record", open_reads: pending, saved_reads: total }); }
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Continue your record</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Welcome back. Your history is here.</h3><p style='margin:0 0 6px;color:var(--muted);font-size:12px;line-height:1.5'>"+latestLabel+" You have "+total+" saved "+(total === 1 ? "read" : "reads")+" and "+pending+" open "+(pending === 1 ? "read":"reads")+".</p><p style='margin:0 0 10px;color:var(--gold-2);font-size:12px;line-height:1.5'>"+changeLine+"</p><div style='display:flex;gap:8px;flex-wrap:wrap'>"+action+patternAction+"</div>";
+  if (!_returnRecordViewed) {
+    _returnRecordViewed = true;
+    trackEvent("return_record_viewed", { feature: "continue_record", open_reads: pending, saved_reads: total, tracked_outcomes: tracked });
+    if (previous && (newReads || newOutcomes)) trackEvent("return_record_change_viewed", { feature: "continue_record", new_reads: newReads, new_outcomes: newOutcomes });
+  }
+  writeReturnSnapshot({ total: total, tracked: tracked, pending: pending });
 }
 
 function renderHome() {
