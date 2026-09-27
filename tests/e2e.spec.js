@@ -114,6 +114,32 @@ test("3b. a shared invite records first-receipt activation safely", async ({ pag
   await expect.poll(async () => page.evaluate(() => localStorage.getItem("sr_referral_activation_recorded"))).toBe("1");
 });
 
+test("3c. sharing registers attribution and claiming a verified referral adds one local credit", async ({ page }) => {
+  await skipToApp(page);
+  await createReceipt(page);
+  let registeredCode = null;
+  await page.route("**/.netlify/functions/referral-register", async (route) => {
+    const body = route.request().postDataJSON();
+    registeredCode = body && body.referral_code;
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+  });
+  await page.route("**/.netlify/functions/referral-claim", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, credit: true, available: 0 }) });
+  });
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: () => Promise.resolve() }
+    });
+  });
+  await page.getByRole("button", { name: "Share the insight" }).click();
+  await page.getByRole("button", { name: "Share result" }).click();
+  await expect.poll(async () => registeredCode).toMatch(/^sr_[a-z0-9]+$/);
+  await page.evaluate(() => claimReferralCredit());
+  await expect.poll(async () => page.evaluate(() => localStorage.getItem("sr_referral_credits"))).toBe("1");
+});
+
 test("4. reaching the monthly free limit opens the paywall on the 4th receipt", async ({ page }) => {
   // The free limit (FREE_LIMIT=3) counts SAVED receipts per calendar month,
   // so each of the first 3 must be saved to actually consume the quota.
