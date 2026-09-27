@@ -385,7 +385,11 @@
     }
 
     function showConfirmed(plan) {
-      if (window.SRAnalytics) { window.SRAnalytics.track('checkout_verified', { plan_type: 'pro' }); window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' }); }
+      if (window.SRAnalytics) {
+        window.SRAnalytics.track('checkout_verified', { plan_type: 'pro', verification_source: 'stripe_paid' });
+        window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' });
+        window.SRAnalytics.track('purchase_attributed', { plan_type: 'pro', attribution_status: 'stripe_verified' });
+      }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
       document.getElementById('spinner').classList.add('hidden');

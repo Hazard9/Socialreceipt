@@ -222,6 +222,30 @@ test("8a. success.html shows a confirmed state only after verify-checkout says v
   await expect(page.locator("#planBadge")).toContainText("Monthly");
 });
 
+test("8a. success.html records purchase attribution only after Stripe verification", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__srAnalyticsEvents = [];
+    window.addEventListener("sr:analytics", (event) => {
+      window.__srAnalyticsEvents.push(event.detail);
+    });
+  });
+  await page.route("**/.netlify/functions/verify-checkout*", (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ valid: true, plan: "lifetime" }),
+    });
+  });
+  await page.goto("/success.html?session_id=cs_test_123&utm_source=tiktok&utm_medium=social&utm_campaign=before_you_send_it&utm_content=before-send-ep01-overexplaining&content_series=before_you_send_it&hook_variant=overexplaining");
+  await expect(page.locator("#headline")).toContainText("Payment received", { timeout: 5000 });
+  const events = await page.evaluate(() => window.__srAnalyticsEvents);
+  const purchase = events.find((entry) => entry.event === "purchase_attributed");
+  expect(purchase).toBeTruthy();
+  expect(purchase.params.attribution_status).toBe("stripe_verified");
+  expect(purchase.params.content_id).toBe("before-send-ep01-overexplaining");
+  expect(purchase.params.hook_variant).toBe("overexplaining");
+});
+
 test("8b. success.html shows an honest failure state when verification fails", async ({ page }) => {
   await page.route("**/.netlify/functions/verify-checkout*", (route) => {
     route.fulfill({
