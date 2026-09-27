@@ -30,6 +30,7 @@ exports.handler = async function (event) {
   }
 
   const email = typeof payload.email === "string" ? payload.email.trim() : "";
+  const profile = normalizeProfile(payload.profile);
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return json(400, { ok: false, error: "invalid_email" });
   }
@@ -44,11 +45,18 @@ exports.handler = async function (event) {
     });
   }
 
+  const subscriberBody = { email_address: email };
+  // Optional until the Kit custom field is created/configured. This keeps the
+  // existing capture path fully backward-compatible while enabling
+  // profile-specific personalization when KIT_PROFILE_FIELD_KEY is present.
+  const profileFieldKey = String(process.env.KIT_PROFILE_FIELD_KEY || "").trim();
+  if (profile && profileFieldKey) subscriberBody.custom_fields = { [profileFieldKey]: profile };
+
   let subscriberResponse;
   try {
     subscriberResponse = await kitRequest("/subscribers", apiKey, {
       method: "POST",
-      body: { email_address: email },
+      body: subscriberBody,
     });
   } catch (err) {
     console.error("subscribe-email_subscriber_request_failed", {
@@ -120,6 +128,16 @@ async function kitRequest(path, apiKey, options) {
   }
 
   return { ok: response.ok, status: response.status, body };
+}
+
+function normalizeProfile(value) {
+  const profile = typeof value === "string" ? value.trim() : "";
+  return [
+    "The Clarifier",
+    "The Reassurance Seeker",
+    "The Boundary Protector",
+    "The Conflict Resolver",
+  ].includes(profile) ? profile : "";
 }
 
 function json(statusCode, body) {

@@ -46,6 +46,7 @@ function exists(file) {
 [
   "index.html",
   "success.html",
+  "confidence-profile.html",
   "manifest.json",
   "netlify.toml",
   "sw.js",
@@ -60,6 +61,8 @@ function exists(file) {
 
 const indexHtml = read("index.html");
 const successHtml = read("success.html");
+const confidenceProfileHtml = read("confidence-profile.html");
+const subscribeEmailJs = read("netlify/functions/subscribe-email.js");
 const swJs = read("sw.js");
 
 // 2. No Stripe placeholder links
@@ -91,6 +94,28 @@ if (/session_id/.test(indexHtml) && /verify-checkout/.test(indexHtml)) {
   pass("index.html verifies checkout via session_id + verify-checkout function");
 } else {
   fail("index.html does not appear to call verify-checkout with a session_id");
+}
+
+// 4b. Confidence Profile remains an honest, non-diagnostic funnel.
+if (/not a diagnosis or a fixed personality type/.test(confidenceProfileHtml) && /subscribe-email/.test(confidenceProfileHtml)) {
+  pass("confidence profile is non-diagnostic and uses the server-side email capture");
+} else {
+  fail("confidence profile is missing its non-diagnostic or email-capture guardrail");
+}
+if (/recognition/.test(confidenceProfileHtml) && /Your strongest asset/.test(confidenceProfileHtml) && /Your next move/.test(confidenceProfileHtml)) {
+  pass("confidence profile includes the memorable recognition and practical next move reveal");
+} else {
+  fail("confidence profile is missing its richer result reveal");
+}
+if (/shareProfile/.test(confidenceProfileHtml) && /confidence_profile_shared/.test(confidenceProfileHtml) && /No private message text/.test(confidenceProfileHtml)) {
+  pass("confidence profile sharing is privacy-safe and attributed");
+} else {
+  fail("confidence profile sharing is missing its privacy or analytics guardrail");
+}
+if (/profile:pick\(\)\.name/.test(confidenceProfileHtml) && /KIT_PROFILE_FIELD_KEY/.test(subscribeEmailJs) && /normalizeProfile/.test(subscribeEmailJs)) {
+  pass("profile selection can be carried into Kit without weakening signup validation");
+} else {
+  fail("profile-specific Kit capture wiring is incomplete");
 }
 
 // 5. success.html only claims payment after verification
