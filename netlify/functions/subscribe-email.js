@@ -1,17 +1,21 @@
 /*
-  Social Receipt — Kit (ConvertKit) email capture
-  ════════════════════════════════════════════
+  Social Receipt — Kit email capture
+  ==================================
   Keeps the Kit API key server-side. The frontend POSTs { email } here;
-  this function forwards it to Kit and reports the real result back.
+  this function creates/updates the subscriber in Kit, then adds that
+  subscriber to the configured Social Receipt form.
 
-  Required Netlify environment variables (both must be set, or this
-  function reports itself as unconfigured rather than faking success):
-    KIT_API_KEY   — Kit "API Key" from https://app.kit.com/account_settings/developer_settings
-    KIT_FORM_ID   — the numeric ID of the Kit form/sequence to subscribe to
+  Required Netlify environment variables:
+    KIT_API_KEY   — Kit API key from the developer settings page
+    KIT_FORM_ID   — numeric ID of the Social Receipt Kit form
 
-  Optional:
-    KIT_TAGS      — comma-separated tag names to apply, e.g. "social-receipt-user"
+  Kit API v4 is used intentionally. The older v3 form-subscribe endpoint
+  is deprecated and accepted tag names inconsistently. Tags can be added
+  later with a configured Kit tag ID without weakening this signup path.
 */
+
+const KIT_API_BASE = "https://api.kit.com/v4";
+const APP_REFERRER = "https://socialreceipt.netlify.app/";
 
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
@@ -40,40 +44,91 @@ exports.handler = async function (event) {
     });
   }
 
-  const tags = (process.env.KIT_TAGS || "social-receipt-user")
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
-
-  let resp;
+  let subscriberResponse;
   try {
-    resp = await fetch(
-      "https://api.convertkit.com/v3/forms/" + encodeURIComponent(formId) + "/subscribe",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          api_key: apiKey,
-          email: email,
-          tags: tags,
-        }),
-      }
-    );
+    subscriberResponse = await kitRequest("/subscribers", apiKey, {
+      method: "POST",
+      body: { email_address: email },
+    });
   } catch (err) {
+    console.error("subscribe-email_subscriber_request_failed", {
+      name: err && err.name ? err.name : "Error",
+    });
     return json(502, { ok: false, error: "kit_unreachable" });
   }
 
-  if (!resp.ok) {
+  if (!subscriberResponse.ok) {
+    console.error("subscribe-email_subscriber_error", {
+      status: subscriberResponse.status,
+    });
     return json(502, { ok: false, error: "kit_error" });
+  }
+
+  const subscriberId =
+    subscriberResponse.body &&
+    subscriberResponse.body.subscriber &&
+    subscriberResponse.body.subscriber.id;
+
+  if (!subscriberId) {
+    console.error("subscribe-email_missing_subscriber_id");
+    return json(502, { ok: false, error: "kit_error" });
+  }
+
+  let formResponse;
+  try {
+    formResponse = await kitRequest(
+      "/forms/" + encodeURIComponent(formId) + "/subscribers/" + encodeURIComponent(subscriberId),
+      apiKey,
+      {
+        method: "POST",
+        body: { referrer: APP_REFERRER },
+      }
+    );
+  } catch (err) {
+    console.error("subscribe-email_form_request_failed", {
+      name: err && err.name ? err.name : "Error",
+    });
+    return json(502, { ok: false, error: "kit_unreachable" });
+  }
+
+  if (!formResponse.ok) {
+    console.error("subscribe-email_form_error", {
+      status: formResponse.status,
+    });
+    return json(502, { ok: false, error: "kit_form_error" });
   }
 
   return json(200, { ok: true });
 };
 
+async function kitRequest(path, apiKey, options) {
+  const response = await fetch(KIT_API_BASE + path, {
+    method: options.method,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Kit-Api-Key": apiKey,
+    },
+    body: JSON.stringify(options.body || {}),
+  });
+
+  let body = null;
+  try {
+    body = await response.json();
+  } catch (err) {
+    body = null;
+  }
+
+  return { ok: response.ok, status: response.status, body };
+}
+
 function json(statusCode, body) {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    },
     body: JSON.stringify(body),
   };
 }
