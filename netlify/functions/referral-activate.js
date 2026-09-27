@@ -18,7 +18,8 @@ exports.handler = async function(event) {
     record.activations = Number(record.activations || 0) + 1;
     await db.setJSON(key, record);
     return json(200, { ok: true, awarded: true });
-  } catch (_) {
+  } catch (err) {
+    console.error("referral-activate_store_error", { name: err && err.name ? err.name : "Error", message: err && err.message ? String(err.message).slice(0, 240) : "unknown" });
     return json(503, { ok: false, error: "referral_store_unavailable" });
   }
 };
