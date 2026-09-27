@@ -396,6 +396,22 @@ test("15. clearing localStorage returns the user to the landing screen", async (
   await expect(page.locator("#landingScreen")).toBeVisible();
 });
 
+test("15c. pattern profile shows outcome evidence separately from read count", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => {
+    localStorage.setItem("sr_pro", "1");
+    localStorage.setItem("socialReceipts", JSON.stringify([
+      {id:"a",createdAt:new Date().toISOString(),scenario:"Text / DM",feeling:"Anxious",energy:"You chasing",risk:"High",bestMove:"Wait",outcome:"Resolved"},
+      {id:"b",createdAt:new Date().toISOString(),scenario:"Text / DM",feeling:"Anxious",energy:"You chasing",risk:"High",bestMove:"Wait",outcome:"Not tracked yet"},
+      {id:"c",createdAt:new Date().toISOString(),scenario:"Work",feeling:"Calm",energy:"Balanced",risk:"Low",bestMove:"Send",outcome:"Better than expected"}
+    ]));
+  });
+  await page.click('.nav-btn[data-screen="insightsScreen"]');
+  await expect(page.locator("#insightDashboard")).toContainText("Outcome evidence");
+  await expect(page.locator("#insightDashboard")).toContainText("2/3 tracked");
+  await expect(page.locator("#insightDashboard")).toContainText("Emerging signal");
+});
+
 test("15b. insights shows content experiment tracking context", async ({ page }) => {
   await skipToApp(page);
   await page.click('.nav-btn[data-screen="insightsScreen"]');
