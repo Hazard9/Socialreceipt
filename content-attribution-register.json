@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "base_url": "https://socialreceipt.netlify.app/",
+  "naming": {
+    "content_id": "Unique asset or episode ID",
+    "content_series": "Series name",
+    "hook_variant": "Short hook label",
+    "utm_source": "Platform: instagram, tiktok, youtube, facebook, threads",
+    "utm_medium": "Usually social, referral, or organic",
+    "utm_campaign": "Campaign name"
+  },
+  "entries": [
+    {
+      "content_id": "before-send-ep01-overexplaining",
+      "content_series": "before_you_send_it",
+      "hook_variant": "overexplaining",
+      "title": "Why Over-Explaining Makes You Look Guilty",
+      "status": "published"
+    },
+    {
+      "content_id": "before-send-ep02-defensive-reset",
+      "content_series": "before_you_send_it",
+      "hook_variant": "one_sentence_reset",
+      "title": "One-Sentence Reset for Defensive Conversations",
+      "status": "published"
+    },
+    {
+      "content_id": "before-send-ep03-rewritten-history",
+      "content_series": "before_you_send_it",
+      "hook_variant": "anchor_the_record",
+      "title": "What to Say When Someone Rewrites What Happened",
+      "status": "planned"
+    },
+    {
+      "content_id": "before-send-ep04-social-receipt",
+      "content_series": "before_you_send_it",
+      "hook_variant": "create_a_receipt",
+      "title": "How to Create a Social Receipt Without Starting a Fight",
+      "status": "planned"
+    },
+    {
+      "content_id": "before-send-ep05-second-read",
+      "content_series": "before_you_send_it",
+      "hook_variant": "chasing_signal",
+      "title": "The Second Read That Protects Your Leverage",
+      "status": "planned"
+    },
+    {
+      "content_id": "before-send-ep06-silence",
+      "content_series": "before_you_send_it",
+      "hook_variant": "hold_position",
+      "title": "When Silence Is Stronger Than Another Explanation",
+      "status": "planned"
+    },
+    {
+      "content_id": "before-send-ep07-clean_close",
+      "content_series": "before_you_send_it",
+      "hook_variant": "end_cleanly",
+      "title": "How to End the Conversation Without Looking Emotional",
+      "status": "planned"
+    },
+    {
+      "content_id": "longform-after-argument",
+      "content_series": "social_receipt_explained",
+      "hook_variant": "round_two",
+      "title": "How to Text After an Argument Without Starting Another One",
+      "status": "published"
+    }
+  ]
+}
