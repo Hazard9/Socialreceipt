@@ -1818,6 +1818,13 @@ function updateUserRewriteComparison() {
   toast("Three versions ready to compare.");
 }
 
+function shouldShowLifetimeOffer(savedView) {
+  if (savedView || isPro()) return false;
+  var receipts = getReceipts();
+  var tracked = receipts.filter(function(r){ return r.outcome && r.outcome !== "Not tracked yet"; }).length;
+  return receipts.length >= 1 || tracked >= 1;
+}
+
 function renderReceiptOutput(receipt, savedView) {
   var pro      = isPro();
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
@@ -1921,8 +1928,8 @@ function renderReceiptOutput(receipt, savedView) {
   }
 
   /* BETA CONVERSION — shown after the user experiences a result */
-  if (!savedView && !pro) {
-    html += rs("<div class=\"detail-card\" style=\"text-align:center;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px\">Lifetime Beta</div><p style=\"font-family:var(--font-serif);font-size:18px;color:var(--text);margin:0 0 7px\">Keep the decision layer for $39 once.</p><p style=\"font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px\">Keep every Pro capability, your personal pattern history, and all features released before public launch. One payment. No recurring charge. The $39 beta price disappears when public pricing begins.</p><button class=\"secondary-btn\" data-sr-event=\"lifetime_offer_viewed\" data-feature=\"lifetime_beta\" onclick=\"openPaywall()\">Lock in Lifetime Beta</button></div>");
+  if (shouldShowLifetimeOffer(savedView)) {
+    html += rs("<div class=\"detail-card\" style=\"text-align:center;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px\">Lifetime Beta</div><p style=\"font-family:var(--font-serif);font-size:18px;color:var(--text);margin:0 0 7px\">Your record is becoming useful. Keep the whole decision layer for $39 once.</p><p style=\"font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px\">Keep every Pro capability, your personal pattern history, and all features released before public launch. One payment. No recurring charge. The $39 beta price disappears when public pricing begins.</p><button class=\"secondary-btn\" data-sr-event=\"lifetime_offer_viewed\" data-feature=\"lifetime_beta\" onclick=\"openPaywall()\">Lock in Lifetime Beta</button></div>");
   }
 
   /* NEXT MESSAGE LOOP — forced, not optional */
