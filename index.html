@@ -797,6 +797,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="limit-bar-track"><div class="limit-bar-fill" id="limitBarFill" style="width:0%"></div></div>
       <div class="limit-banner-text">You have <span id="limitRemaining">3</span> read<span id="limitPluralS">s</span> left. After this, <a onclick="openPaywall()">you are guessing</a>. <a onclick="openPaywall()" style="color:var(--gold)">Upgrade</a></div>
     </div>
+    <div id="homeReturnCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))"></div>
     <div class="hero-card card">
       <div class="hero-content">
         <p class="eyebrow">Today's clarity</p>
@@ -2631,6 +2632,29 @@ function ensureEmailCaptureCard() {
   else home.appendChild(card);
 }
 
+function renderHomeReturnCard() {
+  var el = document.getElementById("homeReturnCard");
+  if (!el) return;
+  var receipts = getReceipts();
+  if (!receipts.length) {
+    el.style.display = "none";
+    return;
+  }
+  var pending = receipts.filter(function(r){ return !r.outcome || r.outcome === "Not tracked yet"; }).length;
+  var latest = receipts[0];
+  var total = receipts.length;
+  var action = pending
+    ? "<button class='secondary-btn' data-sr-event='continue_record_clicked' data-feature='continue_record' onclick='showScreen(&quot;historyScreen&quot;)'>Close the loop on "+pending+" open "+(pending === 1 ? "read" : "reads")+"</button>"
+    : "<button class='secondary-btn' data-sr-event='continue_record_clicked' data-feature='continue_record' onclick='openCreate()'>Run your next check</button>";
+  var patternAction = total >= 3
+    ? "<button class='ghost-btn' data-sr-event='return_pattern_opened' data-feature='continue_record' onclick='showScreen(&quot;insightsScreen&quot;)'>Review what is changing</button>"
+    : "";
+  var latestLabel = latest && latest.scenario ? "Your latest "+escapeHtml(latest.scenario.toLowerCase())+" read is still part of your record." : "Your latest read is still part of your record.";
+  el.style.display = "block";
+  el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Continue your record</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Welcome back. Your history is here.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+latestLabel+" You have "+total+" saved "+(total === 1 ? "read" : "reads")+" and the pattern becomes more useful when you return.</p><div style='display:flex;gap:8px;flex-wrap:wrap'>"+action+patternAction+"</div>";
+  trackEvent("return_record_viewed", { feature: "continue_record", open_reads: pending, saved_reads: total });
+}
+
 function renderHome() {
   ensureEmailCaptureCard();
   var receipts=getReceipts();
@@ -2642,6 +2666,7 @@ function renderHome() {
   updateHomeStatus();
   renderStreak();
   renderProgress();
+  renderHomeReturnCard();
   renderHomePattern();
   renderHomeReflection();
   renderHomeOwnership();
