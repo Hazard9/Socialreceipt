@@ -345,6 +345,15 @@ test("13. email capture reports an honest failure when the backend is not config
   await expect(page.locator("#toast")).toContainText("not connected", { timeout: 5000 });
 });
 
+test("3d. recording an outcome explains how the read becomes record value", async ({ page }) => {
+  await skipToApp(page);
+  await createReceipt(page);
+  await page.getByRole("button", { name: "It worked" }).click();
+  await expect(page.locator("#receiptOutput")).toContainText("Your record just changed");
+  await expect(page.locator("#receiptOutput")).toContainText("This read is now part of your record");
+  await expect(page.locator("#receiptOutput")).toContainText("tracked outcome");
+});
+
 test("14. refreshing the page preserves saved receipts", async ({ page }) => {
   await skipToApp(page);
   await createReceipt(page);
