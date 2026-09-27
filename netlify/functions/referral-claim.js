@@ -15,7 +15,8 @@ exports.handler = async function(event) {
     record.claimed = claimed + 1;
     await db.setJSON(key, record);
     return json(200, { ok: true, credit: true, available: activations - record.claimed });
-  } catch (_) {
+  } catch (err) {
+    console.error("referral-claim_store_error", { name: err && err.name ? err.name : "Error", message: err && err.message ? String(err.message).slice(0, 240) : "unknown" });
     return json(503, { ok: false, error: "referral_store_unavailable" });
   }
 };
