@@ -2632,6 +2632,7 @@ function ensureEmailCaptureCard() {
   else home.appendChild(card);
 }
 
+var _returnRecordViewed = false;
 function renderHomeReturnCard() {
   var el = document.getElementById("homeReturnCard");
   if (!el) return;
@@ -2652,7 +2653,7 @@ function renderHomeReturnCard() {
   var latestLabel = latest && latest.scenario ? "Your latest "+escapeHtml(latest.scenario.toLowerCase())+" read is still part of your record." : "Your latest read is still part of your record.";
   el.style.display = "block";
   el.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Continue your record</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Welcome back. Your history is here.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>"+latestLabel+" You have "+total+" saved "+(total === 1 ? "read" : "reads")+" and the pattern becomes more useful when you return.</p><div style='display:flex;gap:8px;flex-wrap:wrap'>"+action+patternAction+"</div>";
-  trackEvent("return_record_viewed", { feature: "continue_record", open_reads: pending, saved_reads: total });
+  if (!_returnRecordViewed) { _returnRecordViewed = true; trackEvent("return_record_viewed", { feature: "continue_record", open_reads: pending, saved_reads: total }); }
 }
 
 function renderHome() {
