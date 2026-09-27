@@ -103,6 +103,18 @@ test("3a. clipboard sharing preserves referral attribution without private text"
   expect(copied).not.toContain("They said");
 });
 
+test("3e. Lifetime Beta waits until the user has a prior saved read", async ({ page }) => {
+  await skipToApp(page);
+  await createReceipt(page, "First read before saving");
+  await expect(page.locator("#receiptOutput")).not.toContainText("Keep the whole decision layer for $39 once.");
+  await page.click('button[onclick="saveCurrentReceipt()"]');
+  await page.click('.nav-btn[data-screen="createScreen"]');
+  await page.fill("#interactionText", "Second read after saving the first.");
+  await page.click('button[onclick="generateReceipt()"]');
+  await page.waitForSelector("#receiptOutput.active", { timeout: 5000 });
+  await expect(page.locator("#receiptOutput")).toContainText("Keep the whole decision layer for $39 once.");
+});
+
 test("3b. a shared invite records first-receipt activation safely", async ({ page }) => {
   await page.goto("/?sr_ref=test_referral");
   await page.evaluate(() => {
