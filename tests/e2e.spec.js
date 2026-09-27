@@ -288,6 +288,15 @@ test("14. refreshing the page preserves saved receipts", async ({ page }) => {
   expect(after).toBeGreaterThan(0);
 });
 
+test("14b. returning users see Continue Your Record", async ({ page }) => {
+  await skipToApp(page);
+  await createReceipt(page);
+  await page.click('button[onclick="saveCurrentReceipt()"]');
+  await page.reload();
+  await expect(page.locator("#homeReturnCard")).toBeVisible();
+  await expect(page.locator("#homeReturnCard")).toContainText("Continue your record");
+});
+
 test("15. clearing localStorage returns the user to the landing screen", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.clear());
