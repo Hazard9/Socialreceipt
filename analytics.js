@@ -8,7 +8,7 @@
   var SESSION_KEY = 'sr_session_id_v1';
   var RETURN_KEY = 'sr_return_seen_v1';
   var allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'threads', 'direct', 'other'];
-  var allowedPlans = ['free', 'pro', 'unknown'];
+  var allowedPlans = ['free', 'pro', 'lifetime', 'unknown'];
   var allowedResultLevels = ['low', 'medium', 'high', 'unknown'];
 
   function safeString(value, max) {
