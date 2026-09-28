@@ -386,10 +386,14 @@
 
     function showConfirmed(plan) {
       if (window.SRAnalytics) {
-        var planType = String(plan || 'pro').toLowerCase() === 'lifetime' ? 'lifetime' : 'pro';
-        window.SRAnalytics.track('checkout_verified', { plan_type: planType, verification_source: 'stripe_paid' });
-        window.SRAnalytics.track('upgrade_completed', { plan_type: planType });
-        window.SRAnalytics.track('purchase_attributed', { plan_type: planType, attribution_status: 'stripe_verified' });
+        var rawPlan = String(plan || 'pro').toLowerCase();
+        var planType = rawPlan === 'lifetime' ? 'lifetime' : 'pro';
+        var purchaseValue = rawPlan === 'lifetime' ? 39 : rawPlan === 'yearly' ? 69 : 9;
+        var purchaseMeta = { plan_type: planType, value: purchaseValue, currency: 'USD', verification_source: 'stripe_paid' };
+        window.SRAnalytics.track('checkout_verified', purchaseMeta);
+        window.SRAnalytics.track('upgrade_completed', purchaseMeta);
+        window.SRAnalytics.track('purchase_attributed', { plan_type: planType, value: purchaseValue, currency: 'USD', attribution_status: 'stripe_verified' });
+        window.SRAnalytics.track('purchase', { transaction_id: 'stripe_verified', value: purchaseValue, currency: 'USD', plan_type: planType });
       }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
