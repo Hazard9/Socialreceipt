@@ -386,9 +386,10 @@
 
     function showConfirmed(plan) {
       if (window.SRAnalytics) {
-        window.SRAnalytics.track('checkout_verified', { plan_type: 'pro', verification_source: 'stripe_paid' });
-        window.SRAnalytics.track('upgrade_completed', { plan_type: 'pro' });
-        window.SRAnalytics.track('purchase_attributed', { plan_type: 'pro', attribution_status: 'stripe_verified' });
+        var planType = String(plan || 'pro').toLowerCase() === 'lifetime' ? 'lifetime' : 'pro';
+        window.SRAnalytics.track('checkout_verified', { plan_type: planType, verification_source: 'stripe_paid' });
+        window.SRAnalytics.track('upgrade_completed', { plan_type: planType });
+        window.SRAnalytics.track('purchase_attributed', { plan_type: planType, attribution_status: 'stripe_verified' });
       }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
