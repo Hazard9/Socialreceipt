@@ -7,6 +7,16 @@ functions = "netlify/functions"
 # file and would swallow anything less specific than that exact path.
 
 [[redirects]]
+from = "/go/tt-rs"
+to = "/?utm_source=tiktok&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=reassurance_seeker_20260928&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=reassurance_seeker_v1"
+status = 302
+
+[[redirects]]
+from = "/go/ig-rs"
+to = "/?utm_source=instagram&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=reassurance_seeker_20260928&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=reassurance_seeker_v1"
+status = 302
+
+[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
