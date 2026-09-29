@@ -2391,7 +2391,7 @@ function updateHomeStatus() {
   if (!pill) return;
   var user = getCurrentUser();
   if (user.isPro) {
-    var planLabel = localStorage.getItem("sr_plan_type")==="lifetime" ? "Lifetime" : "Pro";
+    var planLabel = isLifetimeAccess() ? "Lifetime" : "Pro";
     pill.innerHTML = "<span style=\"font-size:10px\">&#9733;</span> " + planLabel;
     pill.style.background = "linear-gradient(135deg,var(--gold-glow),var(--gold-glow-2))";
     pill.onclick = openProfilePanel;
@@ -2757,6 +2757,11 @@ function getCurrentUser() {
 function isProUser() {
   /* SUPABASE READY: check subscription status from Supabase */
   return localStorage.getItem("sr_pro") === "1";
+}
+
+function isLifetimeAccess() {
+  var plan = localStorage.getItem("sr_plan_type");
+  return plan === "lifetime" || plan === "developer";
 }
 
 /* ════════════════════════════════════════════
@@ -3221,7 +3226,7 @@ function renderProfilePanel() {
   html += "<div class=\"profile-anon-id\">ID: " + anonId.slice(0,20) + "</div>";
   html += "<div style=\"display:flex;justify-content:center\">";
   html += "<div class=\"profile-plan-badge " + (isPro ? "pro" : "free") + "\">";
-  html += isPro ? "&#9733; Pro" : "Free plan";
+  html += isPro ? ("&#9733; " + (isLifetimeAccess() ? "Lifetime" : "Pro")) : "Free plan";
   html += "</div></div>";
 
   /* Stats row */
@@ -3239,7 +3244,7 @@ function renderProfilePanel() {
   /* Account section */
   html += "<div class=\"profile-section-label\">Account</div>";
   html += "<div class=\"profile-row\"><span class=\"profile-row-label\">Email</span><span class=\"profile-row-val\">" + (email || "Not linked") + "</span></div>";
-  html += "<div class=\"profile-row\"><span class=\"profile-row-label\">Plan</span><span class=\"profile-row-val\">" + (isPro ? (localStorage.getItem("sr_plan_type")==="lifetime" ? "Lifetime" : "Pro Monthly") : "Free") + "</span></div>";
+  html += "<div class=\"profile-row\"><span class=\"profile-row-label\">Plan</span><span class=\"profile-row-val\">" + (isPro ? (isLifetimeAccess() ? "Lifetime" : "Pro Monthly") : "Free") + "</span></div>";
   if (localStorage.getItem("sr_account_created")) {
     html += "<div class=\"profile-row\"><span class=\"profile-row-label\">Member since</span><span class=\"profile-row-val\">" + formatDate(localStorage.getItem("sr_account_created")) + "</span></div>";
   }
