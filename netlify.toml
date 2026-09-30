@@ -1,6 +1,11 @@
 [build]
 functions = "netlify/functions"
 
+[build.environment]
+# This is a public Kit custom-field name, not an authentication credential.
+# Keep API keys and developer access credentials covered by Netlify's secrets scan.
+SECRETS_SCAN_OMIT_KEYS = "KIT_PROFILE_FIELD_KEY"
+
 # Functions are served at /.netlify/functions/<name> automatically.
 # Do not add a catch-all-safe alias for them here — the /_redirects
 # file's "/* /index.html 200" rule is processed before rules in this
