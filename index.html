@@ -2908,7 +2908,27 @@ function handlePaymentSuccess() {
         }
         toast("Payment confirmed. Pro is unlocked.");
         haptic([20, 40, 20]);
-        trackEvent("checkout_returned", { result: "verified", plan: data.plan || "monthly" });
+        var verifiedPlan = data.plan || "monthly";
+        trackEvent("checkout_returned", { result: "verified", plan: verifiedPlan });
+        trackEvent("upgrade_completed", { plan: verifiedPlan });
+        var amountTotal = Number(data.amountTotal);
+        var currency = String(data.currency || "").toUpperCase();
+        if (data.sessionId && Number.isFinite(amountTotal) && amountTotal > 0 && /^[A-Z]{3}$/.test(currency)) {
+          var purchaseValue = amountTotal / 100;
+          var lifetimePurchase = verifiedPlan === "lifetime";
+          trackEvent("purchase", {
+            transaction_id: String(data.sessionId),
+            value: purchaseValue,
+            currency: currency,
+            items: [{
+              item_id: lifetimePurchase ? "social_receipt_lifetime" : "social_receipt_pro",
+              item_name: lifetimePurchase ? "Social Receipt Lifetime Beta" : "Social Receipt Pro",
+              item_category: lifetimePurchase ? "Lifetime access" : "Subscription",
+              price: purchaseValue,
+              quantity: 1
+            }]
+          });
+        }
       } else {
         var reason = (data && data.error) || "unverified";
         toast(
