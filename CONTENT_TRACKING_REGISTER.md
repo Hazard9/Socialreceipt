@@ -164,3 +164,15 @@ https://socialreceipt.netlify.app/?utm_source=facebook&utm_medium=organic&utm_ca
 - Facebook: place the Facebook version in the caption or pinned comment.
 - Do not reuse one platform link for another platform.
 - Do not change the content ID after posting.
+
+
+## Rewrite Loop video
+
+- Content ID: `rewrite-loop-20260930`
+- Series/campaign: `rewrite_loop`
+- Hook: `four_versions`
+- Destination: `/confidence-profile` (7-question communication profile quiz)
+- TikTok: `https://socialreceipt.netlify.app/go/tt-rewrite`
+- Instagram: `https://socialreceipt.netlify.app/go/ig-rewrite`
+- YouTube: `https://socialreceipt.netlify.app/go/yt-rewrite`
+- Facebook: `https://socialreceipt.netlify.app/go/fb-rewrite`
