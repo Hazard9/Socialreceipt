@@ -65,6 +65,14 @@
       "hook_variant": "round_two",
       "title": "How to Text After an Argument Without Starting Another One",
       "status": "published"
+    },
+    {
+      "content_id": "rewrite-loop-20260930",
+      "content_series": "rewrite_loop",
+      "hook_variant": "four_versions",
+      "title": "The Rewrite Loop: One Text, Four Versions",
+      "status": "ready_to_post",
+      "destination": "/confidence-profile"
     }
   ]
 }
