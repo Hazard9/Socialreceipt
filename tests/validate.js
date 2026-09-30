@@ -63,6 +63,7 @@ const indexHtml = read("index.html");
 const successHtml = read("success.html");
 const confidenceProfileHtml = read("confidence-profile.html");
 const subscribeEmailJs = read("netlify/functions/subscribe-email.js");
+const verifyCheckoutJs = read("netlify/functions/verify-checkout.js");
 const swJs = read("sw.js");
 
 // 2. No Stripe placeholder links
@@ -94,6 +95,15 @@ if (/session_id/.test(indexHtml) && /verify-checkout/.test(indexHtml)) {
   pass("index.html verifies checkout via session_id + verify-checkout function");
 } else {
   fail("index.html does not appear to call verify-checkout with a session_id");
+}
+
+// 4a. Verified Stripe payments emit a GA4 purchase with server-confirmed value data.
+if (/trackEvent\("purchase"/.test(indexHtml) && /transaction_id:\s*String\(data\.sessionId\)/.test(indexHtml) &&
+    /amountTotal:\s*Number\.isFinite\(session\.amount_total\)/.test(verifyCheckoutJs) &&
+    /currency:\s*typeof session\.currency/.test(verifyCheckoutJs)) {
+  pass("verified Stripe checkout sends GA4 purchase with transaction, value, and currency");
+} else {
+  fail("verified Stripe checkout is missing its GA4 purchase event or server-confirmed amount data");
 }
 
 // 4b. Confidence Profile remains an honest, non-diagnostic funnel.
