@@ -106,6 +106,8 @@ exports.handler = async function (event) {
     plan: plan,
     email: email,
     sessionId: session.id,
+    amountTotal: Number.isFinite(session.amount_total) ? session.amount_total : null,
+    currency: typeof session.currency === "string" ? session.currency : null,
   });
 };
 
