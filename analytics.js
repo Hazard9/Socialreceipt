@@ -119,8 +119,23 @@
       if (key === 'result_level') value = String(value || '').toLowerCase();
       if (key === 'plan_type' && allowedPlans.indexOf(value) < 0) value = 'unknown';
       if (key === 'result_level' && allowedResultLevels.indexOf(value) < 0) value = 'unknown';
+      if (key === 'items' && Array.isArray(value)) {
+        out.items = value.slice(0, 10).map(function (item) {
+          if (!item || typeof item !== 'object') return null;
+          var safeItem = {};
+          ['item_id', 'item_name', 'item_category', 'item_brand'].forEach(function (itemKey) {
+            if (typeof item[itemKey] === 'string') safeItem[itemKey] = safeString(item[itemKey], 100);
+          });
+          ['price', 'quantity'].forEach(function (itemKey) {
+            if (typeof item[itemKey] === 'number' && Number.isFinite(item[itemKey])) safeItem[itemKey] = item[itemKey];
+          });
+          return Object.keys(safeItem).length ? safeItem : null;
+        }).filter(Boolean);
+        return;
+      }
       if (typeof value === 'boolean') value = value ? 'true' : 'false';
-      if (typeof value === 'string' || typeof value === 'number') out[key] = safeString(String(value), 100);
+      if (typeof value === 'number' && Number.isFinite(value)) out[key] = value;
+      else if (typeof value === 'string') out[key] = safeString(value, 100);
     });
     return out;
   }
