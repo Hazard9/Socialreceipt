@@ -17,6 +17,26 @@ to = "/?utm_source=tiktok&utm_medium=organic_social&utm_campaign=communication_p
 status = 302
 
 [[redirects]]
+from = "/go/tt-rewrite"
+to = "/confidence-profile?utm_source=tiktok&utm_medium=organic_social&utm_campaign=rewrite_loop&utm_content=rewrite-loop-20260930&content_series=rewrite_loop&utm_term=four_versions&utm_experiment=rewrite_loop_v1"
+status = 302
+
+[[redirects]]
+from = "/go/ig-rewrite"
+to = "/confidence-profile?utm_source=instagram&utm_medium=organic_social&utm_campaign=rewrite_loop&utm_content=rewrite-loop-20260930&content_series=rewrite_loop&utm_term=four_versions&utm_experiment=rewrite_loop_v1"
+status = 302
+
+[[redirects]]
+from = "/go/yt-rewrite"
+to = "/confidence-profile?utm_source=youtube&utm_medium=organic_social&utm_campaign=rewrite_loop&utm_content=rewrite-loop-20260930&content_series=rewrite_loop&utm_term=four_versions&utm_experiment=rewrite_loop_v1"
+status = 302
+
+[[redirects]]
+from = "/go/fb-rewrite"
+to = "/confidence-profile?utm_source=facebook&utm_medium=organic_social&utm_campaign=rewrite_loop&utm_content=rewrite-loop-20260930&content_series=rewrite_loop&utm_term=four_versions&utm_experiment=rewrite_loop_v1"
+status = 302
+
+[[redirects]]
 from = "/go/ig-rs"
 to = "/?utm_source=instagram&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=reassurance_seeker_20260928&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=reassurance_seeker_v1"
 status = 302
