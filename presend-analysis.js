@@ -213,7 +213,9 @@
       clarifier: [/\bto be clear\b/, /\bfor context\b/, /\bwhat i mean is\b/, /\bcan you clarify\b/],
       repair: [/\bi want to fix this\b/, /\bcan we talk this through\b/, /\bcan we figure this out\b/],
       threat: [/\byou'?ll regret it\b/, /\bi'?ll make you pay\b/, /\bi will hurt you\b/, /\bi'?m going to hurt you\b/, /\bi'?ll hurt you\b/, /\bif you don'?t .{0,35} i'?ll\b/],
-      insult: [/\byou are (?:a )?(?:worthless|stupid|an idiot)\b/, /\bshut up\b/, /\bi hate you\b/]
+      insult: [/\byou are (?:a )?(?:worthless|stupid|an idiot)\b/, /\bshut up\b/, /\bi hate you\b/],
+      warmth: [/\bi love you\b/, /\blove you\b/, /\bglad you'?re (?:on your way )?home\b/, /\bxoxo\b/, /\bmiss you\b/],
+      careOffer: [/\byou can have\b/, /\bhelp yourself\b/, /\bi saved some for you\b/, /\bthere'?s some for you\b/, /\bi made you\b/, /\bwant some\b/]
     } : {
       deflective: [/\blo siento (?:que )?te sientas asi\b/, /\bsiento que te sientas asi\b/],
       selfBlame: [/\bsupongo que yo soy (?:siempre )?el problema\b/, /\bsupongo que yo siempre soy el problema\b/, /\bsupongo que siempre soy el problema\b/],
@@ -236,7 +238,9 @@
       clarifier: [/\bpara ser claro\b/, /\bpara dar contexto\b/, /\blo que quiero decir es\b/, /\bpuedes aclarar\b/],
       repair: [/\bquiero arreglar esto\b/, /\bpodemos hablarlo\b/, /\bpodemos resolverlo\b/],
       threat: [/\bte vas a arrepentir\b/, /\bte voy a hacer pagar\b/, /\bte voy a hacer dano\b/],
-      insult: [/\beres un idiota\b/, /\beres estupido\b/, /\bcallate\b/, /\bte odio\b/]
+      insult: [/\beres un idiota\b/, /\beres estupido\b/, /\bcallate\b/, /\bte odio\b/],
+      warmth: [/\bte quiero\b/, /\bte amo\b/, /\bme alegra que vuelvas a casa\b/, /\bme alegra que estes de camino a casa\b/, /\bte extrano\b/],
+      careOffer: [/\bpuedes comer\b/, /\bpuedes tomar\b/, /\bte guarde\b/, /\bsirvete\b/, /\bquieres un poco\b/]
     };
 
     var found = {};
@@ -261,7 +265,7 @@
         "reassurance-seeking": ["reassurance"], "boundary-setting": ["boundary"],
         "accountability-apology": ["apology"], "clarifier": ["clarifier"],
         "repair-attempt": ["repair"], "threat": ["threat"], "insult": ["insult"],
-        "resigned-self-reliance": ["resignation"]
+        "resigned-self-reliance": ["resignation"], "warmth-care": ["warmth", "careOffer"]
       };
       var evidence = (evidenceMap[id] || []).map(function (key) { return matches[key]; }).filter(Boolean).slice(0, 3);
       signals.push({ id: id, label: label, detail: detail, kind: kind || "concern", evidence: evidence });
@@ -285,7 +289,7 @@
     if (found.boundary) add("boundary-setting", en ? "Clear boundary or limit" : "Límite claro", en ? "A limit is not automatically hostile or high-risk." : "Un límite no es automáticamente hostil ni de alto riesgo.", "positive", "Boundary Protector-style limit");
     if (found.apology) add("accountability-apology", en ? "Accountability cue" : "Señal de responsabilidad", en ? "Names the sender's own action. A specific repair can make the apology clearer." : "Nombra una acción propia. Una reparación concreta puede aclarar la disculpa.", "positive", "Conflict Resolver-style repair");
     if (found.clarifier) add("clarifier", en ? "Clarifying or context-setting cue" : "Señal para aclarar o dar contexto", en ? "Appears aimed at making meaning or context clearer." : "Parece buscar claridad en el significado o el contexto.", "positive", "Clarifier-style explanation");
-    if (found.repair) add("repair-attempt", en ? "Repair-oriented cue" : "Señal de intención reparadora", en ? "Expresses interest in understanding or resolving the issue." : "Expresa interés en entender o resolver el problema.", "positive", "Conflict Resolver-style repair");
+    if (found.repair) add("repair-attempt", en ? "Repair-oriented cue" : "Señal de intención reparadora", en ? "Expresses interest in understanding or resolving the issue." : "Expresa interés en entender o resolver el problema.", "positive", "Conflict Resolver-style repair");\n    if (found.warmth || found.careOffer) add("warmth-care", en ? "Warmth or care cue" : "Señal de afecto o atención", en ? "Affection, a welcome, or an offer of care appears in the draft. That can support a warm reading, but it cannot guarantee how the whole message will land." : "El borrador expresa afecto, bienvenida o una oferta de atención. Esto puede apoyar una lectura cálida, pero no garantiza cómo se recibirá el mensaje completo.", "positive");
     if (found.threat) add("threat", en ? "Threat or coercion cue" : "Señal de amenaza o coacción", en ? "Contains direct threat or coercive wording." : "Contiene lenguaje de amenaza directa o coacción.", "high");
     if (found.insult) add("insult", en ? "Direct insult" : "Insulto directo", en ? "Attacks the recipient rather than describing the issue." : "Ataca a la otra persona en vez de describir el problema.", "concern");
     if (words.length > 45) add("long-draft", en ? "Long draft" : "Borrador largo", en ? "Length alone is not a tone problem, but the main point may be hard to find." : "La longitud no es por sí sola un problema de tono, pero puede ocultar la idea principal.", "context", "Clarifier-style explanation");
@@ -302,7 +306,7 @@
       summary = en ? "A wording pattern may land as defensive, dismissive, blaming, or pressuring. Context can change that reading." : "Un patrón puede sonar defensivo, despectivo, acusatorio o insistente. El contexto puede cambiar esa lectura.";
     } else if (hasPositive) {
       level = "low"; label = en ? "LOW. No common pressure cue detected." : "BAJO. No se detectó una señal común de presión.";
-      summary = en ? "The wording includes a boundary, accountability, repair, or clarification cue. This is not a guarantee about how it will land." : "La frase expresa un límite, responsabilidad, reparación o aclaración. Esto no garantiza cómo se recibirá.";
+      summary = en ? "The wording includes warmth, care, a boundary, accountability, repair, or clarification. This is not a guarantee about how it will land." : "La frase expresa afecto, atención, un límite, responsabilidad, reparación o aclaración. Esto no garantiza cómo se recibirá.";
     } else {
       level = "uncertain"; label = en ? "UNCLEAR. More context may change the read." : "NO ESTÁ CLARO. Más contexto puede cambiar la lectura.";
       summary = en ? "No strong pattern from this local phrase library was detected. That does not prove the message is neutral or low-pressure." : "La biblioteca local no detectó un patrón claro. Eso no demuestra que el mensaje sea neutral o sin presión.";
