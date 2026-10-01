@@ -1022,9 +1022,26 @@ function trackEvent(name, props) {
     var payload = props || {};
     var mapped = name;
     var safe = {};
+    var allowedFields = "activation awarded campaign content_id content_series credit_type currency dom_content_loaded_ms experiment_id feature feature_name hook_variant item_category item_id item_name items load_ms mode new_outcomes new_reads open_reads outcome plan plan_type price pro quantity reason referral_code result result_level risk saved_reads scenario share_surface source tracked_outcomes transaction_id transfer_size value via".split(" ");
     Object.keys(payload).forEach(function (key) {
-      if (["message","text","body","email","name","username","phone","rewrite","conversation","content"].indexOf(key) >= 0) return;
-      safe[key] = payload[key];
+      if (allowedFields.indexOf(key) < 0) return;
+      var value = payload[key];
+      if (key === "items" && Array.isArray(value)) {
+        safe.items = value.slice(0, 10).map(function (item) {
+          if (!item || typeof item !== "object") return null;
+          var cleanItem = {};
+          ["item_id", "item_name", "item_category", "item_brand"].forEach(function (itemKey) {
+            if (typeof item[itemKey] === "string") cleanItem[itemKey] = item[itemKey].slice(0, 100);
+          });
+          ["price", "quantity"].forEach(function (itemKey) {
+            if (typeof item[itemKey] === "number" && Number.isFinite(item[itemKey])) cleanItem[itemKey] = item[itemKey];
+          });
+          return Object.keys(cleanItem).length ? cleanItem : null;
+        }).filter(Boolean);
+        return;
+      }
+      if (typeof value === "string" || typeof value === "boolean" ||
+          (typeof value === "number" && Number.isFinite(value))) safe[key] = value;
     });
     if (name === "free_started") mapped = "free_flow_started";
     if (name === "email_capture_succeeded") mapped = "email_capture_completed";
