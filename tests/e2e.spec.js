@@ -34,6 +34,7 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await page.click('.nav-btn[onclick="openPresend()"]');
   const draft = "The strongest move may be to wait.";
   await page.locator("#presendText").fill(draft);
+  await page.locator(".presend-context summary").click();
   await page.locator("#presendLanguage").selectOption("es");
   await page.click('[data-sr-app-language]');
   await page.locator('#srLanguageChooser button[data-lang="es"]').click();
