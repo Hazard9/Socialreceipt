@@ -629,6 +629,48 @@
       "forbiddenSignals": [
         "absolute-blame"
       ]
+    },
+    {
+      "id": "es-guilt-de-verdad",
+      "group": "spanish-concern",
+      "text": "Si de verdad te importara, ya me habrías contestado.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-softener-resigned-self-reliance",
+      "group": "spanish-combination",
+      "text": "No te preocupes, supongo que tendré que resolverlo yo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment",
+        "resigned-self-reliance"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-softener-literal-reassurance",
+      "group": "spanish-neutral",
+      "text": "No te preocupes, yo ya lo resolví.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "resigned-self-reliance",
+        "guilt-pressure"
+      ]
     }
   ]
 }
