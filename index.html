@@ -1593,7 +1593,8 @@ function renderPresendOutput(raw, context) {
   var riskLabel = analysis.label;
   var diagnosis = analysis.summary;
 
-  var rewritten = pro && analysis.supported ? rewriteMessage(raw, null, analysis) : null;
+  var noSpecificRewrite = analysis.supported && analysis.level === "uncertain" && analysis.signals.length === 0;
+  var rewritten = pro && analysis.supported && !noSpecificRewrite ? rewriteMessage(raw, null, analysis) : null;
   var rewriteLabels = presendRewriteLabels(analysis.language);
 
   var html = "<div class=\"presend-card reveal-step shown\">";
@@ -1627,7 +1628,7 @@ function renderPresendOutput(raw, context) {
     html += "<div class=\"presend-rewrite-box\" id=\"presendRewrite\" data-language=\""+escapeHtml(analysis.language)+"\">"+escapeHtml(rewritten)+"</div>";
     html += "<div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copyPresendRewrite()\">"+escapeHtml(rewriteLabels.copy)+"</button><button class=\"mini-btn\" onclick=\"runPresend()\">"+escapeHtml(rewriteLabels.again)+"</button></div>";
   } else if (pro) {
-    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(rewriteLabels.unavailable)+"</strong></div>";
+    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(noSpecificRewrite ? rewriteLabels.noPattern : rewriteLabels.unavailable)+"</strong></div>";
   } else {
     html += "<div class=\"presend-locked\">";
     html += "<strong>Compare another wording option.</strong>";
@@ -2225,19 +2226,22 @@ function presendRewriteLabels(language) {
     title: "Versión reescrita",
     copy: "Copiar versión",
     again: "Revisar de nuevo",
-    unavailable: "No hay una reescritura disponible para este idioma."
+    unavailable: "No hay una reescritura disponible para este idioma",
+    noPattern: "No se generó una reescritura específica porque no se detectó un patrón claro."
   };
   if (language === "fr") return {
     title: "Version reformulée",
     copy: "Copier la reformulation",
     again: "Vérifier à nouveau",
-    unavailable: "Aucune reformulation n’est disponible pour cette langue."
+    unavailable: "Aucune reformulation n’est disponible pour cette langue",
+    noPattern: "Aucune reformulation précise n’a été générée, car aucun schéma clair n’a été détecté."
   };
   return {
     title: "Rewritten Version",
     copy: "Copy Rewrite",
     again: "Check Again",
-    unavailable: "A rewrite is not available for this language."
+    unavailable: "A rewrite is not available for this language",
+    noPattern: "No draft-specific rewrite was generated because no clear wording pattern was detected."
   };
 }
 
