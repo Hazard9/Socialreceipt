@@ -52,6 +52,18 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await expect(page).toHaveTitle("Social Receipt. Know the move before you send it.");
 });
 
+test("0c. Spanish app language localizes Conversation Replay without translating quoted messages", async ({ page }) => {
+  await page.goto("/conversation-replay.html");
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  const quoted = "Stop. The conversation is no longer moving toward the original point, another message right now is likely to add pressure instead of resolving it.";
+  await page.locator("#conversation").fill("You: " + quoted + "\\nThem: I hear you.");
+  await page.click("#analyzeBtn");
+  await expect(page.locator("#summaryText")).toContainText("En este intercambio de 2 mensajes");
+  await expect(page.locator(".tl-quote").first()).toContainText(quoted);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+});
+
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
