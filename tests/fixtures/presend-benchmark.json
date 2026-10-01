@@ -1,0 +1,619 @@
+{
+  "version": 1,
+  "description": "Curated synthetic pre-send benchmark. All examples are fictional test text; no user drafts are stored or transmitted.",
+  "scope": "Measures expected signal hits, forbidden-signal false alarms, extra concern flags, and expected-level matches across curated English, Spanish, and French phrase cases. These counts describe this test set only, not real-world accuracy.",
+  "cases": [
+    {
+      "id": "en-deflective-apology",
+      "group": "english-concern",
+      "text": "I’m sorry you feel that way.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "deflective-apology"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-self-blame-shift",
+      "group": "english-concern",
+      "text": "I guess I’m always the problem.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "self-blame-shift"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-reluctant-agreement",
+      "group": "english-concern",
+      "text": "Fine, whatever you want.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "reluctant-agreement"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-sarcasm",
+      "group": "english-concern",
+      "text": "Thanks for nothing.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "sarcasm-dismissal"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-guilt-pressure",
+      "group": "english-concern",
+      "text": "After all I’ve done, don’t worry about me.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-withdrawal-reluctance",
+      "group": "english-concern",
+      "text": "Fine. Whatever you want. I’m done talking about it.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "reluctant-agreement",
+        "conversation-close"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softener-resentment",
+      "group": "english-combination",
+      "text": "No worries. Apparently I’m the only one who remembers.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softener-resentment-2",
+      "group": "english-combination",
+      "text": "No problem. As usual, I’ll sort it out.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softener-frustration",
+      "group": "english-combination",
+      "text": "No worries. I’m honestly tired of this.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "softener-frustration"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-deference-frustration",
+      "group": "english-combination",
+      "text": "Take your time, I know you’re busy. This is getting old.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "softener-frustration"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-defensive-frustration",
+      "group": "english-combination",
+      "text": "I already told you the time. This is getting old.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "defensive-proof"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-repetition-frustration",
+      "group": "english-combination",
+      "text": "How many times do I have to explain it? This is frustrating.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "repeated-explanation"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-intent-attribution",
+      "group": "english-concern",
+      "text": "You’re trying to make me look bad.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "intent-attribution"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-absolute-blame",
+      "group": "english-concern",
+      "text": "You never listen to me.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "absolute-blame"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-reassurance-pressure",
+      "group": "english-combination",
+      "text": "No worries, are we okay?",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "reassurance-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-reassurance-alone",
+      "group": "english-context",
+      "text": "Are we okay?",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "reassurance-seeking"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-defensive-alone",
+      "group": "english-context",
+      "text": "I already told you the time.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "defensive-proof"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-repetition-alone",
+      "group": "english-context",
+      "text": "How many times do I have to explain it?",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "repeated-explanation"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-threat",
+      "group": "english-severe",
+      "text": "If you leave, I’ll hurt you.",
+      "context": {},
+      "expectedLevel": "high",
+      "expectedSignals": [
+        "threat"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-insult",
+      "group": "english-concern",
+      "text": "You are an idiot.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "insult"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-resigned-as-usual",
+      "group": "english-combination",
+      "text": "I guess I’ll do it myself, as usual.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "resigned-self-reliance"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-warm-blame",
+      "group": "english-mixed",
+      "text": "I love you, but you never listen.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "warmth-care",
+        "absolute-blame"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-warm-cereal",
+      "group": "english-positive",
+      "text": "Thanks, love. I saved a bowl of cereal for you. Help yourself. I love you, and I’m happy you’re almost home. Xoxo.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "warmth-care"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-direct-boundary",
+      "group": "english-positive",
+      "text": "I can’t make it Saturday. I can do Sunday afternoon if that works.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-accountability",
+      "group": "english-positive",
+      "text": "I’m sorry I missed the deadline. I’ll send it by noon.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "accountability-apology"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-repair",
+      "group": "english-positive",
+      "text": "Can we talk this through?",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-clarifier",
+      "group": "english-positive",
+      "text": "To be clear, can you clarify the time?",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "clarifier"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-neutral-no-worries",
+      "group": "english-near-miss",
+      "text": "No worries, all good.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-neutral-no-rush",
+      "group": "english-near-miss",
+      "text": "No worries, take your time. I know you’re busy.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-neutral-whatever",
+      "group": "english-near-miss",
+      "text": "Whatever works for you.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "reluctant-agreement",
+        "sarcasm-dismissal"
+      ]
+    },
+    {
+      "id": "en-neutral-work",
+      "group": "english-neutral",
+      "text": "Can you send the file by 3?",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "boundary-setting",
+        "absolute-blame",
+        "defensive-proof"
+      ]
+    },
+    {
+      "id": "en-neutral-reminder",
+      "group": "english-neutral",
+      "text": "I sent you the address yesterday.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "defensive-proof",
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "en-safe-apology-recipient",
+      "group": "english-near-miss",
+      "text": "I’m sorry you’re having a rough day.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "deflective-apology"
+      ]
+    },
+    {
+      "id": "en-safe-decline-apology",
+      "group": "english-positive",
+      "text": "I’m sorry, I can’t make it tonight.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-safe-pressure-disclaimer",
+      "group": "english-near-miss",
+      "text": "I don’t want to pressure you; answer when you can.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "reassurance-pressure",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-negated-blame",
+      "group": "english-near-miss",
+      "text": "I’m not saying you always do that.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "en-safe-literal-fine",
+      "group": "english-near-miss",
+      "text": "It’s fine. We can do Saturday instead.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "reluctant-agreement",
+        "polite-resentment"
+      ]
+    },
+    {
+      "id": "en-safe-reassurance-no-guilt",
+      "group": "english-near-miss",
+      "text": "I care about you. We can talk when you’re ready.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure",
+        "reassurance-pressure"
+      ]
+    },
+    {
+      "id": "en-warm-cue-only",
+      "group": "english-positive",
+      "text": "I love you.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "warmth-care"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-offer-only",
+      "group": "english-positive",
+      "text": "You can have the last bowl if you want.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "warmth-care"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-welcome-home",
+      "group": "english-positive",
+      "text": "Glad you’re on your way home.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "warmth-care"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-boundary-not-hostile",
+      "group": "english-positive",
+      "text": "Please stop texting me tonight.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-quoted-blame-excluded",
+      "group": "english-near-miss",
+      "text": "They wrote, “you never listen,” but I want to understand.",
+      "context": {
+        "language": "en",
+        "quoted": true
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "es-softener-resentment",
+      "group": "spanish-combination",
+      "text": "No pasa nada. Como siempre.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-softener-frustration",
+      "group": "spanish-combination",
+      "text": "Sé que estás ocupado, pero estoy cansado de esto.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "softener-frustration"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-boundary",
+      "group": "spanish-positive",
+      "text": "No puedo asistir esta noche.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-warmth",
+      "group": "spanish-positive",
+      "text": "Te quiero. Te guardé algo de cenar.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "warmth-care"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-blame",
+      "group": "spanish-concern",
+      "text": "Siempre haces lo mismo.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "absolute-blame"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-threat",
+      "group": "spanish-severe",
+      "text": "Te voy a hacer daño.",
+      "context": {},
+      "expectedLevel": "high",
+      "expectedSignals": [
+        "threat"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-neutral",
+      "group": "spanish-neutral",
+      "text": "Todo bien, nos vemos a las seis.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-softener-resentment",
+      "group": "french-combination",
+      "text": "Pas de souci. Comme d’habitude, je vais le faire moi-même.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-boundary",
+      "group": "french-positive",
+      "text": "Je ne peux pas venir samedi.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-threat",
+      "group": "french-severe",
+      "text": "Tu vas le regretter, je vais te frapper.",
+      "context": {},
+      "expectedLevel": "high",
+      "expectedSignals": [
+        "threat"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-short-context",
+      "group": "french-context",
+      "text": "Comme tu veux.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "reluctant-agreement"
+      ],
+      "forbiddenSignals": []
+    }
+  ]
+}

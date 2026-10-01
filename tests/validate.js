@@ -90,7 +90,7 @@ function exists(file) {
   ["French isolated softener stays unclear", "Pas de souci, à demain.", "uncertain", []],
   ["French boundary is positive", "Je ne peux pas venir samedi.", "low", ["boundary-setting"]],
   ["unsupported French threat is flagged", "Tu vas le regretter, je vais te frapper.", "high", ["threat"]],
-  ["warm affectionate offer is not unclear", "Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.", "low", ["warmth-care"]],
+  ["warm affectionate offer is not unclear", "Thanks, love. I saved a bowl of cereal for you. Help yourself. I love you, and I’m happy you’re almost home. Xoxo.", "low", ["warmth-care"]],
   ["warmth does not hide a concern", "I love you, but you never listen.", "medium", ["warmth-care", "absolute-blame"]],
   ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
   ["empty input stays unclear", "", "uncertain", []],
@@ -123,11 +123,11 @@ else fail("after-conflict context note missing");
 if (concernWithContext.contextNotes.some((note) => note.indexOf("Your stated goal is repair") !== -1)) pass("repair goal note is available");
 else fail("repair goal context note missing");
 
-const warmDraft = analyze("Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.");
+const warmDraft = analyze("Thanks, love. I saved a bowl of cereal for you. Help yourself. I love you, and I’m happy you’re almost home. Xoxo.");
 const warmSignal = warmDraft.signals.find((item) => item.id === "warmth-care");
 if (warmDraft.level === "low" && warmSignal) pass("warm caring draft gets a grounded low-pressure read");
 else fail("warm caring draft incorrectly stays unclear");
-if (warmSignal && warmSignal.evidence.includes("i love you") && warmSignal.evidence.includes("you can have")) pass("warm care result shows exact supporting wording");
+if (warmSignal && warmSignal.evidence.includes("i love you") && warmSignal.evidence.includes("help yourself")) pass("warm care result shows exact supporting wording");
 else fail("warm care result is missing exact supporting wording");
 const mixedWarmDraft = analyze("I love you, but you never listen.");
 if (mixedWarmDraft.level === "medium" && mixedWarmDraft.signals.some((item) => item.id === "warmth-care")) pass("warmth does not hide a separate concern");
@@ -150,6 +150,74 @@ if (shortSpanishSelected.level === "medium" && shortSpanishSelected.language ===
 else fail("selected Spanish pack did not read the short Spanish phrase");
 if (shortSpanishSelected.contextNotes.some((note) => note.indexOf("repertorio de frases en español") !== -1)) pass("selected language pack is disclosed in the result");
 else fail("selected language pack disclosure missing");
+
+const benchmark = JSON.parse(read("tests/fixtures/presend-benchmark.json"));
+const benchmarkTotals = { cases: 0, levelMatches: 0, expectedCues: 0, truePositives: 0, falseNegatives: 0, falsePositives: 0, trueNegatives: 0 };
+const benchmarkGroups = {};
+const benchmarkSignals = {};
+benchmark.cases.forEach((item) => {
+  const result = analyze(item.text, item.context || {});
+  benchmarkTotals.cases++;
+  const group = benchmarkGroups[item.group] || (benchmarkGroups[item.group] = { cases: 0, levelsMatched: 0, tp: 0, fp: 0, fn: 0, tn: 0 });
+  group.cases++;
+  if (result.level === item.expectedLevel) {
+    benchmarkTotals.levelMatches++;
+    group.levelsMatched++;
+    pass("benchmark " + item.id + ": level " + item.expectedLevel);
+  } else {
+    fail("benchmark " + item.id + ": expected level " + item.expectedLevel + ", got " + result.level);
+  }
+  const actual = new Map(result.signals.map((signal) => [signal.id, signal]));
+  const expected = new Set(item.expectedSignals || []);
+  expected.forEach((id) => {
+    const counts = benchmarkSignals[id] || (benchmarkSignals[id] = { expected: 0, hits: 0, misses: 0, checkedNegative: 0, trueNegatives: 0, falseAlarms: 0 });
+    counts.expected++;
+    benchmarkTotals.expectedCues++;
+    if (actual.has(id)) {
+      counts.hits++;
+      benchmarkTotals.truePositives++;
+      group.tp++;
+    } else {
+      counts.misses++;
+      benchmarkTotals.falseNegatives++;
+      group.fn++;
+      fail("benchmark " + item.id + ": missed expected cue " + id);
+    }
+  });
+  const forbidden = new Set(item.forbiddenSignals || []);
+  forbidden.forEach((id) => {
+    const counts = benchmarkSignals[id] || (benchmarkSignals[id] = { expected: 0, hits: 0, misses: 0, checkedNegative: 0, trueNegatives: 0, falseAlarms: 0 });
+    counts.checkedNegative++;
+    if (actual.has(id)) {
+      counts.falseAlarms++;
+      benchmarkTotals.falsePositives++;
+      group.fp++;
+      fail("benchmark " + item.id + ": false alarm cue " + id);
+    } else {
+      counts.trueNegatives++;
+      benchmarkTotals.trueNegatives++;
+      group.tn++;
+    }
+  });
+  result.signals.filter((signal) => signal.kind === "concern" || signal.kind === "high").forEach((signal) => {
+    if (!expected.has(signal.id) && !forbidden.has(signal.id)) {
+      const counts = benchmarkSignals[signal.id] || (benchmarkSignals[signal.id] = { expected: 0, hits: 0, misses: 0, checkedNegative: 0, trueNegatives: 0, falseAlarms: 0 });
+      counts.falseAlarms++;
+      benchmarkTotals.falsePositives++;
+      group.fp++;
+      fail("benchmark " + item.id + ": unexpected concern cue " + signal.id);
+    }
+  });
+});
+console.log("\nCurated benchmark: " + benchmarkTotals.cases + " synthetic examples; levels matched " + benchmarkTotals.levelMatches + "/" + benchmarkTotals.cases + "; signal TP " + benchmarkTotals.truePositives + ", FP " + benchmarkTotals.falsePositives + ", FN " + benchmarkTotals.falseNegatives + ", checked TN " + benchmarkTotals.trueNegatives + ".");
+Object.keys(benchmarkGroups).sort().forEach((name) => {
+  const value = benchmarkGroups[name];
+  console.log("  " + name + ": " + value.levelsMatched + "/" + value.cases + " levels; TP " + value.tp + ", FP " + value.fp + ", FN " + value.fn + ", TN " + value.tn);
+});
+Object.keys(benchmarkSignals).sort().forEach((id) => {
+  const value = benchmarkSignals[id];
+  console.log("  cue " + id + ": " + value.hits + "/" + value.expected + " expected hits, " + value.misses + " misses, " + value.falseAlarms + " false alarms across " + value.checkedNegative + " negative checks.");
+});
 
 const quotedDraft = "He said, “I’m sorry you feel that way.”";
 const quotedBase = analyze(quotedDraft);

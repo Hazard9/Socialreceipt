@@ -7,7 +7,7 @@
 
   // Local phrase profiles describe wording in one draft, never a person's fixed identity.
   var EN = new Set("i me my you your we us our they them this that it is are was were be been have has had do does did can could would should will not no yes and or but to of for in on with if so just maybe please sorry the a an what why how when where who".split(" "));
-  var ES = new Set("yo me mi tu te usted ustedes nosotros nos ellos ellas esto eso lo la los las es son era fue ser estar estoy estas esta estamos estan tener tengo tiene hay no si y o pero de del al para por en con que como cuando donde quien cual muy ya pues siempre haces mismo soy supongo sientas siento puede quieres nos vemos todo bien".split(" "));
+  var ES = new Set("yo me mi tu te usted ustedes nosotros nos ellos ellas esto eso lo la los las es son era fue ser estar estoy estas esta estamos estan tener tengo tiene hay no si y o pero de del al para por en con que como cuando donde quien cual muy ya pues siempre haces mismo soy supongo sientas siento puede quieres nos vemos todo bien voy vas hacer dano arrepentir".split(" "));
 
   function normalize(value) {
     return String(value || "").toLowerCase().normalize("NFKC")
