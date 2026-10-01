@@ -279,7 +279,7 @@ const appLanguageJs = read("app-language.js");
 if (appLanguageJs.includes('"sr_app_language"') &&
     appLanguageJs.includes('localStorage.setItem(KEY, lang)') &&
     appLanguageJs.includes('textarea,input,select,option') &&
-    !/\\bfetch\\s*\\(|XMLHttpRequest|sendBeacon/.test(appLanguageJs) &&
+    !appLanguageJs.includes("fetch(") && !appLanguageJs.includes("XMLHttpRequest") && !appLanguageJs.includes("sendBeacon") &&
     ["index.html", "confidence-profile.html", "conversation-replay.html", "success.html"].every((file) =>
       read(file).includes('<script src="/app-language.js"></script>'))) {
   pass("app language is saved locally, loaded on app pages, and never sends drafts for translation");
