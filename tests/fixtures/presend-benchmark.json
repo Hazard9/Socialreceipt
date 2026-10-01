@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Curated synthetic pre-send benchmark. All examples are fictional test text; no user drafts are stored or transmitted. Coverage pass adds synthetic Spanish and French positives and near-misses, including ordinary reassurance without guilt leverage.",
+  "description": "Curated synthetic pre-send benchmark. All examples are fictional test text; no user drafts are stored or transmitted. Coverage pass adds synthetic Spanish and French positives and near-misses, including ordinary reassurance without guilt leverage. The near-miss set also checks ordinary English reassurance without guilt leverage.",
   "scope": "Measures expected signal hits, forbidden-signal false alarms, extra concern flags, and expected-level matches across curated English, Spanish, and first-pack French phrase cases, including near misses. These counts describe this test set only, not real-world accuracy.",
   "cases": [
     {
@@ -1263,6 +1263,17 @@
         "boundary-setting"
       ],
       "forbiddenSignals": []
+    },
+    {
+      "id": "en-caring-reassurance-near-miss",
+      "group": "english-near-miss",
+      "text": "Don’t worry about me; I already ate and I’m okay.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure"
+      ]
     }
   ]
 }
