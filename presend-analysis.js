@@ -91,7 +91,8 @@
 
 
   function looksFrench(text) {
-    return /\\b(?:je suis desole|desolee|merci beaucoup|comme tu veux|si tu le dis|comme d habitude|ne t inquiete pas|je m en doutais|quelle surprise|j en ai marre|ca me fatigue|je ne veux plus parler)\\b/.test(text);
+    var frenchText = text.replace(new RegExp(String.fromCharCode(39), "g"), " ");
+    return /\b(?:je suis desole|desolee|merci beaucoup|comme tu veux|si tu le dis|comme d habitude|ne t inquiete pas|je m en doutais|quelle surprise|j en ai marre|ca me fatigue|je ne veux plus parler|je ne peux pas|je ne suis pas disponible|j ai besoin d espace|pas de souci)\b/.test(frenchText);
   }
   function analyzeFrench(text, context) {
     var scan = text;
@@ -100,20 +101,21 @@
       scan = text.replace(/“[^”]*”|"[^"]*"|‘[^’]*’/g, " ");
       quoted = scan !== text;
     }
+    scan = scan.replace(new RegExp(String.fromCharCode(39), "g"), " ");
     var groups = {
-      deflective: [/\\bje suis desole que tu te sentes\\b/, /\\bdesole que tu te sentes\\b/],
-      blameShift: [/\\bsuppose que je suis toujours le probleme\\b/, /\\bje suis toujours le probleme\\b/],
-      reluctant: [/\\bcomme tu veux\\b/, /\\bsi tu le dis\\b/, /\\bc est toi qui vois\\b/, /\\bd accord si tu veux\\b/],
-      resentment: [/\\bcomme d habitude\\b/, /\\bquelle surprise\\b/, /\\bje m en doutais\\b/, /\\bpas etonnant\\b/, /\\bapparemment\\b/, /\\bmerci pour rien\\b/],
-      softener: [/\\bc est pas grave\\b/, /\\bce n est pas grave\\b/, /\\bne t inquiete pas pour moi\\b/, /\\bpas de souci\\b/],
-      frustration: [/\\bj en ai marre\\b/, /\\bca me fatigue\\b/, /\\bca commence a bien faire\\b/, /\\bje suis fatigue de\\b/, /\\bje suis fatiguee de\\b/],
-      guilt: [/\\bapres tout ce que j ai fait\\b/, /\\bsi tu tenais a moi\\b/, /\\bje m en souviendrai\\b/],
-      withdrawal: [/\\bje ne veux plus parler\\b/, /\\blaisse tomber\\b/, /\\bc est fini entre nous\\b/, /\\bne me parle plus\\b/],
-      boundary: [/\\bje ne peux pas\\b/, /\\bje ne suis pas disponible\\b/, /\\bj ai besoin d espace\\b/, /\\bmerci de ne pas\\b/, /\\bca ne me convient pas\\b/],
-      repair: [/\\bje veux reparer\\b/, /\\bon peut en parler\\b/, /\\bcomment peut on arranger\\b/, /\\bje veux comprendre\\b/],
-      apology: [/\\bc etait ma faute\\b/, /\\bje reconnais que j ai\\b/, /\\bje suis desole d avoir\\b/],
-      threat: [/\\bje vais te faire payer\\b/, /\\btu vas le regretter\\b/, /\\bje vais te frapper\\b/, /\\bje vais te tuer\\b/],
-      insult: [/\\btais toi\\b/, /\\bje te deteste\\b/, /\\btu es un idiot\\b/, /\\btu es stupide\\b/]
+      deflective: [/\bje suis desole que tu te sentes\b/, /\bdesole que tu te sentes\b/],
+      blameShift: [/\bsuppose que je suis toujours le probleme\b/, /\bje suis toujours le probleme\b/],
+      reluctant: [/\bcomme tu veux\b/, /\bsi tu le dis\b/, /\bc est toi qui vois\b/, /\bd accord si tu veux\b/],
+      resentment: [/\bcomme d habitude\b/, /\bquelle surprise\b/, /\bje m en doutais\b/, /\bpas etonnant\b/, /\bapparemment\b/, /\bmerci pour rien\b/],
+      softener: [/\bc est pas grave\b/, /\bce n est pas grave\b/, /\bne t inquiete pas pour moi\b/, /\bpas de souci\b/],
+      frustration: [/\bj en ai marre\b/, /\bca me fatigue\b/, /\bca commence a bien faire\b/, /\bje suis fatigue de\b/, /\bje suis fatiguee de\b/],
+      guilt: [/\bapres tout ce que j ai fait\b/, /\bsi tu tenais a moi\b/, /\bje m en souviendrai\b/],
+      withdrawal: [/\bje ne veux plus parler\b/, /\blaisse tomber\b/, /\bc est fini entre nous\b/, /\bne me parle plus\b/],
+      boundary: [/\bje ne peux pas\b/, /\bje ne suis pas disponible\b/, /\bj ai besoin d espace\b/, /\bmerci de ne pas\b/, /\bca ne me convient pas\b/],
+      repair: [/\bje veux reparer\b/, /\bon peut en parler\b/, /\bcomment peut on arranger\b/, /\bje veux comprendre\b/],
+      apology: [/\bc etait ma faute\b/, /\bje reconnais que j ai\b/, /\bje suis desole d avoir\b/],
+      threat: [/\bje vais te faire payer\b/, /\btu vas le regretter\b/, /\bje vais te frapper\b/, /\bje vais te tuer\b/],
+      insult: [/\btais toi\b/, /\bje te deteste\b/, /\btu es un idiot\b/, /\btu es stupide\b/]
     };
     var found = {};
     var evidence = {};
