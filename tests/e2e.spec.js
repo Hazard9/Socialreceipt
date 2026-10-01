@@ -520,7 +520,7 @@ test("20. pre-send result shows the matched phrases behind a cue", async ({ page
 });
 
 
-test("22. affectionate care wording gets a grounded low-pressure result", async ({ page }) => {
+test("21. affectionate care wording gets a grounded low-pressure result", async ({ page }) => {
   await skipToApp(page);
   await page.click(".panic-btn");
   await page.fill("#presendText", "Thanks, love. I saved a bowl of cereal for you. Help yourself. I love you, and I’m happy you’re almost home. Xoxo.");
@@ -532,7 +532,7 @@ test("22. affectionate care wording gets a grounded low-pressure result", async 
   await expect(output).toContainText("“i love you” + “you can have”");
 });
 
-test("21. selecting a supported language resolves a short ambiguous phrase", async ({ page }) => {
+test("22. selecting a supported language resolves a short ambiguous phrase", async ({ page }) => {
   await skipToApp(page);
   await page.click(".panic-btn");
   await page.fill("#presendText", "Como quieras.");
