@@ -250,6 +250,7 @@ profileCases.forEach(([name, message, expected]) => {
 [
   "index.html",
   "presend-analysis.js",
+  "app-language.js",
   "analytics.js",
   "success.html",
   "confidence-profile.html",
@@ -272,6 +273,19 @@ const confidenceProfileHtml = read("confidence-profile.html");
 const subscribeEmailJs = read("netlify/functions/subscribe-email.js");
 const verifyCheckoutJs = read("netlify/functions/verify-checkout.js");
 const swJs = read("sw.js");
+const appLanguageJs = read("app-language.js");
+
+// App language is a local UI preference, independent of draft analysis.
+if (appLanguageJs.includes('"sr_app_language"') &&
+    appLanguageJs.includes('localStorage.setItem(KEY, lang)') &&
+    appLanguageJs.includes('textarea,input,select,option') &&
+    !appLanguageJs.includes("fetch(") && !appLanguageJs.includes("XMLHttpRequest") && !appLanguageJs.includes("sendBeacon") &&
+    ["index.html", "confidence-profile.html", "conversation-replay.html", "success.html"].every((file) =>
+      read(file).includes('<script src="/app-language.js"></script>'))) {
+  pass("app language is saved locally, loaded on app pages, and never sends drafts for translation");
+} else {
+  fail("app language preference must stay local and load consistently without touching drafts");
+}
 
 // Pre-Send runs locally and must not store or transmit the entered draft.
 const preSendStart = indexHtml.indexOf("function runPresend()");

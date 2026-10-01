@@ -6,6 +6,76 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  // The first-run language choice is intentionally modal; keep existing
+  // behavior tests deterministic by choosing English for their clean slate.
+  const languageDialog = page.getByRole("dialog", { name: "Choose your language" });
+  if (await languageDialog.isVisible().catch(() => false)) {
+    await languageDialog.getByRole("button", { name: "English" }).click();
+  }
+});
+
+test("0. first visit asks for app language and saves the choice locally", async ({ page }) => {
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  const dialog = page.getByRole("dialog", { name: "Choose your language" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Español" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator(".nav-btn").first()).toContainText("Inicio");
+  await expect(page.locator('[data-sr-app-language]')).toHaveText("ES");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator('[data-sr-app-language]')).toHaveText("ES");
+  await expect(page.locator("#srLanguageChooser")).toHaveCount(0);
+});
+
+test("0b. changing app language leaves the draft and analysis-language choice untouched", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('.nav-btn[onclick="openPresend()"]');
+  const draft = "The strongest move may be to wait.";
+  await page.locator("#presendText").fill(draft);
+  await page.locator(".presend-context summary").click();
+  await page.locator("#presendLanguage").selectOption("es");
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  await expect(page.locator("#presendText")).toHaveValue(draft);
+  await expect(page.locator("#presendLanguage")).toHaveValue("es");
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page).toHaveTitle("Social Receipt. Decide antes de enviar.");
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega exactamente lo que ibas a enviar. No lo edites. El análisis es más preciso con el texto original.");
+
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="en"]').click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#presendText")).toHaveValue(draft);
+  await expect(page.locator("#presendLanguage")).toHaveValue("es");
+  await expect(page).toHaveTitle("Social Receipt. Know the move before you send it.");
+});
+
+test("0c. Spanish app language localizes Conversation Replay without translating quoted messages", async ({ page }) => {
+  await page.goto("/conversation-replay.html");
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  const quoted = "Stop. The conversation is no longer moving toward the original point, another message right now is likely to add pressure instead of resolving it.";
+  await page.locator("#conversation").fill(["You: " + quoted, "Them: I hear you."].join(String.fromCharCode(10)));
+  await page.click("#analyzeBtn");
+  await expect(page.locator("#summaryText")).toContainText("En este intercambio de 2 mensajes");
+  await expect(page.locator(".tl-quote").first()).toContainText(quoted);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+});
+
+test("0d. translated scenario chips retain canonical saved values", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  await page.click('.nav-btn[data-screen="createScreen"]');
+  await page.getByRole("button", { name: "Cita" }).click();
+  await page.locator("#interactionText").fill("We had a good conversation and agreed to meet again.");
+  await page.click('button[onclick="generateReceipt()"]');
+  await page.waitForSelector("#receiptOutput.active", { timeout: 5000 });
+  await page.click('button[onclick="saveCurrentReceipt()"]');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("socialReceipts") || "[]")[0]);
+  expect(saved.scenario).toBe("Date");
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
