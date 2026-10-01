@@ -6,6 +6,39 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  // The first-run language choice is intentionally modal; keep existing
+  // behavior tests deterministic by choosing English for their clean slate.
+  const languageDialog = page.getByRole("dialog", { name: "Choose your language" });
+  if (await languageDialog.isVisible().catch(() => false)) {
+    await languageDialog.getByRole("button", { name: "English" }).click();
+  }
+});
+
+test("0. first visit asks for app language and saves the choice locally", async ({ page }) => {
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  const dialog = page.getByRole("dialog", { name: "Choose your language" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Español" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator(".nav-btn").first()).toContainText("Inicio");
+  await expect(page.locator('[data-sr-app-language]')).toHaveText("ES");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator('[data-sr-app-language]')).toHaveText("ES");
+  await expect(page.locator("#srLanguageChooser")).toHaveCount(0);
+});
+
+test("0b. changing app language leaves message text and analysis-language choice untouched", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('.nav-btn[data-screen="createScreen"]');
+  const draft = "The strongest move may be to wait.";
+  await page.locator("#interactionText").fill(draft);
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  await expect(page.locator("#interactionText")).toHaveValue(draft);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator("#presendLanguage")).toHaveValue("auto");
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
