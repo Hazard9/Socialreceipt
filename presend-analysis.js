@@ -11,7 +11,7 @@
 
   function normalize(value) {
     return String(value || "").toLowerCase().normalize("NFKC")
-      .replace(/[\u2018\u2019\u0060]/g, "'").replace(/[–—]/g, "-")
+      .replace(/([A-Za-zÀ-ÖØ-öø-ÿ])[\u2018\u2019]([A-Za-zÀ-ÖØ-öø-ÿ])/g, "$1'$2").replace(/[\u0060]/g, "'").replace(/[–—]/g, "-")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
   }
   function detectLanguage(text, words) {
