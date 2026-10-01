@@ -64,6 +64,19 @@ test("0c. Spanish app language localizes Conversation Replay without translating
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
 });
 
+test("0d. translated scenario chips retain canonical saved values", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  await page.click('.nav-btn[data-screen="createScreen"]');
+  await page.getByRole("button", { name: "Cita" }).click();
+  await page.locator("#interactionText").fill("We had a good conversation and agreed to meet again.");
+  await page.click('button[onclick="generateReceipt()"]');
+  await page.waitForSelector("#receiptOutput.active", { timeout: 5000 });
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("socialReceipts") || "[]")[0]);
+  expect(saved.scenario).toBe("Date");
+});
+
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
