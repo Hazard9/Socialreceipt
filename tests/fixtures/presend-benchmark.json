@@ -1,7 +1,7 @@
 {
   "version": 1,
   "description": "Curated synthetic pre-send benchmark. All examples are fictional test text; no user drafts are stored or transmitted.",
-  "scope": "Measures expected signal hits, forbidden-signal false alarms, extra concern flags, and expected-level matches across curated English, Spanish, and French phrase cases. These counts describe this test set only, not real-world accuracy.",
+  "scope": "Measures expected signal hits, forbidden-signal false alarms, extra concern flags, and expected-level matches across curated English, Spanish, and first-pack French phrase cases, including near misses. These counts describe this test set only, not real-world accuracy.",
   "cases": [
     {
       "id": "en-deflective-apology",
@@ -684,6 +684,383 @@
         "boundary-setting"
       ],
       "forbiddenSignals": []
+    },
+    {
+      "id": "en-guilt-care-call",
+      "group": "english-concern",
+      "text": "If you cared about me, you would have called back.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-sarcasm-finally",
+      "group": "english-concern",
+      "text": "Glad you finally remembered.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "sarcasm-dismissal"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-boundary-late-call",
+      "group": "english-positive",
+      "text": "Please don’t call after 9; I’ll return it tomorrow.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-boundary-space-next-step",
+      "group": "english-positive",
+      "text": "I need some space tonight. Let’s talk tomorrow.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-accountability-repair",
+      "group": "english-positive",
+      "text": "That was my fault. Can we talk this through?",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "accountability-apology",
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softener-resigned-followup",
+      "group": "english-combination",
+      "text": "No problem. As usual, I’m the one who has to follow up.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softener-resigned-task",
+      "group": "english-combination",
+      "text": "No worries. I guess I’ll do it myself.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment",
+        "resigned-self-reliance"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softened-reassurance",
+      "group": "english-combination",
+      "text": "No worries, but please tell me we’re okay.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "reassurance-pressure",
+        "reassurance-seeking"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-softener-literal-errand",
+      "group": "english-near-miss",
+      "text": "No problem—I picked it up on my way home.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-softener-genuine-help",
+      "group": "english-near-miss",
+      "text": "No worries, I can handle my part. Thanks for checking.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-literal-fine-reschedule",
+      "group": "english-near-miss",
+      "text": "It’s fine if we move dinner to Friday.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "reluctant-agreement",
+        "polite-resentment"
+      ]
+    },
+    {
+      "id": "en-deference-no-rush",
+      "group": "english-near-miss",
+      "text": "I know you’re busy; reply whenever you can. No rush.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "softener-frustration",
+        "reassurance-pressure",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-never-kind-obligation",
+      "group": "english-near-miss",
+      "text": "You never have to apologize for asking me for help.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "en-negated-always-meaning",
+      "group": "english-near-miss",
+      "text": "I don’t mean that you always get it wrong; today was stressful.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "en-pressure-disclaimer",
+      "group": "english-near-miss",
+      "text": "I don’t want to pressure you. Answer when you’re ready.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "reassurance-pressure",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-apology-for-recipient",
+      "group": "english-near-miss",
+      "text": "I’m sorry you had a difficult day. I hope tomorrow is easier.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "deflective-apology"
+      ]
+    },
+    {
+      "id": "en-quoted-blame-third-party",
+      "group": "english-quoted-context",
+      "text": "They texted, “You never listen.” I want to understand what you meant.",
+      "context": {
+        "quoted": true
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "en-warm-boundary",
+      "group": "english-positive",
+      "text": "I love you. I need some space tonight, and we can talk tomorrow.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "warmth-care",
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-boundary-alternative",
+      "group": "spanish-positive",
+      "text": "No puedo ir el sábado, pero sí puedo el domingo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-guilt-care-call",
+      "group": "spanish-concern",
+      "text": "Si te importara, me habrías llamado.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-accountability-repair",
+      "group": "spanish-positive",
+      "text": "Fue mi culpa. Quiero arreglar esto.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "accountability-apology",
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-softener-literal-resolution",
+      "group": "spanish-near-miss",
+      "text": "No te preocupes, ya lo resolví. Gracias por preguntar.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "resigned-self-reliance",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "es-softener-genuine-offer",
+      "group": "spanish-near-miss",
+      "text": "No te preocupes, yo me encargo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "resigned-self-reliance",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "es-negated-threat",
+      "group": "spanish-near-miss",
+      "text": "No te voy a hacer daño; solo quiero hablar.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "threat"
+      ]
+    },
+    {
+      "id": "es-neutral-work-request",
+      "group": "spanish-neutral",
+      "text": "¿Puedes enviarme el archivo antes de las tres?",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame",
+        "guilt-pressure",
+        "threat"
+      ]
+    },
+    {
+      "id": "fr-softener-literal-resolution",
+      "group": "french-near-miss",
+      "text": "Pas de souci, j’ai trouvé une solution. Merci de m’avoir prévenu.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "fr-boundary-alternative",
+      "group": "french-positive",
+      "text": "Je ne peux pas venir samedi, mais je peux dimanche.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-softener-frustration",
+      "group": "french-combination",
+      "text": "Pas de souci, j’en ai marre de devoir tout expliquer.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "softener-frustration"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-guilt-pressure",
+      "group": "french-concern",
+      "text": "Si tu tenais à moi, tu m’aurais appelé.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-negated-threat",
+      "group": "french-near-miss",
+      "text": "Je ne vais pas te frapper.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "threat"
+      ]
     }
   ]
 }
