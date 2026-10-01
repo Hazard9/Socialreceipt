@@ -551,7 +551,7 @@ test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
-  await page.fill("#presendText", "Voy a llegar tarde. ¿Puedes esperarme?");
+  await page.fill("#presendText", "No te preocupes por mí. Siempre haces lo mismo.");
   await page.locator(".presend-context summary").click();
   await page.selectOption("#presendLanguage", "es");
   await page.click('button[onclick="runPresend()"]');
@@ -567,7 +567,7 @@ test("24. French Pre-Send rewrite uses French", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
-  await page.fill("#presendText", "Je serai en retard. Peux-tu m’attendre?");
+  await page.fill("#presendText", "Ne t’inquiète pas pour moi. J’en ai marre de devoir demander.");
   await page.locator(".presend-context summary").click();
   await page.selectOption("#presendLanguage", "fr");
   await page.click('button[onclick="runPresend()"]');
@@ -576,4 +576,20 @@ test("24. French Pre-Send rewrite uses French", async ({ page }) => {
   await expect(output).toContainText("Je veux aborder cela directement. Dis-moi quel moment te conviendrait.");
   await expect(output).toContainText("Copier la reformulation");
   await expect(output).not.toContainText("I want to address this directly");
+});
+
+
+test("25. Spanish unclear result does not get a generic copyable rewrite", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Hoy llegaré un poco tarde. ¿Puedes esperarme?");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "es");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("NO ESTÁ CLARO");
+  await expect(output).toContainText("No se generó una reescritura específica porque no se detectó un patrón claro.");
+  await expect(output.locator("#presendRewrite")).toHaveCount(0);
+  await expect(output).not.toContainText("Quiero hablar de esto directamente");
 });
