@@ -22,7 +22,6 @@
 */
 const fs = require("fs");
 const path = require("path");
-const vm = require("vm");
 
 const { analyze } = require("../presend-analysis.js");
 
@@ -278,8 +277,8 @@ const swJs = read("sw.js");
 const preSendStart = indexHtml.indexOf("function runPresend()");
 const preSendEnd = indexHtml.indexOf("function copyPresendRewrite()", preSendStart);
 const preSendFlow = preSendStart >= 0 && preSendEnd > preSendStart ? indexHtml.slice(preSendStart, preSendEnd) : "";
-if (preSendFlow && /window\\.SocialReceiptAnalysis\\.analyze\\(raw, context\\)/.test(preSendFlow) &&
-    !/\\bfetch\\s*\\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/.test(preSendFlow)) {
+if (preSendFlow && /window\.SocialReceiptAnalysis\.analyze\(raw, context\)/.test(preSendFlow) &&
+    !/\bfetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/.test(preSendFlow)) {
   pass("Pre-Send analyzes drafts locally without network calls or persistent storage");
 } else {
   fail("Pre-Send privacy boundary changed: expected local-only analysis and no draft storage");
@@ -292,7 +291,8 @@ const privacyPayload = {
   raw_text: "PRIVATE_DRAFT", draft: "PRIVATE_DRAFT", draft_text: "PRIVATE_DRAFT",
   original_message: "PRIVATE_DRAFT", message_text: "PRIVATE_DRAFT",
   conversation: "PRIVATE_DRAFT", transcript: "PRIVATE_DRAFT",
-  rewrite: "PRIVATE_DRAFT", email: "PRIVATE_DRAFT"
+  rewrite: "PRIVATE_DRAFT", email: "PRIVATE_DRAFT",
+  arbitrary_alias: "PRIVATE_DRAFT"
 };
 const analyticsEvents = [];
 const mockStorage = { getItem: () => null, setItem: () => {} };
@@ -312,10 +312,10 @@ try {
   const event = analyticsEvents.find((args) => args[1] === "privacy_boundary_test");
   const data = event && event[2] || {};
   const privateFields = ["message", "text", "rawText", "raw_text", "draft", "draft_text",
-    "original_message", "message_text", "conversation", "transcript", "rewrite", "email"];
+    "original_message", "message_text", "conversation", "transcript", "rewrite", "email", "arbitrary_alias"];
   if (event && privateFields.every((key) => !(key in data)) &&
       data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01") {
-    pass("analytics strips draft-like fields and preserves approved metadata");
+    pass("analytics strips draft-like and unknown fields while preserving approved metadata");
   } else {
     fail("analytics privacy filter did not enforce the approved metadata boundary");
   }
@@ -324,24 +324,24 @@ try {
 }
 
 try {
-  const functionMatch = indexHtml.match(/function trackEvent\\(name, props\\) \\{[\\s\\S]*?\\n\\}/);
+  const functionMatch = indexHtml.match(/function trackEvent\(name, props\) \{[\s\S]*?\n\}/);
   const fallbackEvents = [];
   const fallbackWindow = { gtag: (...args) => fallbackEvents.push(args), dataLayer: [] };
   if (!functionMatch) throw new Error("trackEvent source not found");
-  const getTracker = new Function("window", functionMatch[0] + "\\nreturn trackEvent;");
+  const getTracker = new Function("window", functionMatch[0] + "\nreturn trackEvent;");
   getTracker(fallbackWindow)("privacy_boundary_test", privacyPayload);
   const event = fallbackEvents.find((args) => args[1] === "privacy_boundary_test");
   const data = event && event[2] || {};
   const privateFields = ["message", "text", "rawText", "raw_text", "draft", "draft_text",
-    "original_message", "message_text", "conversation", "transcript", "rewrite", "email"];
+    "original_message", "message_text", "conversation", "transcript", "rewrite", "email", "arbitrary_alias"];
   if (event && privateFields.every((key) => !(key in data)) &&
       data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01") {
-    pass("inline analytics fallback strips draft-like fields and preserves approved metadata");
+    pass("inline analytics fallback strips draft-like and unknown fields while preserving approved metadata");
   } else {
     fail("inline analytics fallback did not enforce the approved metadata boundary");
   }
 } catch (error) {
-  fail("inline analytics fallback test could not run: " + error.message);
+  fail("inline analytics privacy boundary test could not run: " + error.message);
 }
 
 // 2. No Stripe placeholder links
