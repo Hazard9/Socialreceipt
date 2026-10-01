@@ -23,6 +23,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const { analyze } = require("../presend-analysis.js");
+
 const ROOT = path.join(__dirname, "..");
 let failures = 0;
 let checks = 0;
@@ -42,9 +44,32 @@ function exists(file) {
   return fs.existsSync(path.join(ROOT, file));
 }
 
+
+/* Local pre-send phrase/profile regression coverage */
+[
+  ["deflective apology and self-blame", "I’m sorry you feel that way. I guess I’m always the problem.", "medium", ["deflective-apology", "self-blame-shift"]],
+  ["reluctant agreement and shutdown", "Fine. Whatever you want. I’m done talking about it.", "medium", ["reluctant-agreement", "conversation-close"]],
+  ["clear boundary with alternative", "I can't make it Saturday. I can do Sunday afternoon if that works.", "low", ["boundary-setting"]],
+  ["accountability with next step", "I'm sorry I missed the deadline. I'll send it by noon.", "low", ["accountability-apology"]],
+  ["Spanish deflective apology", "Lo siento que te sientas así. Supongo que yo siempre soy el problema.", "medium", ["deflective-apology", "self-blame-shift"]],
+  ["passive-aggressive softener plus resentment", "No worries. Apparently I’m the only one who remembers.", "medium", ["polite-resentment"]],
+  ["direct threat", "If you leave, I'll hurt you.", "high", ["threat"]],
+  ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
+  ["unsupported French stays unclear", "Je suis désolé que tu te sentes comme ça.", "uncertain", []],
+].forEach(([name, message, expectedLevel, expectedSignals]) => {
+  const result = analyze(message);
+  if (result.level !== expectedLevel) fail("pre-send "+name+": expected "+expectedLevel+", got "+result.level);
+  else pass("pre-send "+name+": level "+expectedLevel);
+  expectedSignals.forEach((signal) => {
+    if (result.signals.some((item) => item.id === signal)) pass("pre-send "+name+": signal "+signal);
+    else fail("pre-send "+name+": missing signal "+signal);
+  });
+});
+
 // 1. Required files exist
 [
   "index.html",
+  "presend-analysis.js",
   "success.html",
   "confidence-profile.html",
   "manifest.json",
