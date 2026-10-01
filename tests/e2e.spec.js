@@ -545,3 +545,35 @@ test("22. selecting a supported language resolves a short ambiguous phrase", asy
   await expect(output).toContainText("Se seleccionó el repertorio de frases en español");
   await expect(output).toContainText("“como quieras”");
 });
+
+
+test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Voy a llegar tarde. ¿Puedes esperarme?");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "es");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("Versión reescrita");
+  await expect(output).toContainText("Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.");
+  await expect(output).toContainText("Copiar versión");
+  await expect(output).toContainText("Revisar de nuevo");
+  await expect(output).not.toContainText("I want to address this directly");
+});
+
+test("24. French Pre-Send rewrite uses French", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Je serai en retard. Peux-tu m’attendre?");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "fr");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("Version reformulée");
+  await expect(output).toContainText("Je veux aborder cela directement. Dis-moi quel moment te conviendrait.");
+  await expect(output).toContainText("Copier la reformulation");
+  await expect(output).not.toContainText("I want to address this directly");
+});
