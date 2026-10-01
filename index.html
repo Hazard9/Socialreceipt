@@ -1593,7 +1593,8 @@ function renderPresendOutput(raw, context) {
   var riskLabel = analysis.label;
   var diagnosis = analysis.summary;
 
-  var rewritten = pro && analysis.supported ? rewriteMessage(raw, null, analysis) : null;\n  var rewriteLabels = presendRewriteLabels(analysis.language);
+  var rewritten = pro && analysis.supported ? rewriteMessage(raw, null, analysis) : null;
+  var rewriteLabels = presendRewriteLabels(analysis.language);
 
   var html = "<div class=\"presend-card reveal-step shown\">";
   html += "<div class=\"presend-eyebrow\">Pre-Send Check</div>";
