@@ -249,8 +249,12 @@
       matches[k] = firstMatch(scanText, P[k]);
       found[k] = !!matches[k];
     });
-    if (found.blame && /\b(?:not saying|not claiming|don't think|do not think|didn't say|did not say)\s+(?:that\s+)?you\s+(?:always|never)\b/.test(scanText))
-      found.blame = false;
+    if (found.blame && (
+      /\b(?:not saying|not claiming|don't think|do not think|didn't say|did not say|don't mean|do not mean|didn't mean|did not mean)\s+(?:that\s+)?you\s+(?:always|never)\b/.test(scanText) ||
+      /\byou never (?:have to|need to)\b/.test(scanText) ||
+      /\byou (?:don't|do not) always\b/.test(scanText)
+    )) found.blame = false;
+    if (found.threat && /\bno te voy a hacer dano\b/.test(scanText)) found.threat = false;
     var signals = [], hints = [];
     function add(id, label, detail, kind, hint) {
       if (signals.some(function (s) { return s.id === id; })) return;
