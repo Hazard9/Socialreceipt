@@ -529,7 +529,7 @@ test("21. affectionate care wording gets a grounded low-pressure result", async 
   await expect(output).toHaveClass(/active/);
   await expect(output).toContainText("LOW. No common pressure cue detected.");
   await expect(output).toContainText("Warmth or care cue");
-  await expect(output).toContainText("“i love you” + “you can have”");
+  await expect(output).toContainText("“i love you” + “help yourself”");
 });
 
 test("22. selecting a supported language resolves a short ambiguous phrase", async ({ page }) => {
