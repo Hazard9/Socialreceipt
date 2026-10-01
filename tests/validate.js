@@ -63,7 +63,7 @@ function exists(file) {
   ["resigned self-reliance", "I guess I'll do it myself, as usual.", "medium", ["resigned-self-reliance"]],
   ["absolute blame", "You never listen to me.", "medium", ["absolute-blame"]],
   ["sarcasm cue", "Thanks for nothing.", "medium", ["sarcasm-dismissal"]],
-  ["guilt pressure", "Don't worry about me. I'll remember this.", "medium", ["guilt-pressure"]],
+  ["guilt pressure", "After all I've done, don't worry about me. I'll remember this.", "medium", ["guilt-pressure"]],
   ["direct insult", "You are an idiot.", "medium", ["insult"]],
   ["softener beside explicit frustration", "No worries. I'm honestly tired of this.", "medium", ["softener-frustration"]],
   ["deference beside frustration", "Take your time, I know you're busy. This is getting old.", "medium", ["softener-frustration"]],

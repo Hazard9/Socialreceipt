@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Curated synthetic pre-send benchmark. All examples are fictional test text; no user drafts are stored or transmitted.",
+  "description": "Curated synthetic pre-send benchmark. All examples are fictional test text; no user drafts are stored or transmitted. Coverage pass adds synthetic Spanish and French positives and near-misses, including ordinary reassurance without guilt leverage. The near-miss set also checks ordinary English reassurance without guilt leverage.",
   "scope": "Measures expected signal hits, forbidden-signal false alarms, extra concern flags, and expected-level matches across curated English, Spanish, and first-pack French phrase cases, including near misses. These counts describe this test set only, not real-world accuracy.",
   "cases": [
     {
@@ -1060,6 +1060,219 @@
       "expectedSignals": [],
       "forbiddenSignals": [
         "threat"
+      ]
+    },
+    {
+      "id": "es-guilt-direct-call",
+      "group": "spanish-concern",
+      "text": "Si te importara, me habrías llamado.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-caring-reassurance-near-miss",
+      "group": "spanish-near-miss",
+      "text": "No te preocupes por mí; ya cené y estoy bien.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "es-softener-frustration-variant",
+      "group": "spanish-combination",
+      "text": "No pasa nada, pero estoy cansada de ser la única que avisa.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "softener-frustration"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-softener-routine-near-miss",
+      "group": "spanish-near-miss",
+      "text": "No pasa nada, te veo mañana.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "es-conversation-pause",
+      "group": "spanish-positive",
+      "text": "Ya no quiero hablar ahora; mañana seguimos.",
+      "context": {
+        "language": "es",
+        "goal": "close"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "conversation-close"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-sarcasm-phrase",
+      "group": "spanish-concern",
+      "text": "Gracias por nada.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "sarcasm-dismissal"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-accountability-repair-variant",
+      "group": "spanish-positive",
+      "text": "Perdón por lo que hice. Podemos resolverlo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "accountability-apology",
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-negated-blame-near-miss",
+      "group": "spanish-near-miss",
+      "text": "No digo que nunca me escuches; solo quiero explicar esto.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "fr-boundary-availability",
+      "group": "french-positive",
+      "text": "Je ne suis pas disponible ce soir.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-accountability-short",
+      "group": "french-positive",
+      "text": "C’était ma faute.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "accountability-apology"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-repair-understanding",
+      "group": "french-positive",
+      "text": "Je veux comprendre et on peut en parler.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-conversation-pause",
+      "group": "french-positive",
+      "text": "Je ne veux plus parler ce soir, on pourra reprendre demain.",
+      "context": {
+        "language": "fr",
+        "goal": "close"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "conversation-close"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "fr-literal-reassurance-near-miss",
+      "group": "french-near-miss",
+      "text": "Ne t’inquiète pas, j’ai déjà mangé.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "fr-routine-phrase-near-miss",
+      "group": "french-near-miss",
+      "text": "Comme d’habitude, le magasin ferme à huit heures.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "fr-boundary-alternative-variant",
+      "group": "french-positive",
+      "text": "Je ne peux pas venir ce soir, mais je peux samedi.",
+      "context": {
+        "language": "fr"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-caring-reassurance-near-miss",
+      "group": "english-near-miss",
+      "text": "Don’t worry about me; I already ate and I’m okay.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure"
       ]
     }
   ]
