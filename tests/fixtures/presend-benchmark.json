@@ -1274,6 +1274,112 @@
       "forbiddenSignals": [
         "guilt-pressure"
       ]
+    },
+    {
+      "id": "es-reviewed-phrase-01",
+      "group": "spanish-reviewed",
+      "text": "Si te importara, me habrías llamado.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "guilt-pressure"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-reviewed-phrase-02",
+      "group": "spanish-reviewed",
+      "text": "No te preocupes por mí; ya cené y estoy bien.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "es-reviewed-phrase-03",
+      "group": "spanish-reviewed",
+      "text": "No pasa nada, pero estoy cansada de ser la única que avisa.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "softener-frustration"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-reviewed-phrase-04",
+      "group": "spanish-reviewed",
+      "text": "No pasa nada, te veo mañana.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment"
+      ]
+    },
+    {
+      "id": "es-reviewed-phrase-05",
+      "group": "spanish-reviewed",
+      "text": "Ya no quiero hablar ahora; mañana seguimos.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting",
+        "conversation-close"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-reviewed-phrase-06",
+      "group": "spanish-reviewed",
+      "text": "Gracias por nada.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "sarcasm-dismissal"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-reviewed-phrase-07",
+      "group": "spanish-reviewed",
+      "text": "Perdón por lo que hice. Podemos resolverlo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "accountability-apology",
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-reviewed-phrase-08",
+      "group": "spanish-reviewed",
+      "text": "No digo que nunca me escuches; solo quiero explicar esto.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
     }
   ]
 }
