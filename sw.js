@@ -3,12 +3,13 @@
   Network-first for the app shell so deployed fixes reach phones reliably.
 */
 
-var CACHE_NAME = "social-receipt-v19-network-first";
+var CACHE_NAME = "social-receipt-v20-network-first";
 var OFFLINE_URL = "/index.html";
 var PRECACHE_URLS = [
   "/",
   "/index.html",
   "/presend-analysis.js",
+  "/app-language.js",
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png"
