@@ -57,7 +57,7 @@ test("0c. Spanish app language localizes Conversation Replay without translating
   await page.click('[data-sr-app-language]');
   await page.locator('#srLanguageChooser button[data-lang="es"]').click();
   const quoted = "Stop. The conversation is no longer moving toward the original point, another message right now is likely to add pressure instead of resolving it.";
-  await page.locator("#conversation").fill("You: " + quoted + "\\nThem: I hear you.");
+  await page.locator("#conversation").fill(["You: " + quoted, "Them: I hear you."].join(String.fromCharCode(10)));
   await page.click("#analyzeBtn");
   await expect(page.locator("#summaryText")).toContainText("En este intercambio de 2 mensajes");
   await expect(page.locator(".tl-quote").first()).toContainText(quoted);
