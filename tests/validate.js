@@ -127,7 +127,7 @@ const warmDraft = analyze("Thanks, love. I saved a bowl of cereal for you. Help 
 const warmSignal = warmDraft.signals.find((item) => item.id === "warmth-care");
 if (warmDraft.level === "low" && warmSignal) pass("warm caring draft gets a grounded low-pressure read");
 else fail("warm caring draft incorrectly stays unclear");
-if (warmSignal && warmSignal.evidence.includes("i love you") && warmSignal.evidence.includes("you can have")) pass("warm care result shows exact supporting wording");
+if (warmSignal && warmSignal.evidence.includes("i love you") && warmSignal.evidence.includes("help yourself")) pass("warm care result shows exact supporting wording");
 else fail("warm care result is missing exact supporting wording");
 const mixedWarmDraft = analyze("I love you, but you never listen.");
 if (mixedWarmDraft.level === "medium" && mixedWarmDraft.signals.some((item) => item.id === "warmth-care")) pass("warmth does not hide a separate concern");
