@@ -89,8 +89,9 @@ function exists(file) {
   ["French passive-aggressive combination", "Pas de souci. Comme d’habitude, je vais le faire moi-même.", "medium", ["polite-resentment"]],
   ["French isolated softener stays unclear", "Pas de souci, à demain.", "uncertain", []],
   ["French boundary is positive", "Je ne peux pas venir samedi.", "low", ["boundary-setting"]],
-  ["unsupported French threat is flagged", "Tu vas le regretter, je vais te frapper.", "high", ["threat"]],\n  ["warm affectionate offer is not unclear", "Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.", "low", ["warmth-care"]],
-  ["warmth does not hide a concern", "I love you, but you never listen.", "medium", ["warmth-care", "absolute-blame"]]
+  ["unsupported French threat is flagged", "Tu vas le regretter, je vais te frapper.", "high", ["threat"]],
+  ["warm affectionate offer is not unclear", "Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.", "low", ["warmth-care"]],
+  ["warmth does not hide a concern", "I love you, but you never listen.", "medium", ["warmth-care", "absolute-blame"]],
   ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
   ["empty input stays unclear", "", "uncertain", []],
 ].forEach(([name, message, expectedLevel, expectedSignals]) => {
