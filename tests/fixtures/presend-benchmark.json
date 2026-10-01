@@ -671,6 +671,19 @@
         "resigned-self-reliance",
         "guilt-pressure"
       ]
+    },
+    {
+      "id": "en-boundary-take-on-context",
+      "group": "english-context",
+      "text": "I can't take this on tonight. I can help tomorrow between 2 and 4, but I need tonight to rest.",
+      "context": {
+        "goal": "boundary"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
     }
   ]
 }
