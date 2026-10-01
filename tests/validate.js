@@ -154,6 +154,7 @@ else fail("selected language pack disclosure missing");
 const benchmark = JSON.parse(read("tests/fixtures/presend-benchmark.json"));
 const benchmarkTotals = { cases: 0, levelMatches: 0, expectedCues: 0, truePositives: 0, falseNegatives: 0, falsePositives: 0, trueNegatives: 0 };
 const benchmarkGroups = {};
+const benchmarkSignals = {};
 benchmark.cases.forEach((item) => {
   const result = analyze(item.text, item.context || {});
   benchmarkTotals.cases++;
@@ -169,11 +170,15 @@ benchmark.cases.forEach((item) => {
   const actual = new Map(result.signals.map((signal) => [signal.id, signal]));
   const expected = new Set(item.expectedSignals || []);
   expected.forEach((id) => {
+    const counts = benchmarkSignals[id] || (benchmarkSignals[id] = { expected: 0, hits: 0, misses: 0, checkedNegative: 0, trueNegatives: 0, falseAlarms: 0 });
+    counts.expected++;
     benchmarkTotals.expectedCues++;
     if (actual.has(id)) {
+      counts.hits++;
       benchmarkTotals.truePositives++;
       group.tp++;
     } else {
+      counts.misses++;
       benchmarkTotals.falseNegatives++;
       group.fn++;
       fail("benchmark " + item.id + ": missed expected cue " + id);
@@ -181,27 +186,37 @@ benchmark.cases.forEach((item) => {
   });
   const forbidden = new Set(item.forbiddenSignals || []);
   forbidden.forEach((id) => {
+    const counts = benchmarkSignals[id] || (benchmarkSignals[id] = { expected: 0, hits: 0, misses: 0, checkedNegative: 0, trueNegatives: 0, falseAlarms: 0 });
+    counts.checkedNegative++;
     if (actual.has(id)) {
+      counts.falseAlarms++;
       benchmarkTotals.falsePositives++;
       group.fp++;
       fail("benchmark " + item.id + ": false alarm cue " + id);
     } else {
+      counts.trueNegatives++;
       benchmarkTotals.trueNegatives++;
       group.tn++;
     }
   });
   result.signals.filter((signal) => signal.kind === "concern" || signal.kind === "high").forEach((signal) => {
     if (!expected.has(signal.id) && !forbidden.has(signal.id)) {
+      const counts = benchmarkSignals[signal.id] || (benchmarkSignals[signal.id] = { expected: 0, hits: 0, misses: 0, checkedNegative: 0, trueNegatives: 0, falseAlarms: 0 });
+      counts.falseAlarms++;
       benchmarkTotals.falsePositives++;
       group.fp++;
       fail("benchmark " + item.id + ": unexpected concern cue " + signal.id);
     }
   });
 });
-console.log("\\nCurated benchmark: " + benchmarkTotals.cases + " synthetic examples; levels matched " + benchmarkTotals.levelMatches + "/" + benchmarkTotals.cases + "; signal TP " + benchmarkTotals.truePositives + ", FP " + benchmarkTotals.falsePositives + ", FN " + benchmarkTotals.falseNegatives + ", checked TN " + benchmarkTotals.trueNegatives + ".");
+console.log("\nCurated benchmark: " + benchmarkTotals.cases + " synthetic examples; levels matched " + benchmarkTotals.levelMatches + "/" + benchmarkTotals.cases + "; signal TP " + benchmarkTotals.truePositives + ", FP " + benchmarkTotals.falsePositives + ", FN " + benchmarkTotals.falseNegatives + ", checked TN " + benchmarkTotals.trueNegatives + ".");
 Object.keys(benchmarkGroups).sort().forEach((name) => {
   const value = benchmarkGroups[name];
   console.log("  " + name + ": " + value.levelsMatched + "/" + value.cases + " levels; TP " + value.tp + ", FP " + value.fp + ", FN " + value.fn + ", TN " + value.tn);
+});
+Object.keys(benchmarkSignals).sort().forEach((id) => {
+  const value = benchmarkSignals[id];
+  console.log("  cue " + id + ": " + value.hits + "/" + value.expected + " expected hits, " + value.misses + " misses, " + value.falseAlarms + " false alarms across " + value.checkedNegative + " negative checks.");
 });
 
 const quotedDraft = "He said, “I’m sorry you feel that way.”";
