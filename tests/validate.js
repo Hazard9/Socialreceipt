@@ -287,6 +287,7 @@ if (preSendFlow && /window\.SocialReceiptAnalysis\.analyze\(raw, context\)/.test
 // Both analytics paths fail closed to known structural metadata and discard draft-like fields.
 const privacyPayload = {
   scenario: "Conflict", feature: "pre_send", content_id: "video-01",
+  attribution_status: "stripe_verified", billing_period: "lifetime", verification_source: "stripe_paid",
   message: "PRIVATE_DRAFT", text: "PRIVATE_DRAFT", rawText: "PRIVATE_DRAFT",
   raw_text: "PRIVATE_DRAFT", draft: "PRIVATE_DRAFT", draft_text: "PRIVATE_DRAFT",
   original_message: "PRIVATE_DRAFT", message_text: "PRIVATE_DRAFT",
@@ -314,7 +315,8 @@ try {
   const privateFields = ["message", "text", "rawText", "raw_text", "draft", "draft_text",
     "original_message", "message_text", "conversation", "transcript", "rewrite", "email", "arbitrary_alias"];
   if (event && privateFields.every((key) => !(key in data)) &&
-      data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01") {
+      data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01" &&
+      data.attribution_status === "stripe_verified" && data.billing_period === "lifetime" && data.verification_source === "stripe_paid") {
     pass("analytics strips draft-like and unknown fields while preserving approved metadata");
   } else {
     fail("analytics privacy filter did not enforce the approved metadata boundary");
@@ -335,7 +337,8 @@ try {
   const privateFields = ["message", "text", "rawText", "raw_text", "draft", "draft_text",
     "original_message", "message_text", "conversation", "transcript", "rewrite", "email", "arbitrary_alias"];
   if (event && privateFields.every((key) => !(key in data)) &&
-      data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01") {
+      data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01" &&
+      data.attribution_status === "stripe_verified" && data.billing_period === "lifetime" && data.verification_source === "stripe_paid") {
     pass("inline analytics fallback strips draft-like and unknown fields while preserving approved metadata");
   } else {
     fail("inline analytics fallback did not enforce the approved metadata boundary");
