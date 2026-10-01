@@ -50,12 +50,34 @@ function exists(file) {
   ["deflective apology and self-blame", "I’m sorry you feel that way. I guess I’m always the problem.", "medium", ["deflective-apology", "self-blame-shift"]],
   ["reluctant agreement and shutdown", "Fine. Whatever you want. I’m done talking about it.", "medium", ["reluctant-agreement", "conversation-close"]],
   ["clear boundary with alternative", "I can't make it Saturday. I can do Sunday afternoon if that works.", "low", ["boundary-setting"]],
+  ["direct refusal", "I'm not available tonight.", "low", ["boundary-setting"]],
+  ["space request", "I need some space.", "low", ["boundary-setting"]],
   ["accountability with next step", "I'm sorry I missed the deadline. I'll send it by noon.", "low", ["accountability-apology"]],
+  ["repair invitation", "Can we talk this through?", "low", ["repair-attempt"]],
+  ["clarification cue", "To be clear, can you clarify the time?", "low", ["clarifier"]],
   ["Spanish deflective apology", "Lo siento que te sientas así. Supongo que yo siempre soy el problema.", "medium", ["deflective-apology", "self-blame-shift"]],
+  ["Spanish blame pattern", "Siempre haces lo mismo.", "medium", ["absolute-blame"]],
+  ["Spanish boundary", "No puedo asistir esta noche.", "low", ["boundary-setting"]],
+  ["Spanish softener and resentment", "No pasa nada. Como siempre.", "medium", ["polite-resentment"]],
   ["passive-aggressive softener plus resentment", "No worries. Apparently I’m the only one who remembers.", "medium", ["polite-resentment"]],
+  ["resigned self-reliance", "I guess I'll do it myself, as usual.", "medium", ["resigned-self-reliance"]],
+  ["absolute blame", "You never listen to me.", "medium", ["absolute-blame"]],
+  ["sarcasm cue", "Thanks for nothing.", "medium", ["sarcasm-dismissal"]],
+  ["guilt pressure", "Don't worry about me. I'll remember this.", "medium", ["guilt-pressure"]],
+  ["direct insult", "You are an idiot.", "medium", ["insult"]],
   ["direct threat", "If you leave, I'll hurt you.", "high", ["threat"]],
-  ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
+  ["reassurance question stays contextual", "Are we okay?", "uncertain", ["reassurance-seeking"]],
+  ["softener alone is not a verdict", "No worries, all good.", "uncertain", []],
+  ["benign whatever phrase is not a verdict", "Whatever works for you.", "uncertain", []],
+  ["routine work request", "Can you send the file by 3?", "uncertain", []],
+  ["factual reminder", "I sent you the address yesterday.", "uncertain", []],
+  ["negated absolute is not blame", "I am not saying you always do that.", "uncertain", []],
+  ["no pressure disclaimer", "I don't want to pressure you.", "uncertain", []],
+  ["benign schedule alternative", "If Friday doesn't work, Saturday is fine.", "uncertain", []],
+  ["neutral Spanish stays unclear", "Todo bien, nos vemos a las seis.", "uncertain", []],
   ["unsupported French stays unclear", "Je suis désolé que tu te sentes comme ça.", "uncertain", []],
+  ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
+  ["empty input stays unclear", "", "uncertain", []],
 ].forEach(([name, message, expectedLevel, expectedSignals]) => {
   const result = analyze(message);
   if (result.level !== expectedLevel) fail("pre-send "+name+": expected "+expectedLevel+", got "+result.level);
@@ -65,6 +87,35 @@ function exists(file) {
     else fail("pre-send "+name+": missing signal "+signal);
   });
 });
+
+/* Context adds an explanation locally. Goal and situation must not alter the signal level. */
+const boundaryDraft = "I can't make it Saturday. I can do Sunday afternoon if that works.";
+const boundaryBase = analyze(boundaryDraft);
+const boundaryWithContext = analyze(boundaryDraft, { goal: "boundary", situation: "after_conflict" });
+if (boundaryWithContext.level === boundaryBase.level) pass("context does not change boundary signal level");
+else fail("context unexpectedly changed boundary signal level");
+if (boundaryWithContext.contextNotes.some((note) => note.indexOf("stated goal is a boundary") !== -1)) pass("boundary goal adds relevant context note");
+else fail("boundary goal context note missing");
+
+const concernDraft = "No worries. Apparently I’m the only one who remembers.";
+const concernBase = analyze(concernDraft);
+const concernWithContext = analyze(concernDraft, { goal: "repair", situation: "after_conflict" });
+if (concernWithContext.level === concernBase.level) pass("goal and situation do not change concern level");
+else fail("goal or situation changed concern level");
+if (concernWithContext.contextNotes.some((note) => note.indexOf("following a disagreement") !== -1)) pass("after-conflict context is reflected cautiously");
+else fail("after-conflict context note missing");
+if (concernWithContext.contextNotes.some((note) => note.indexOf("Your stated goal is repair") !== -1)) pass("repair goal note is available");
+else fail("repair goal context note missing");
+
+const quotedDraft = "He said, “I’m sorry you feel that way.”";
+const quotedBase = analyze(quotedDraft);
+const quotedContext = analyze(quotedDraft, { quoted: true });
+if (quotedBase.signals.some((item) => item.id === "deflective-apology")) pass("quoted phrase is detectable without quote context");
+else fail("quoted phrase baseline signal missing");
+if (!quotedContext.signals.some((item) => item.id === "deflective-apology") && quotedContext.level === "uncertain") pass("marked quoted words are excluded from sender-wording signals");
+else fail("marked quoted words were still scored as sender wording");
+if (quotedContext.contextNotes.some((note) => note.indexOf("excluded from wording signals") !== -1)) pass("quote exclusion is explained");
+else fail("quote exclusion note missing");
 
 // 1. Required files exist
 [

@@ -424,6 +424,22 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .presend-signal span,.presend-style-hints,.presend-context-note{font-size:12px;line-height:1.5;color:var(--muted);}
 .presend-style-hints{padding-top:8px;}
 .presend-context-note{margin:10px 0 0;}
+.presend-context{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.presend-context summary{font-size:12px;color:var(--gold-2);cursor:pointer;list-style:none;}
+.presend-context summary::-webkit-details-marker{display:none;}
+.presend-context summary:after{content:"＋";float:right;color:var(--muted);}
+.presend-context[open] summary:after{content:"−";}
+.presend-context-fields{display:grid;gap:9px;padding-top:11px;}
+.presend-context-field{display:grid;gap:5px;}
+.presend-context-field label{font-size:11px;color:var(--muted);}
+.presend-context select{width:100%;padding:9px 10px;border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text);border:1px solid var(--border);font-size:12px;}
+.presend-context select option{background:var(--surface-2);}
+.presend-context-quote{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
+.presend-context-quote input{accent-color:var(--gold);}
+.presend-context-hint{font-size:10px;line-height:1.45;color:var(--muted-2);}
+.presend-context-reading{padding:10px 12px;margin:0 0 10px;border-left:2px solid var(--gold);background:rgba(255,245,220,.035);border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
+.presend-context-reading strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-2);margin-bottom:6px;}
+.presend-context-reading p{font-size:12px;line-height:1.5;color:var(--muted);margin:5px 0 0;}
 .presend-diagnosis{font-size:14px;color:var(--muted);font-weight:300;line-height:1.55;margin:0 0 12px;}
 .presend-diagnosis em{color:var(--text);font-style:normal;font-weight:500;}
 .presend-rewrite-box{padding:13px;background:rgba(0,0,0,0.25);border:1px dashed var(--border-warm);border-radius:var(--radius-sm);font-size:14px;font-style:italic;color:var(--text);line-height:1.6;margin-bottom:9px;}
@@ -1240,7 +1256,7 @@ function afterFormHtml() {
 }
 
 function presendFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">Your goal and situation shape the explanation. Marked quotes are excluded from phrase matching when they are inside quotation marks. This cannot prove intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
@@ -1257,13 +1273,13 @@ function onTextInput(el) {
   _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "microFeedback", "microFeedbackText"); }, 160);
 }
 
-function runLiveJudgment(val, fbId, ftId) {
+function runLiveJudgment(val, fbId, ftId, context) {
   var fb = document.getElementById(fbId);
   var ft = document.getElementById(ftId);
   if (!fb || !ft) return;
   if (!val.trim()) { fb.className = "micro-feedback"; return; }
 
-  var analysis = window.SocialReceiptAnalysis.analyze(val);
+  var analysis = window.SocialReceiptAnalysis.analyze(val, context);
   var cls = analysis.level === "high" ? "red-signal"
     : analysis.level === "low" ? "green-signal" : "neutral-signal";
   var label = analysis.level === "high" ? "Direct threat or coercive wording — review carefully"
@@ -1277,7 +1293,7 @@ function runLiveJudgment(val, fbId, ftId) {
 
 function onPresendInput(el) {
   clearTimeout(_liveTimer);
-  _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "presendFeedback", "presendFeedbackText"); }, 160);
+  _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "presendFeedback", "presendFeedbackText", readPresendContext()); }, 160);
 }
 /* TALK TO TEXT: browser-native speech recognition only. Audio and transcripts stay in the browser. */
 var _voiceRecognition = null;
@@ -1540,23 +1556,37 @@ function generateReceipt() {
 }
 
 /* ── PRE-SEND ── */
+function readPresendContext() {
+  return {
+    goal: document.getElementById("presendGoal") ? document.getElementById("presendGoal").value : "",
+    situation: document.getElementById("presendSituation") ? document.getElementById("presendSituation").value : "",
+    quoted: !!(document.getElementById("presendQuoted") && document.getElementById("presendQuoted").checked)
+  };
+}
+
+function onPresendContextChange() {
+  var text = document.getElementById("presendText");
+  if (text && text.value.trim()) runLiveJudgment(text.value, "presendFeedback", "presendFeedbackText", readPresendContext());
+}
+
 function runPresend() {
   var raw = document.getElementById("presendText") ? document.getElementById("presendText").value.trim() : "";
   if (!raw) { toast("Paste the message you are about to send."); return; }
+  var context = readPresendContext();
   haptic([10,40]);
   document.getElementById("formArea").style.display = "none";
   document.getElementById("loadingPanel").classList.add("active");
   document.getElementById("loadingLabel").textContent = "Checking your message\u2026";
   setTimeout(function() {
     document.getElementById("loadingPanel").classList.remove("active");
-    renderPresendOutput(raw);
+    renderPresendOutput(raw, context);
     haptic([15,50]);
   }, 900);
 }
 
-function renderPresendOutput(raw) {
+function renderPresendOutput(raw, context) {
   var pro = isPro();
-  var analysis = window.SocialReceiptAnalysis.analyze(raw);
+  var analysis = window.SocialReceiptAnalysis.analyze(raw, context);
   var riskLevel = analysis.level;
   var riskLabel = analysis.label;
   var diagnosis = analysis.summary;
@@ -1576,6 +1606,11 @@ function renderPresendOutput(raw) {
     if (analysis.styleHints.length) {
       html += "<div class=\"presend-style-hints\">Possible message moves: "+analysis.styleHints.join(", ")+"</div>";
     }
+    html += "</div>";
+  }
+  if (analysis.contextNotes.length) {
+    html += "<div class=\"presend-context-reading\"><strong>How your context shapes the read</strong>";
+    analysis.contextNotes.forEach(function(note) { html += "<p>"+note+"</p>"; });
     html += "</div>";
   }
   html += "<p class=\"presend-context-note\">"+analysis.note+"</p>";
