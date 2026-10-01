@@ -208,7 +208,7 @@
       intentAttribution: [/\byou'?re trying to\b/, /\byou are trying to\b/, /\byou just want to\b/, /\byou want me to\b/],
       blame: [/\byou always\b/, /\byou never\b/, /\byou made me\b/, /\byou don'?t care\b/],
       reassurance: [/\bare we okay\b/, /\bdo you still care\b/, /\bare you mad at me\b/, /\bplease tell me (?:we'?re|you'?re)\b/, /\bdid i do something wrong\b/],
-      boundary: [/\bi can'?t make it\b/, /\bi cannot make it\b/, /\bi'?m not available\b/, /\bthat doesn'?t work for me\b/, /\bplease don'?t\b/, /\bplease stop\b/, /\bi need some space\b/],
+      boundary: [/\bi can'?t make it\b/, /\bi cannot make it\b/, /\bi can'?t take this on\b/, /\bi cannot take this on\b/, /\bi'?m not available\b/, /\bthat doesn'?t work for me\b/, /\bplease don'?t\b/, /\bplease stop\b/, /\bi need some space\b/],
       apology: [/\bi'?m sorry i\b/, /\bi apologize for\b/, /\bthat was my fault\b/, /\bi was wrong to\b/],
       clarifier: [/\bto be clear\b/, /\bfor context\b/, /\bwhat i mean is\b/, /\bcan you clarify\b/],
       repair: [/\bi want to fix this\b/, /\bcan we talk this through\b/, /\bcan we figure this out\b/],
@@ -221,11 +221,11 @@
       selfBlame: [/\bsupongo que yo soy (?:siempre )?el problema\b/, /\bsupongo que yo siempre soy el problema\b/, /\bsupongo que siempre soy el problema\b/],
       reluctant: [/\blo que tu quieras\b/, /\bsi eso es lo que quieres\b/, /\besta bien[,! ]+lo que quieras\b/, /\bcomo quieras\b/],
       sarcasm: [/\bgracias por nada\b/, /\bque sorpresa\b/, /\bme alegro que por fin\b/, /\bdebe ser bonito\b/],
-      guilt: [/\bdespues de todo lo que he hecho\b/, /\bno te preocupes por mi\b/, /\bsi te importara\b/],
+      guilt: [/\bdespues de todo lo que he hecho\b/, /\bno te preocupes por mi\b/, /\bsi (?:de verdad )?te importara\b/],
       withdrawal: [/\bya no quiero hablar\b/, /\bno me hables\b/, /\bolvidalo\b/, /\bno importa\b/, /\bse acabo\b/],
-      minimizing: [/\bno pasa nada\b/, /\bno hay problema\b/, /\besta bien\b/, /\bno importa\b/],
+      minimizing: [/\bno pasa nada\b/, /\bno hay problema\b/, /\besta bien\b/, /\bno importa\b/, /\bno te preocupes\b/],
       resentment: [/\bcomo siempre\b/, /\bsi tu lo dices\b/, /\bya me lo imaginaba\b/, /\bno me sorprende\b/],
-      resignation: [/\bme las arreglo solo\b/, /\bme las arreglo sola\b/],
+      resignation: [/\bme las arreglo solo\b/, /\bme las arreglo sola\b/, /\bsupongo que tendre que (?:resolverlo|hacerlo) yo\b/],
       frustration: [/\bestoy harto de\b/, /\bestoy harta de\b/, /\bestoy cansado de\b/, /\bestoy cansada de\b/, /\bme canse de\b/, /\besto es injusto\b/, /\besto ya cansa\b/],
       deferential: [/\bcuando puedas\b/, /\bcuando tengas tiempo\b/, /\bse que estas ocupado\b/, /\bse que estas ocupada\b/],
       defensiveProof: [/\bya te dije\b/, /\bya te explique\b/, /\bte lo dije antes\b/],
@@ -257,7 +257,7 @@
       var evidenceMap = {
         "deflective-apology": ["deflective"], "self-blame-shift": ["selfBlame"],
         "reluctant-agreement": ["reluctant"], "sarcasm-dismissal": ["sarcasm"],
-        "polite-resentment": ["minimizing", "resentment"], "softener-frustration": ["minimizing", "deferential", "frustration"],
+        "polite-resentment": ["minimizing", "resentment", "resignation"], "softener-frustration": ["minimizing", "deferential", "frustration"],
         "reassurance-pressure": ["reassurance", "minimizing", "deferential", "guilt"],
         "defensive-proof": ["defensiveProof"], "repeated-explanation": ["repetition"],
         "intent-attribution": ["intentAttribution"], "guilt-pressure": ["guilt"],
@@ -276,7 +276,7 @@
     if (found.resignation) add("resigned-self-reliance", en ? "Resigned self-reliance cue" : "Señal de resignación y autosuficiencia", en ? "May express frustration indirectly, though it can also be literal. Context matters." : "Puede expresar frustración indirectamente, aunque también puede ser literal. El contexto importa.", "concern");
     if (found.reluctant) add("reluctant-agreement", en ? "Reluctant agreement" : "Acuerdo posiblemente resignado", en ? "May read as concealed disagreement, especially beside an abrupt ending." : "Puede leerse como desacuerdo oculto, especialmente junto a un cierre abrupto.", "concern");
     if (found.sarcasm) add("sarcasm-dismissal", en ? "Sarcasm or dismissal cue" : "Señal de sarcasmo o desdén", en ? "Can sound sarcastic or dismissive depending on context." : "Puede sonar sarcástico o despectivo según el contexto.", "concern");
-    if (found.minimizing && found.resentment) add("polite-resentment", en ? "Polite wording beside resentment" : "Cortesía junto a resentimiento", en ? "Softening language appears beside a dismissive or frustrated cue; the combination may read as passive-aggressive, but context matters." : "Una frase suavizante aparece junto a una señal despectiva o frustrada; la combinación puede leerse como pasivo-agresiva, pero depende del contexto.", "concern", "Clarifier-style explanation");
+    if (found.minimizing && (found.resentment || found.resignation)) add("polite-resentment", en ? "Polite wording beside resentment" : "Cortesía junto a resentimiento", en ? "Softening language appears beside a dismissive or frustrated cue; the combination may read as passive-aggressive, but context matters." : "Una frase suavizante aparece junto a una señal despectiva o frustrada; la combinación puede leerse como pasivo-agresiva, pero depende del contexto.", "concern", "Clarifier-style explanation");
     if ((found.minimizing || found.deferential) && found.frustration) add("softener-frustration", en ? "Softening beside frustration" : "Atenuación junto a frustración", en ? "A softener or deferential phrase appears beside stated frustration; the combination may sound passive-aggressive, though it can also express genuine restraint." : "Una frase atenuante o deferente aparece junto a frustración explícita; la combinación puede sonar pasivo-agresiva, aunque también puede expresar moderación sincera.", "concern");
     if (found.reassurance && (found.minimizing || found.deferential || found.guilt)) add("reassurance-pressure", en ? "Reassurance request beside a softener" : "Petición de tranquilidad junto a una atenuación", en ? "The combination may soften a request while still asking the recipient to reassure you. Timing and context matter." : "La combinación puede suavizar una petición y aun así pedir tranquilidad a la otra persona. El momento y el contexto importan.", "concern");
     if (found.defensiveProof) add("defensive-proof", en ? "Defensive proof cue" : "Señal de defensa mediante pruebas", en ? "A phrase emphasizes that the point was already explained; this can be factual, but may sound defensive beside frustration." : "La frase enfatiza que ya se explicó el punto; puede ser factual, pero sonar defensiva junto a frustración.", found.frustration || found.repetition ? "concern" : "context");
