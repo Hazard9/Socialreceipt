@@ -233,7 +233,7 @@
       intentAttribution: [/\bestas tratando de\b/, /\bquieres que yo\b/, /\bsolo quieres\b/],
       blame: [/\bsiempre haces\b/, /\bnunca haces\b/, /\btu me hiciste\b/, /\bno te importa\b/],
       reassurance: [/\bestamos bien\b/, /\btodavia te importo\b/, /\bestas enojado conmigo\b/, /\bhice algo mal\b/],
-      boundary: [/\bno puedo ir\b/, /\bno puedo asistir\b/, /\bno estoy disponible\b/, /\bno me funciona\b/, /\bpor favor no\b/, /\bnecesito espacio\b/],
+      boundary: [/\bno puedo ir\b/, /\bno puedo asistir\b/, /\bno estoy disponible\b/, /\bno me funciona\b/, /\bpor favor no\b/, /\bnecesito espacio\b/, /\b(?:ya )?no quiero hablar ahora\b/],
       apology: [/\bperdon por lo que hice\b/, /\blo siento por\b/, /\bfue mi culpa\b/],
       clarifier: [/\bpara ser claro\b/, /\bpara dar contexto\b/, /\blo que quiero decir es\b/, /\bpuedes aclarar\b/],
       repair: [/\bquiero arreglar esto\b/, /\bpodemos hablarlo\b/, /\bpodemos resolverlo\b/],
