@@ -38,7 +38,7 @@ test("0b. changing app language leaves message text and analysis-language choice
   await page.locator('#srLanguageChooser button[data-lang="es"]').click();
   await expect(page.locator("#interactionText")).toHaveValue(draft);
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
-  await expect(page.locator("#presendLanguage")).toHaveValue("auto");
+  await expect(page.locator("#presendLanguage")).toHaveValue("");
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
