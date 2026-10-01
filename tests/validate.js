@@ -86,7 +86,12 @@ function exists(file) {
   ["benign schedule alternative", "If Friday doesn't work, Saturday is fine.", "uncertain", []],
   ["neutral Spanish stays unclear", "Todo bien, nos vemos a las seis.", "uncertain", []],
   ["short Spanish stays unclear until language is selected", "Como quieras.", "uncertain", []],
-  ["unsupported French stays unclear", "Je suis désolé que tu te sentes comme ça.", "uncertain", []],
+  ["French passive-aggressive combination", "Pas de souci. Comme d’habitude, je vais le faire moi-même.", "medium", ["polite-resentment"]],
+  ["French isolated softener stays unclear", "Pas de souci, à demain.", "uncertain", []],
+  ["French boundary is positive", "Je ne peux pas venir samedi.", "low", ["boundary-setting"]],
+  ["unsupported French threat is flagged", "Tu vas le regretter, je vais te frapper.", "high", ["threat"]],
+  ["warm affectionate offer is not unclear", "Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.", "low", ["warmth-care"]],
+  ["warmth does not hide a concern", "I love you, but you never listen.", "medium", ["warmth-care", "absolute-blame"]],
   ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
   ["empty input stays unclear", "", "uncertain", []],
 ].forEach(([name, message, expectedLevel, expectedSignals]) => {
@@ -117,6 +122,25 @@ if (concernWithContext.contextNotes.some((note) => note.indexOf("following a dis
 else fail("after-conflict context note missing");
 if (concernWithContext.contextNotes.some((note) => note.indexOf("Your stated goal is repair") !== -1)) pass("repair goal note is available");
 else fail("repair goal context note missing");
+
+const warmDraft = analyze("Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.");
+const warmSignal = warmDraft.signals.find((item) => item.id === "warmth-care");
+if (warmDraft.level === "low" && warmSignal) pass("warm caring draft gets a grounded low-pressure read");
+else fail("warm caring draft incorrectly stays unclear");
+if (warmSignal && warmSignal.evidence.includes("i love you") && warmSignal.evidence.includes("you can have")) pass("warm care result shows exact supporting wording");
+else fail("warm care result is missing exact supporting wording");
+const mixedWarmDraft = analyze("I love you, but you never listen.");
+if (mixedWarmDraft.level === "medium" && mixedWarmDraft.signals.some((item) => item.id === "warmth-care")) pass("warmth does not hide a separate concern");
+else fail("warmth incorrectly overrides a separate concern");
+
+const frenchAuto = analyze("Pas de souci. Comme d’habitude, je vais le faire moi-même.");
+if (frenchAuto.language === "fr" && frenchAuto.supported && frenchAuto.level === "medium") pass("French pack auto-detects a clear French sentence");
+else fail("French pack did not auto-detect a clear French sentence");
+if (frenchAuto.signals.some((item) => item.evidence.length > 0)) pass("French wording evidence is returned");
+else fail("French wording evidence is missing");
+const frenchSelected = analyze("Comme tu veux.", { language: "fr" });
+if (frenchSelected.supported && frenchSelected.language === "fr" && frenchSelected.level === "uncertain") pass("selected French pack keeps an isolated ambiguous phrase uncertain");
+else fail("selected French pack overstates an isolated ambiguous phrase");
 
 const shortSpanishAuto = analyze("Como quieras.");
 const shortSpanishSelected = analyze("Como quieras.", { language: "es" });

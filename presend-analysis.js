@@ -89,11 +89,92 @@
     });
   }
 
+
+  function looksFrench(text) {
+    var frenchText = text.replace(new RegExp(String.fromCharCode(39), "g"), " ");
+    return /\b(?:je suis desole|desolee|merci beaucoup|comme tu veux|si tu le dis|comme d habitude|ne t inquiete pas|je m en doutais|quelle surprise|j en ai marre|ca me fatigue|je ne veux plus parler|je ne peux pas|je ne suis pas disponible|j ai besoin d espace|pas de souci|tu vas le regretter|je vais te frapper|je vais te tuer)\b/.test(frenchText);
+  }
+  function analyzeFrench(text, context) {
+    var scan = text;
+    var quoted = false;
+    if (context && context.quoted === true) {
+      scan = text.replace(/“[^”]*”|"[^"]*"|‘[^’]*’/g, " ");
+      quoted = scan !== text;
+    }
+    scan = scan.replace(new RegExp(String.fromCharCode(39), "g"), " ");
+    var groups = {
+      deflective: [/\bje suis desole que tu te sentes\b/, /\bdesole que tu te sentes\b/],
+      blameShift: [/\bsuppose que je suis toujours le probleme\b/, /\bje suis toujours le probleme\b/],
+      reluctant: [/\bcomme tu veux\b/, /\bsi tu le dis\b/, /\bc est toi qui vois\b/, /\bd accord si tu veux\b/],
+      resentment: [/\bcomme d habitude\b/, /\bquelle surprise\b/, /\bje m en doutais\b/, /\bpas etonnant\b/, /\bapparemment\b/, /\bmerci pour rien\b/],
+      softener: [/\bc est pas grave\b/, /\bce n est pas grave\b/, /\bne t inquiete pas pour moi\b/, /\bpas de souci\b/],
+      frustration: [/\bj en ai marre\b/, /\bca me fatigue\b/, /\bca commence a bien faire\b/, /\bje suis fatigue de\b/, /\bje suis fatiguee de\b/],
+      guilt: [/\bapres tout ce que j ai fait\b/, /\bsi tu tenais a moi\b/, /\bje m en souviendrai\b/],
+      withdrawal: [/\bje ne veux plus parler\b/, /\blaisse tomber\b/, /\bc est fini entre nous\b/, /\bne me parle plus\b/],
+      boundary: [/\bje ne peux pas\b/, /\bje ne suis pas disponible\b/, /\bj ai besoin d espace\b/, /\bmerci de ne pas\b/, /\bca ne me convient pas\b/],
+      repair: [/\bje veux reparer\b/, /\bon peut en parler\b/, /\bcomment peut on arranger\b/, /\bje veux comprendre\b/],
+      apology: [/\bc etait ma faute\b/, /\bje reconnais que j ai\b/, /\bje suis desole d avoir\b/],
+      threat: [/\bje vais te faire payer\b/, /\btu vas le regretter\b/, /\bje vais te frapper\b/, /\bje vais te tuer\b/],
+      insult: [/\btais toi\b/, /\bje te deteste\b/, /\btu es un idiot\b/, /\btu es stupide\b/]
+    };
+    var found = {};
+    var evidence = {};
+    Object.keys(groups).forEach(function (key) {
+      evidence[key] = "";
+      for (var i = 0; i < groups[key].length; i++) {
+        var m = scan.match(groups[key][i]);
+        if (m) { evidence[key] = m[0]; break; }
+      }
+      found[key] = !!evidence[key];
+    });
+    var signals = [];
+    function add(id, label, detail, kind, keys) {
+      var matches = (keys || []).map(function (key) { return evidence[key]; }).filter(Boolean);
+      signals.push({ id: id, label: label, detail: detail, kind: kind, evidence: matches.slice(0, 3) });
+    }
+    if (found.deflective) add("deflective-apology", "Excuse qui peut détourner le sujet", "Cette formule porte sur le ressenti de l'autre plutôt que sur l'action de la personne qui écrit. Le contexte compte.", "concern", ["deflective"]);
+    if (found.blameShift) add("self-blame-shift", "Autocritique qui peut déplacer l'attention", "Cela peut exprimer une vraie blessure ou inviter l'autre à rassurer. La phrase seule ne permet pas de trancher.", "concern", ["blameShift"]);
+    if (found.softener && found.resentment) add("polite-resentment", "Formule apaisante avec un reproche", "La formule atténuante apparaît avec un reproche ou du ressentiment; l'ensemble peut sembler passif-agressif. Le contexte peut changer cette lecture.", "concern", ["softener", "resentment"]);
+    if ((found.softener || found.reluctant) && found.frustration) add("softener-frustration", "Atténuation avec frustration", "Une formule conciliante apparaît près d'une frustration explicite. Cela peut sembler indirect ou simplement exprimer de la retenue.", "concern", ["softener", "reluctant", "frustration"]);
+    if (found.reluctant) add("reluctant-agreement", "Accord possiblement résigné", "Cette formule peut exprimer un désaccord retenu, mais elle peut aussi être sincère selon votre habitude de parler.", "context", ["reluctant"]);
+    if (found.guilt) add("guilt-pressure", "Possible pression par la culpabilité", "La phrase peut rendre l'autre responsable du bien-être ou des efforts passés de la personne qui écrit.", "concern", ["guilt"]);
+    if (found.withdrawal) add("conversation-close", "Formule de retrait ou de clôture", "Mettre fin à une conversation peut être une limite valable. Le ton dépend de ce qui l'entoure.", "context", ["withdrawal"]);
+    if (found.boundary) add("boundary-setting", "Limite exprimée", "Une limite n'est pas automatiquement hostile ou risquée.", "positive", ["boundary"]);
+    if (found.apology) add("accountability-apology", "Indice de responsabilité", "La phrase nomme une action de la personne qui écrit; une réparation précise peut clarifier l'excuse.", "positive", ["apology"]);
+    if (found.repair) add("repair-attempt", "Volonté de réparer", "La phrase propose de comprendre ou de résoudre le problème.", "positive", ["repair"]);
+    if (found.threat) add("threat", "Menace ou contrainte possible", "Cette phrase contient une menace directe. Le signal décrit les mots, pas la personne.", "high", ["threat"]);
+    if (found.insult) add("insult", "Insulte directe", "La phrase attaque l'autre plutôt que de décrire le problème.", "concern", ["insult"]);
+    var high = signals.some(function (s) { return s.kind === "high"; });
+    var concerns = signals.some(function (s) { return s.kind === "concern"; });
+    var positive = signals.some(function (s) { return s.kind === "positive"; });
+    var level = high ? "high" : concerns ? "medium" : positive ? "low" : "uncertain";
+    var levels = {
+      high: ["ÉLEVÉ. Formulation menaçante détectée.", "Relisez attentivement cette phrase. Ce signal décrit le texte, pas le caractère ou l'intention de la personne."],
+      medium: ["MOYEN. Possible pression dans le ton.", "Une formulation peut sembler défensive, méprisante, accusatrice ou insistante. Le contexte peut changer cette lecture."],
+      low: ["FAIBLE. Aucun indice courant de pression détecté.", "Le texte contient une limite, une responsabilité ou une volonté de réparation. Cela ne garantit pas comment il sera reçu."],
+      uncertain: ["INCERTAIN. Le contexte peut changer la lecture.", "Cette bibliothèque locale n'a pas repéré de motif fort. Cela ne prouve pas que le message soit neutre."]
+    };
+    var notes = [];
+    if (context && context.goal === "boundary") notes.push("Votre objectif indiqué est de poser une limite. Vérifiez que la limite exprime clairement ce dont vous avez besoin.");
+    if (context && context.goal === "repair") notes.push("Votre objectif indiqué est de réparer la situation. Vérifiez que la phrase dit ce que vous souhaitez reconnaître ou résoudre.");
+    if (context && context.situation === "after_conflict" && signals.length) notes.push("Vous indiquez que le message suit un désaccord. Ce contexte peut changer la façon dont les mots sont reçus; il ne prouve pas une intention.");
+    if (context && context.situation === "routine" && signals.length) notes.push("Vous indiquez qu'il s'agit d'un échange habituel. Votre contexte partagé peut donner un autre sens aux formulations signalées.");
+    if (context && context.quoted) notes.push(quoted ? "Les mots entre guillemets détectés ont été exclus des indices attribués à la personne qui écrit." : "Les mots cités n'ont pas pu être isolés; les guillemets sont nécessaires pour les exclure.");
+    return {
+      supported: true, language: "fr", languageName: "Français", level: level,
+      label: levels[level][0], summary: levels[level][1], signals: signals,
+      styleHints: [], contextNotes: notes,
+      note: "Ces indices décrivent les mots d'un brouillon, pas un diagnostic ou un profil fixe. L'intention, l'histoire, la culture et le point de vue de l'autre peuvent changer la lecture."
+    };
+  }
+
   function analyze(value, context) {
     var text = normalize(value);
     if (!text) return { supported: false, language: "unknown", languageName: "Unclear", level: "uncertain",
       label: "UNCLEAR. Add a message to check.", summary: "Paste the wording you want to review.", signals: [], styleHints: [], contextNotes: [],
       note: "This reads wording in the draft. It cannot know intent or the full conversation." };
+
+    if (context && context.language === "fr" || looksFrench(text)) return analyzeFrench(text, context || {});
 
     var words = text.split(/[^a-z0-9']+/).filter(Boolean);
     var scanText = text;
@@ -132,7 +213,9 @@
       clarifier: [/\bto be clear\b/, /\bfor context\b/, /\bwhat i mean is\b/, /\bcan you clarify\b/],
       repair: [/\bi want to fix this\b/, /\bcan we talk this through\b/, /\bcan we figure this out\b/],
       threat: [/\byou'?ll regret it\b/, /\bi'?ll make you pay\b/, /\bi will hurt you\b/, /\bi'?m going to hurt you\b/, /\bi'?ll hurt you\b/, /\bif you don'?t .{0,35} i'?ll\b/],
-      insult: [/\byou are (?:a )?(?:worthless|stupid|an idiot)\b/, /\bshut up\b/, /\bi hate you\b/]
+      insult: [/\byou are (?:a )?(?:worthless|stupid|an idiot)\b/, /\bshut up\b/, /\bi hate you\b/],
+      warmth: [/\bi love you\b/, /\blove you\b/, /\bglad you'?re (?:on your way )?home\b/, /\bxoxo\b/, /\bmiss you\b/],
+      careOffer: [/\byou can have\b/, /\bhelp yourself\b/, /\bi saved some for you\b/, /\bthere'?s some for you\b/, /\bi made you\b/, /\bwant some\b/]
     } : {
       deflective: [/\blo siento (?:que )?te sientas asi\b/, /\bsiento que te sientas asi\b/],
       selfBlame: [/\bsupongo que yo soy (?:siempre )?el problema\b/, /\bsupongo que yo siempre soy el problema\b/, /\bsupongo que siempre soy el problema\b/],
@@ -155,7 +238,9 @@
       clarifier: [/\bpara ser claro\b/, /\bpara dar contexto\b/, /\blo que quiero decir es\b/, /\bpuedes aclarar\b/],
       repair: [/\bquiero arreglar esto\b/, /\bpodemos hablarlo\b/, /\bpodemos resolverlo\b/],
       threat: [/\bte vas a arrepentir\b/, /\bte voy a hacer pagar\b/, /\bte voy a hacer dano\b/],
-      insult: [/\beres un idiota\b/, /\beres estupido\b/, /\bcallate\b/, /\bte odio\b/]
+      insult: [/\beres un idiota\b/, /\beres estupido\b/, /\bcallate\b/, /\bte odio\b/],
+      warmth: [/\bte quiero\b/, /\bte amo\b/, /\bme alegra que vuelvas a casa\b/, /\bme alegra que estes de camino a casa\b/, /\bte extrano\b/],
+      careOffer: [/\bpuedes comer\b/, /\bpuedes tomar\b/, /\bte guarde\b/, /\bsirvete\b/, /\bquieres un poco\b/]
     };
 
     var found = {};
@@ -180,7 +265,7 @@
         "reassurance-seeking": ["reassurance"], "boundary-setting": ["boundary"],
         "accountability-apology": ["apology"], "clarifier": ["clarifier"],
         "repair-attempt": ["repair"], "threat": ["threat"], "insult": ["insult"],
-        "resigned-self-reliance": ["resignation"]
+        "resigned-self-reliance": ["resignation"], "warmth-care": ["warmth", "careOffer"]
       };
       var evidence = (evidenceMap[id] || []).map(function (key) { return matches[key]; }).filter(Boolean).slice(0, 3);
       signals.push({ id: id, label: label, detail: detail, kind: kind || "concern", evidence: evidence });
@@ -205,6 +290,7 @@
     if (found.apology) add("accountability-apology", en ? "Accountability cue" : "Señal de responsabilidad", en ? "Names the sender's own action. A specific repair can make the apology clearer." : "Nombra una acción propia. Una reparación concreta puede aclarar la disculpa.", "positive", "Conflict Resolver-style repair");
     if (found.clarifier) add("clarifier", en ? "Clarifying or context-setting cue" : "Señal para aclarar o dar contexto", en ? "Appears aimed at making meaning or context clearer." : "Parece buscar claridad en el significado o el contexto.", "positive", "Clarifier-style explanation");
     if (found.repair) add("repair-attempt", en ? "Repair-oriented cue" : "Señal de intención reparadora", en ? "Expresses interest in understanding or resolving the issue." : "Expresa interés en entender o resolver el problema.", "positive", "Conflict Resolver-style repair");
+    if (found.warmth || found.careOffer) add("warmth-care", en ? "Warmth or care cue" : "Señal de afecto o atención", en ? "Affection, a welcome, or an offer of care appears in the draft. That can support a warm reading, but it cannot guarantee how the whole message will land." : "El borrador expresa afecto, bienvenida o una oferta de atención. Esto puede apoyar una lectura cálida, pero no garantiza cómo se recibirá el mensaje completo.", "positive");
     if (found.threat) add("threat", en ? "Threat or coercion cue" : "Señal de amenaza o coacción", en ? "Contains direct threat or coercive wording." : "Contiene lenguaje de amenaza directa o coacción.", "high");
     if (found.insult) add("insult", en ? "Direct insult" : "Insulto directo", en ? "Attacks the recipient rather than describing the issue." : "Ataca a la otra persona en vez de describir el problema.", "concern");
     if (words.length > 45) add("long-draft", en ? "Long draft" : "Borrador largo", en ? "Length alone is not a tone problem, but the main point may be hard to find." : "La longitud no es por sí sola un problema de tono, pero puede ocultar la idea principal.", "context", "Clarifier-style explanation");
@@ -221,7 +307,7 @@
       summary = en ? "A wording pattern may land as defensive, dismissive, blaming, or pressuring. Context can change that reading." : "Un patrón puede sonar defensivo, despectivo, acusatorio o insistente. El contexto puede cambiar esa lectura.";
     } else if (hasPositive) {
       level = "low"; label = en ? "LOW. No common pressure cue detected." : "BAJO. No se detectó una señal común de presión.";
-      summary = en ? "The wording includes a boundary, accountability, repair, or clarification cue. This is not a guarantee about how it will land." : "La frase expresa un límite, responsabilidad, reparación o aclaración. Esto no garantiza cómo se recibirá.";
+      summary = en ? "The wording includes warmth, care, a boundary, accountability, repair, or clarification. This is not a guarantee about how it will land." : "La frase expresa afecto, atención, un límite, responsabilidad, reparación o aclaración. Esto no garantiza cómo se recibirá.";
     } else {
       level = "uncertain"; label = en ? "UNCLEAR. More context may change the read." : "NO ESTÁ CLARO. Más contexto puede cambiar la lectura.";
       summary = en ? "No strong pattern from this local phrase library was detected. That does not prove the message is neutral or low-pressure." : "La biblioteca local no detectó un patrón claro. Eso no demuestra que el mensaje sea neutral o sin presión.";
