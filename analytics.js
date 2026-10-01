@@ -12,7 +12,7 @@
   var allowedResultLevels = ['low', 'medium', 'high', 'unknown'];
   // Fail closed: only known structural event fields may leave this device.
   var allowedEventFields = Object.create(null);
-  "activation awarded campaign content_id content_series credit_type currency dom_content_loaded_ms experiment_id feature feature_name hook_variant item_category item_id item_name items load_ms mode new_outcomes new_reads open_reads outcome plan plan_type price pro quantity reason referral_code result result_level risk saved_reads scenario share_surface source tracked_outcomes transaction_id transfer_size value via".split(" ").forEach(function (key) { allowedEventFields[key] = true; });
+  "activation attribution_status awarded billing_period campaign content_id content_series credit_type currency dom_content_loaded_ms experiment_id feature feature_name hook_variant item_category item_id item_name items load_ms mode new_outcomes new_reads open_reads outcome plan plan_type price pro quantity reason referral_code result result_level risk saved_reads scenario share_surface source tracked_outcomes transaction_id transfer_size value verification_source via".split(" ").forEach(function (key) { allowedEventFields[key] = true; });
 
   function safeString(value, max) {
     if (typeof value !== 'string') return '';
