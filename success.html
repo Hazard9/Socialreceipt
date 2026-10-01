@@ -384,16 +384,53 @@
       return plan.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }).trim();
     }
 
-    function showConfirmed(plan) {
+    function showConfirmed(plan, verification) {
       if (window.SRAnalytics) {
         var rawPlan = String(plan || 'pro').toLowerCase();
         var planType = rawPlan === 'lifetime' ? 'lifetime' : 'pro';
-        var purchaseValue = rawPlan === 'lifetime' ? 39 : rawPlan === 'yearly' ? 69 : 9;
-        var purchaseMeta = { plan_type: planType, value: purchaseValue, currency: 'USD', verification_source: 'stripe_paid' };
-        window.SRAnalytics.track('checkout_verified', purchaseMeta);
-        window.SRAnalytics.track('upgrade_completed', purchaseMeta);
-        window.SRAnalytics.track('purchase_attributed', { plan_type: planType, value: purchaseValue, currency: 'USD', attribution_status: 'stripe_verified' });
-        window.SRAnalytics.track('purchase', { transaction_id: 'stripe_verified', value: purchaseValue, currency: 'USD', plan_type: planType });
+        var billingPeriod = rawPlan === 'yearly' ? 'yearly' : rawPlan === 'lifetime' ? 'one_time' : 'monthly';
+        var amountTotal = Number(verification && verification.amountTotal);
+        var currency = String(verification && verification.currency || '').toUpperCase();
+        var transactionId = String(verification && verification.sessionId || '');
+        var hasVerifiedAmount = Number.isFinite(amountTotal) && amountTotal > 0 && /^[A-Z]{3}$/.test(currency);
+        var verifiedMeta = {
+          plan_type: planType,
+          billing_period: billingPeriod,
+          verification_source: 'stripe_paid'
+        };
+        if (hasVerifiedAmount) {
+          verifiedMeta.value = amountTotal / 100;
+          verifiedMeta.currency = currency;
+        }
+        window.SRAnalytics.track('checkout_verified', verifiedMeta);
+        window.SRAnalytics.track('upgrade_completed', verifiedMeta);
+        if (transactionId && hasVerifiedAmount) {
+          var purchaseValue = amountTotal / 100;
+          var itemId = rawPlan === 'lifetime' ? 'social_receipt_lifetime' : 'social_receipt_pro_' + billingPeriod;
+          var itemName = rawPlan === 'lifetime' ? 'Social Receipt Lifetime Beta' : 'Social Receipt Pro (' + billingPeriod + ')';
+          var purchaseMeta = {
+            plan_type: planType,
+            billing_period: billingPeriod,
+            value: purchaseValue,
+            currency: currency,
+            attribution_status: 'stripe_verified'
+          };
+          window.SRAnalytics.track('purchase_attributed', purchaseMeta);
+          window.SRAnalytics.track('purchase', {
+            transaction_id: transactionId,
+            value: purchaseValue,
+            currency: currency,
+            plan_type: planType,
+            billing_period: billingPeriod,
+            items: [{
+              item_id: itemId,
+              item_name: itemName,
+              item_category: rawPlan === 'lifetime' ? 'Lifetime access' : 'Subscription',
+              price: purchaseValue,
+              quantity: 1
+            }]
+          });
+        }
       }
       document.getElementById('receiptDot').style.background = 'var(--green-light)';
       document.getElementById('receiptStatusLabel').textContent = 'Payment Confirmed';
@@ -446,7 +483,7 @@
         .then(function(resp) { return resp.json().catch(function(){ return {valid:false}; }); })
         .then(function(data) {
           if (data && data.valid) {
-            showConfirmed(data.plan);
+            showConfirmed(data.plan, data);
           } else {
             showFailed(data && data.error);
           }
