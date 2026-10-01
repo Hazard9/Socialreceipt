@@ -29,16 +29,17 @@ test("0. first visit asks for app language and saves the choice locally", async 
   await expect(page.locator("#srLanguageChooser")).toHaveCount(0);
 });
 
-test("0b. changing app language leaves message text and analysis-language choice untouched", async ({ page }) => {
+test("0b. changing app language leaves the draft and analysis-language choice untouched", async ({ page }) => {
   await skipToApp(page);
-  await page.click('.nav-btn[data-screen="createScreen"]');
+  await page.click('.nav-btn[onclick="openPresend()"]');
   const draft = "The strongest move may be to wait.";
-  await page.locator("#interactionText").fill(draft);
+  await page.locator("#presendText").fill(draft);
+  await page.locator("#presendLanguage").selectOption("es");
   await page.click('[data-sr-app-language]');
   await page.locator('#srLanguageChooser button[data-lang="es"]').click();
-  await expect(page.locator("#interactionText")).toHaveValue(draft);
+  await expect(page.locator("#presendText")).toHaveValue(draft);
+  await expect(page.locator("#presendLanguage")).toHaveValue("es");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
-  await expect(page.locator("#presendLanguage")).toHaveValue("");
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
