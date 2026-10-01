@@ -614,6 +614,21 @@
         "reluctant-agreement"
       ],
       "forbiddenSignals": []
+    },
+    {
+      "id": "en-curly-single-quoted-blame-excluded",
+      "group": "english-quoted-context",
+      "text": "My coworker wrote, ‘You never listen to me.’ To be clear, I want us to discuss the schedule.",
+      "context": {
+        "quoted": true
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "clarifier"
+      ],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
     }
   ]
 }
