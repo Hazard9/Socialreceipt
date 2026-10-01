@@ -22,6 +22,7 @@
 */
 const fs = require("fs");
 const path = require("path");
+const vm = require("vm");
 
 const { analyze } = require("../presend-analysis.js");
 
@@ -250,6 +251,7 @@ profileCases.forEach(([name, message, expected]) => {
 [
   "index.html",
   "presend-analysis.js",
+  "analytics.js",
   "success.html",
   "confidence-profile.html",
   "manifest.json",
@@ -265,11 +267,82 @@ profileCases.forEach(([name, message, expected]) => {
 });
 
 const indexHtml = read("index.html");
+const analyticsJs = read("analytics.js");
 const successHtml = read("success.html");
 const confidenceProfileHtml = read("confidence-profile.html");
 const subscribeEmailJs = read("netlify/functions/subscribe-email.js");
 const verifyCheckoutJs = read("netlify/functions/verify-checkout.js");
 const swJs = read("sw.js");
+
+// Pre-Send runs locally and must not store or transmit the entered draft.
+const preSendStart = indexHtml.indexOf("function runPresend()");
+const preSendEnd = indexHtml.indexOf("function copyPresendRewrite()", preSendStart);
+const preSendFlow = preSendStart >= 0 && preSendEnd > preSendStart ? indexHtml.slice(preSendStart, preSendEnd) : "";
+if (preSendFlow && /window\\.SocialReceiptAnalysis\\.analyze\\(raw, context\\)/.test(preSendFlow) &&
+    !/\\bfetch\\s*\\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/.test(preSendFlow)) {
+  pass("Pre-Send analyzes drafts locally without network calls or persistent storage");
+} else {
+  fail("Pre-Send privacy boundary changed: expected local-only analysis and no draft storage");
+}
+
+// Both analytics paths fail closed to known structural metadata and discard draft-like fields.
+const privacyPayload = {
+  scenario: "Conflict", feature: "pre_send", content_id: "video-01",
+  message: "PRIVATE_DRAFT", text: "PRIVATE_DRAFT", rawText: "PRIVATE_DRAFT",
+  raw_text: "PRIVATE_DRAFT", draft: "PRIVATE_DRAFT", draft_text: "PRIVATE_DRAFT",
+  original_message: "PRIVATE_DRAFT", message_text: "PRIVATE_DRAFT",
+  conversation: "PRIVATE_DRAFT", transcript: "PRIVATE_DRAFT",
+  rewrite: "PRIVATE_DRAFT", email: "PRIVATE_DRAFT"
+};
+const analyticsEvents = [];
+const mockStorage = { getItem: () => null, setItem: () => {} };
+const mockWindow = {
+  location: { search: "", pathname: "/", hostname: "socialreceipt.netlify.app" },
+  gtag: (...args) => analyticsEvents.push(args),
+  dispatchEvent: () => {},
+  addEventListener: () => {}
+};
+const mockDocument = { referrer: "", readyState: "loading", addEventListener: () => {}, querySelectorAll: () => [] };
+function MockCustomEvent() {}
+try {
+  const runAnalytics = new Function("window", "document", "localStorage", "sessionStorage",
+    "URLSearchParams", "URL", "CustomEvent", "IntersectionObserver", "performance", analyticsJs);
+  runAnalytics(mockWindow, mockDocument, mockStorage, mockStorage, URLSearchParams, URL, MockCustomEvent, undefined, undefined);
+  mockWindow.SRAnalytics.track("privacy_boundary_test", privacyPayload);
+  const event = analyticsEvents.find((args) => args[1] === "privacy_boundary_test");
+  const data = event && event[2] || {};
+  const privateFields = ["message", "text", "rawText", "raw_text", "draft", "draft_text",
+    "original_message", "message_text", "conversation", "transcript", "rewrite", "email"];
+  if (event && privateFields.every((key) => !(key in data)) &&
+      data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01") {
+    pass("analytics strips draft-like fields and preserves approved metadata");
+  } else {
+    fail("analytics privacy filter did not enforce the approved metadata boundary");
+  }
+} catch (error) {
+  fail("analytics privacy boundary test could not run: " + error.message);
+}
+
+try {
+  const functionMatch = indexHtml.match(/function trackEvent\\(name, props\\) \\{[\\s\\S]*?\\n\\}/);
+  const fallbackEvents = [];
+  const fallbackWindow = { gtag: (...args) => fallbackEvents.push(args), dataLayer: [] };
+  if (!functionMatch) throw new Error("trackEvent source not found");
+  const getTracker = new Function("window", functionMatch[0] + "\\nreturn trackEvent;");
+  getTracker(fallbackWindow)("privacy_boundary_test", privacyPayload);
+  const event = fallbackEvents.find((args) => args[1] === "privacy_boundary_test");
+  const data = event && event[2] || {};
+  const privateFields = ["message", "text", "rawText", "raw_text", "draft", "draft_text",
+    "original_message", "message_text", "conversation", "transcript", "rewrite", "email"];
+  if (event && privateFields.every((key) => !(key in data)) &&
+      data.scenario === "Conflict" && data.feature === "pre_send" && data.content_id === "video-01") {
+    pass("inline analytics fallback strips draft-like fields and preserves approved metadata");
+  } else {
+    fail("inline analytics fallback did not enforce the approved metadata boundary");
+  }
+} catch (error) {
+  fail("inline analytics fallback test could not run: " + error.message);
+}
 
 // 2. No Stripe placeholder links
 if (/REPLACE_MONTHLY|REPLACE_YEARLY|REPLACE_LIFETIME/.test(indexHtml)) {
