@@ -1392,12 +1392,12 @@ function renderPills(id, items, key) {
   var html = "";
   for (var i=0;i<items.length;i++) {
     var item=items[i]; var sel=state[key]===item?" selected":"";
-    html += "<button class=\"pill"+sel+"\" onclick=\"selectPill('"+key+"',this)\">"+item+"</button>";
+    html += "<button class=\"pill"+sel+"\" data-value=\"+escapeHtml(item)+"\" onclick=\"selectPill('"+key+"',this)\">"+item+"</button>";
   }
   el.innerHTML = html;
 }
 function selectPill(key, btn) {
-  state[key] = btn.textContent.trim();
+  state[key] = btn.getAttribute("data-value") || btn.textContent.trim();
   if (key==="scenario") applyMode(state[key]);
   haptic([8]);
   renderPills("scenarioPills",scenarios,"scenario");
