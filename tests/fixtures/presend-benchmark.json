@@ -1367,6 +1367,241 @@
       "forbiddenSignals": [
         "absolute-blame"
       ]
+    },
+    {
+      "id": "en-softener-as-usual",
+      "group": "english-combination",
+      "text": "No problem. As usual, I’ll take care of it.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-reluctant-variant",
+      "group": "english-concern",
+      "text": "Sure, I guess that works.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "reluctant-agreement"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-defensive-frustration-variant",
+      "group": "english-combination",
+      "text": "I did tell you the date. I’m tired of this.",
+      "context": {},
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "defensive-proof"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-boundary-repair",
+      "group": "english-positive",
+      "text": "I can’t make it tonight. Can we talk this through tomorrow?",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting",
+        "repair-attempt"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "en-boundary-softener-near-miss",
+      "group": "english-near-miss",
+      "text": "I can’t make it tonight. No worries—I can do tomorrow instead.",
+      "context": {},
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "reassurance-pressure"
+      ]
+    },
+    {
+      "id": "en-reassurance-disclaimer",
+      "group": "english-near-miss",
+      "text": "I don’t want to pressure you. Are we okay?",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "reassurance-seeking"
+      ],
+      "forbiddenSignals": [
+        "reassurance-pressure"
+      ]
+    },
+    {
+      "id": "en-quoted-guilt-excluded",
+      "group": "english-quoted-context",
+      "text": "They wrote, “I’ll remember that.” I want to discuss what happened.",
+      "context": {
+        "quoted": true
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "guilt-pressure"
+      ]
+    },
+    {
+      "id": "en-minimizer-literal-transaction",
+      "group": "english-near-miss",
+      "text": "No worries—I already sent the receipt.",
+      "context": {},
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration",
+        "reassurance-pressure"
+      ]
+    },
+    {
+      "id": "es-softener-as-usual",
+      "group": "spanish-combination",
+      "text": "Está bien, como siempre, me toca resolverlo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "polite-resentment"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-reassurance-softened",
+      "group": "spanish-combination",
+      "text": "No te preocupes, pero dime si todavía estamos bien.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "reassurance-pressure",
+        "reassurance-seeking"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-defensive-proof-alone",
+      "group": "spanish-context",
+      "text": "Ya te dije la hora porque me pediste confirmarla.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "defensive-proof"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-repetition-frustration",
+      "group": "spanish-combination",
+      "text": "¿Cuántas veces tengo que repetirlo? Estoy cansada de explicarlo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "medium",
+      "expectedSignals": [
+        "repeated-explanation"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-boundary-alternative-expanded",
+      "group": "spanish-positive",
+      "text": "No puedo ir esta noche; mañana sí puedo.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-boundary-context",
+      "group": "spanish-context",
+      "text": "No puedo ir esta noche.",
+      "context": {
+        "language": "es",
+        "goal": "boundary"
+      },
+      "expectedLevel": "low",
+      "expectedSignals": [
+        "boundary-setting"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-quoted-blame-excluded",
+      "group": "spanish-near-miss",
+      "text": "Dijo: “Siempre haces lo mismo”. Quiero entender qué pasó.",
+      "context": {
+        "language": "es",
+        "quoted": true
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "absolute-blame"
+      ]
+    },
+    {
+      "id": "es-withdrawal-only",
+      "group": "spanish-context",
+      "text": "No importa, lo vemos mañana.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [
+        "conversation-close"
+      ],
+      "forbiddenSignals": []
+    },
+    {
+      "id": "es-literal-minimizer",
+      "group": "spanish-near-miss",
+      "text": "Está bien, lo reviso mañana.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "softener-frustration"
+      ]
+    },
+    {
+      "id": "es-neutral-warm",
+      "group": "spanish-neutral",
+      "text": "Gracias por avisarme. Lo vemos mañana.",
+      "context": {
+        "language": "es"
+      },
+      "expectedLevel": "uncertain",
+      "expectedSignals": [],
+      "forbiddenSignals": [
+        "polite-resentment",
+        "guilt-pressure",
+        "absolute-blame"
+      ]
     }
   ]
 }
