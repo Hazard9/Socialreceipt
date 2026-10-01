@@ -199,9 +199,9 @@
     if (lang) apply(lang);
     else showChooser(true);
     var observer = new MutationObserver(function (records) {
-      var current = get() || "en";
+      var current = get();
+      if (current !== "es") return;
       records.forEach(function (record) {
-        if (record.type === "characterData") translateNode(record.target, current);
         record.addedNodes.forEach(function (node) {
           if (node.nodeType === 3) translateNode(node, current);
           else if (node.nodeType === 1) {
@@ -213,7 +213,9 @@
         });
       });
     });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    // Observe inserted UI only. Watching characterData also watches our own translations
+    // and can keep the main thread busy when a whole screen is localized.
+    observer.observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
