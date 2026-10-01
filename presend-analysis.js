@@ -92,7 +92,7 @@
 
   function looksFrench(text) {
     var frenchText = text.replace(new RegExp(String.fromCharCode(39), "g"), " ");
-    return /\b(?:je suis desole|desolee|merci beaucoup|comme tu veux|si tu le dis|comme d habitude|ne t inquiete pas|je m en doutais|quelle surprise|j en ai marre|ca me fatigue|je ne veux plus parler|je ne peux pas|je ne suis pas disponible|j ai besoin d espace|pas de souci)\b/.test(frenchText);
+    return /\b(?:je suis desole|desolee|merci beaucoup|comme tu veux|si tu le dis|comme d habitude|ne t inquiete pas|je m en doutais|quelle surprise|j en ai marre|ca me fatigue|je ne veux plus parler|je ne peux pas|je ne suis pas disponible|j ai besoin d espace|pas de souci|tu vas le regretter|je vais te frapper|je vais te tuer)\b/.test(frenchText);
   }
   function analyzeFrench(text, context) {
     var scan = text;
