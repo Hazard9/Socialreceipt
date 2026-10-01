@@ -41,6 +41,15 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await expect(page.locator("#presendText")).toHaveValue(draft);
   await expect(page.locator("#presendLanguage")).toHaveValue("es");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page).toHaveTitle("Social Receipt. Decide antes de enviar.");
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega exactamente lo que ibas a enviar. No lo edites. El análisis es más preciso con el texto original.");
+
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="en"]').click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#presendText")).toHaveValue(draft);
+  await expect(page.locator("#presendLanguage")).toHaveValue("es");
+  await expect(page).toHaveTitle("Social Receipt. Know the move before you send it.");
 });
 
 test("1. first visit shows the landing screen with pricing and no console errors", async ({ page }) => {
