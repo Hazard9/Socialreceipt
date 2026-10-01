@@ -416,6 +416,31 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .presend-risk-val.high{background:rgba(201,64,64,0.15);color:#e07070;border:1px solid rgba(201,64,64,0.3);}
 .presend-risk-val.medium{background:rgba(212,165,53,0.15);color:var(--yellow);border:1px solid rgba(212,165,53,0.3);}
 .presend-risk-val.low{background:rgba(61,184,112,0.15);color:var(--green);border:1px solid rgba(61,184,112,0.3);}
+.presend-risk-val.uncertain{background:rgba(160,160,160,0.12);color:var(--muted);border:1px solid var(--border-warm);}
+.presend-signals{padding:12px;margin:0 0 12px;border:1px solid var(--border-warm);border-radius:var(--radius-sm);background:rgba(0,0,0,0.18);}
+.presend-signals>strong{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow);margin-bottom:8px;}
+.presend-signal{display:grid;gap:3px;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);}
+.presend-signal b{font-size:13px;color:var(--text);font-weight:500;}
+.presend-signal span,.presend-style-hints,.presend-context-note{font-size:12px;line-height:1.5;color:var(--muted);}
+.presend-match{display:block;margin-top:3px;font-size:10px;line-height:1.45;color:var(--gold-2);word-break:break-word;}
+.presend-style-hints{padding-top:8px;}
+.presend-context-note{margin:10px 0 0;}
+.presend-context{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.presend-context summary{font-size:12px;color:var(--gold-2);cursor:pointer;list-style:none;}
+.presend-context summary::-webkit-details-marker{display:none;}
+.presend-context summary:after{content:"＋";float:right;color:var(--muted);}
+.presend-context[open] summary:after{content:"−";}
+.presend-context-fields{display:grid;gap:9px;padding-top:11px;}
+.presend-context-field{display:grid;gap:5px;}
+.presend-context-field label{font-size:11px;color:var(--muted);}
+.presend-context select{width:100%;padding:9px 10px;border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text);border:1px solid var(--border);font-size:12px;}
+.presend-context select option{background:var(--surface-2);}
+.presend-context-quote{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
+.presend-context-quote input{accent-color:var(--gold);}
+.presend-context-hint{font-size:10px;line-height:1.45;color:var(--muted-2);}
+.presend-context-reading{padding:10px 12px;margin:0 0 10px;border-left:2px solid var(--gold);background:rgba(255,245,220,.035);border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
+.presend-context-reading strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-2);margin-bottom:6px;}
+.presend-context-reading p{font-size:12px;line-height:1.5;color:var(--muted);margin:5px 0 0;}
 .presend-diagnosis{font-size:14px;color:var(--muted);font-weight:300;line-height:1.55;margin:0 0 12px;}
 .presend-diagnosis em{color:var(--text);font-style:normal;font-weight:500;}
 .presend-rewrite-box{padding:13px;background:rgba(0,0,0,0.25);border:1px dashed var(--border-warm);border-radius:var(--radius-sm);font-size:14px;font-style:italic;color:var(--text);line-height:1.6;margin-bottom:9px;}
@@ -969,6 +994,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 
 </main>
 
+<script src="/presend-analysis.js"></script>
 <script>
 "use strict";
 
@@ -1231,7 +1257,7 @@ function afterFormHtml() {
 }
 
 function presendFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><div class="presend-context-field"><label for="presendLanguage">Language of this draft</label><select id="presendLanguage" onchange="onPresendContextChange()"><option value="">Auto-detect</option><option value="en">English</option><option value="es">Español</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">English and Spanish phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
@@ -1248,37 +1274,19 @@ function onTextInput(el) {
   _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "microFeedback", "microFeedbackText"); }, 160);
 }
 
-function runLiveJudgment(val, fbId, ftId) {
+function runLiveJudgment(val, fbId, ftId, context) {
   var fb = document.getElementById(fbId);
   var ft = document.getElementById(ftId);
   if (!fb || !ft) return;
-  var t  = val.toLowerCase();
-  var wc = val.trim().split(/\s+/).filter(Boolean).length;
-  if (wc === 0) { fb.className = "micro-feedback"; return; }
+  if (!val.trim()) { fb.className = "micro-feedback"; return; }
 
-  var chasing   = /\b(i need|please|i miss|i really|why won.t|why don.t|are you|did you see)\b/.test(t);
-  var overlong  = wc > 70;
-  var needy     = /\b(sorry if|sorry for|i know this|does that make sense|i just wanted|i was hoping)\b/.test(t);
-  var doubletext= /\b(anyway|also|and also|oh and|i also|wait|nevermind|never mind)\b/.test(t) && wc > 20;
-  var anxious   = /\b(nervous|anxious|scared|worried|freaking|panic)\b/.test(t);
-  var short     = wc >= 4 && wc <= 18;
-  var confident = /\b(sounds good|let me know|happy to|looking forward|works for me)\b/.test(t);
-  var positive  = /\b(excited|great|happy|definitely|love|glad|yes)\b/.test(t);
-  var clean     = wc >= 8 && !chasing && !needy && !overlong && !doubletext && !anxious;
-
-  var label, cls;
-  if      (overlong && chasing)  { label = "Too long \u2014 reads as over-invested";              cls = "red-signal"; }
-  else if (overlong)             { label = "Getting long\u2026 high risk of over-explaining";     cls = "red-signal"; }
-  else if (chasing && needy)     { label = "This sounds like you\u2019re chasing";                cls = "red-signal"; }
-  else if (doubletext)           { label = "Reads like a double-text \u2014 adds pressure";       cls = "red-signal"; }
-  else if (needy)                { label = "Over-explaining detected \u2014 cuts your leverage";  cls = "red-signal"; }
-  else if (anxious)              { label = "Anxious tone \u2014 they will feel this";             cls = "red-signal"; }
-  else if (chasing)              { label = "This sounds like you\u2019re chasing";                cls = "red-signal"; }
-  else if (confident && short)   { label = "Clean and short \u2014 safe to send";                 cls = "green-signal"; }
-  else if (positive && clean)    { label = "Warm tone, no red flags \u2014 looks good";           cls = "green-signal"; }
-  else if (short)                { label = "Short and clean \u2014 good start";                   cls = "green-signal"; }
-  else if (clean)                { label = "Neutral tone \u2014 no red flags yet";                cls = "neutral-signal"; }
-  else                           { label = "Keep going \u2014 more context sharpens the read";    cls = "neutral-signal"; }
+  var analysis = window.SocialReceiptAnalysis.analyze(val, context);
+  var cls = analysis.level === "high" ? "red-signal"
+    : analysis.level === "low" ? "green-signal" : "neutral-signal";
+  var label = analysis.level === "high" ? "Direct threat or coercive wording — review carefully"
+    : analysis.level === "medium" ? "Possible wording pressure — context matters"
+    : analysis.level === "low" ? "No common pressure cue detected — context still matters"
+    : "More context needed — this phrase library may not cover the wording";
 
   fb.className = "micro-feedback visible " + cls;
   ft.textContent = label;
@@ -1286,7 +1294,7 @@ function runLiveJudgment(val, fbId, ftId) {
 
 function onPresendInput(el) {
   clearTimeout(_liveTimer);
-  _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "presendFeedback", "presendFeedbackText"); }, 160);
+  _liveTimer = setTimeout(function(){ runLiveJudgment(el.value, "presendFeedback", "presendFeedbackText", readPresendContext()); }, 160);
 }
 /* TALK TO TEXT: browser-native speech recognition only. Audio and transcripts stay in the browser. */
 var _voiceRecognition = null;
@@ -1549,44 +1557,41 @@ function generateReceipt() {
 }
 
 /* ── PRE-SEND ── */
+function readPresendContext() {
+  return {
+    goal: document.getElementById("presendGoal") ? document.getElementById("presendGoal").value : "",
+    situation: document.getElementById("presendSituation") ? document.getElementById("presendSituation").value : "",
+    language: document.getElementById("presendLanguage") ? document.getElementById("presendLanguage").value : "",
+    quoted: !!(document.getElementById("presendQuoted") && document.getElementById("presendQuoted").checked)
+  };
+}
+
+function onPresendContextChange() {
+  var text = document.getElementById("presendText");
+  if (text && text.value.trim()) runLiveJudgment(text.value, "presendFeedback", "presendFeedbackText", readPresendContext());
+}
+
 function runPresend() {
   var raw = document.getElementById("presendText") ? document.getElementById("presendText").value.trim() : "";
   if (!raw) { toast("Paste the message you are about to send."); return; }
+  var context = readPresendContext();
   haptic([10,40]);
   document.getElementById("formArea").style.display = "none";
   document.getElementById("loadingPanel").classList.add("active");
   document.getElementById("loadingLabel").textContent = "Checking your message\u2026";
   setTimeout(function() {
     document.getElementById("loadingPanel").classList.remove("active");
-    renderPresendOutput(raw);
+    renderPresendOutput(raw, context);
     haptic([15,50]);
   }, 900);
 }
 
-function renderPresendOutput(raw) {
+function renderPresendOutput(raw, context) {
   var pro = isPro();
-  var a = analyzeText(raw);
-  var words = raw.trim().split(/\s+/).filter(Boolean);
-  var lowerRaw = raw.toLowerCase();
-  var overlong = words.length > 50;
-  var needy    = /\b(please|i miss|i need|sorry if|sorry for|why won't|why don't)\b/.test(lowerRaw);
-  var overExp  = /\b(just wanted|i know this|i was thinking|i feel like|does that make sense)\b/.test(lowerRaw);
-  var frustration = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done|unbelievable|apparently|whatever|not fair)\b/.test(lowerRaw);
-  var minimizing = (lowerRaw.match(/\b(no worries|no problem|totally understand|it's fine|it is fine|all good|not a big deal|no rush)\b/g)||[]).length;
-  var deferential = (lowerRaw.match(/\b(take your time|whenever works|whenever you can|whenever you get a chance|probably busy|absolutely busy|i know you're busy)\b/g)||[]).length;
-  var accusation = /\b(you're rewriting|you are rewriting|you always|you never|that's not fair|that is not fair|you made me|so i look like)\b/.test(lowerRaw);
-  var contradiction = frustration && (minimizing + deferential > 0);
-  var hiddenPressure = contradiction && (minimizing + deferential >= 2);
-  var emotionalOverexplaining = words.length > 35 && frustration && (minimizing + deferential >= 2);
-  var riskLevel = (overlong && (needy || overExp)) || accusation && (frustration || words.length > 25) ? "high"
-    : (overlong || needy || overExp || contradiction || hiddenPressure || emotionalOverexplaining || accusation) ? "medium"
-    : "low";
-  var riskLabel = riskLevel==="high" ? "HIGH. Do not send this." : riskLevel==="medium" ? "MEDIUM. Needs a rewrite." : "LOW. Clean to send.";
-  var diagnosis = riskLevel==="high"
-    ? "This message is <em>too long or emotionally loaded</em>. The framing may create pressure before the content lands."
-    : riskLevel==="medium"
-      ? "This message contains <em>mixed signals, accusation, or pressure beneath the wording</em>. The core point may be valid, but the framing needs a rewrite."
-      : "This message reads <em>clean and low-pressure</em>. The risk of sending it is low.";
+  var analysis = window.SocialReceiptAnalysis.analyze(raw, context);
+  var riskLevel = analysis.level;
+  var riskLabel = analysis.label;
+  var diagnosis = analysis.summary;
 
   var rewritten = pro ? rewriteMessage(raw, null) : null;
 
@@ -1595,6 +1600,26 @@ function renderPresendOutput(raw) {
   html += "<h3>Before you hit send.</h3>";
   html += "<div class=\"presend-risk-row\"><span class=\"presend-risk-label\">Message Risk</span><span class=\"presend-risk-val "+riskLevel+"\">"+riskLabel+"</span></div>";
   html += "<p class=\"presend-diagnosis\">"+diagnosis+"</p>";
+  if (analysis.signals.length) {
+    html += "<div class=\"presend-signals\"><strong>Possible wording signals</strong>";
+    analysis.signals.forEach(function(signal) {
+      html += "<div class=\"presend-signal\"><b>"+signal.label+"</b><span>"+signal.detail+"</span>";
+      if (signal.evidence && signal.evidence.length) {
+        html += "<small class=\"presend-match\">Matched wording: "+signal.evidence.map(function(phrase) { return "&ldquo;"+escapeHtml(phrase)+"&rdquo;"; }).join(" + ")+"</small>";
+      }
+      html += "</div>";
+    });
+    if (analysis.styleHints.length) {
+      html += "<div class=\"presend-style-hints\">Possible message moves: "+analysis.styleHints.join(", ")+"</div>";
+    }
+    html += "</div>";
+  }
+  if (analysis.contextNotes.length) {
+    html += "<div class=\"presend-context-reading\"><strong>How your context shapes the read</strong>";
+    analysis.contextNotes.forEach(function(note) { html += "<p>"+note+"</p>"; });
+    html += "</div>";
+  }
+  html += "<p class=\"presend-context-note\">"+analysis.note+"</p>";
 
   if (pro && rewritten) {
     html += "<div class=\"receipt-divider\"><span>Rewritten Version</span></div>";
@@ -1602,10 +1627,10 @@ function renderPresendOutput(raw) {
     html += "<div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copyPresendRewrite()\">Copy Rewrite</button><button class=\"mini-btn\" onclick=\"runPresend()\">Check Again</button></div>";
   } else if (!pro) {
     html += "<div class=\"presend-locked\">";
-    html += "<strong>Here is the version that keeps your leverage.</strong>";
-    html += "<span>The Rewrite Engine strips the anxiety, shortens the message, and removes the phrases that signal over-investment. Unlock with Pro.</span>";
+    html += "<strong>Compare another wording option.</strong>";
+    html += "<span>A rewrite is one option to compare. Check that it keeps your meaning before using it.</span>";
     html += "</div>";
-    html += "<button class=\"locked-gate-btn\" onclick=\"openPaywall('Sending this as-is "+( riskLevel==="high" ? "will drop your position" : "carries avoidable risk")+". The rewrite keeps your leverage.')\">See the version that does not cost you this &#8594;</button>";
+    html += "<button class=\"locked-gate-btn\" onclick=\"openPaywall('Compare another wording option before deciding what to send.')\">See a rewrite suggestion &#8594;</button>";
     html += "<div class=\"locked-gate-price\">$9/mo &nbsp;&middot;&nbsp; $39 lifetime</div>";
   }
 
