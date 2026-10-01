@@ -506,3 +506,29 @@ test("19. pre-send context stays local and separates quoted words", async ({ pag
   await expect(output).toContainText("excluded from wording signals");
   await expect(output).toContainText("Your stated goal is repair");
 });
+
+test("20. pre-send result shows the matched phrases behind a cue", async ({ page }) => {
+  await skipToApp(page);
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "No worries. Apparently I’m the only one who remembers.");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toHaveClass(/active/);
+  await expect(output).toContainText("Possible wording signals");
+  await expect(output).toContainText("Matched wording");
+  await expect(output).toContainText("“no worries” + “apparently”");
+});
+
+test("21. selecting a supported language resolves a short ambiguous phrase", async ({ page }) => {
+  await skipToApp(page);
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Como quieras.");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "es");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toHaveClass(/active/);
+  await expect(output).toContainText("MEDIO. Posible presión en el tono.");
+  await expect(output).toContainText("Se seleccionó el repertorio de frases en español");
+  await expect(output).toContainText("“como quieras”");
+});

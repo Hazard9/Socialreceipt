@@ -65,6 +65,16 @@ function exists(file) {
   ["sarcasm cue", "Thanks for nothing.", "medium", ["sarcasm-dismissal"]],
   ["guilt pressure", "Don't worry about me. I'll remember this.", "medium", ["guilt-pressure"]],
   ["direct insult", "You are an idiot.", "medium", ["insult"]],
+  ["softener beside explicit frustration", "No worries. I'm honestly tired of this.", "medium", ["softener-frustration"]],
+  ["deference beside frustration", "Take your time, I know you're busy. This is getting old.", "medium", ["softener-frustration"]],
+  ["deference alone is not a verdict", "I know you're busy; no rush.", "uncertain", []],
+  ["defensive reminder alone stays contextual", "I already told you the time.", "uncertain", ["defensive-proof"]],
+  ["defensive reminder with frustration", "I already told you the time. This is getting old.", "medium", ["defensive-proof"]],
+  ["repetition alone stays contextual", "How many times do I have to explain it?", "uncertain", ["repeated-explanation"]],
+  ["repetition with frustration", "How many times do I have to explain it? This is frustrating.", "medium", ["repeated-explanation"]],
+  ["intent attribution", "You're trying to make me look bad.", "medium", ["intent-attribution"]],
+  ["reassurance request beside softener", "No worries, are we okay?", "medium", ["reassurance-pressure"]],
+  ["Spanish softener beside frustration", "Sé que estás ocupado, pero estoy cansado de esto.", "medium", ["softener-frustration"]],
   ["direct threat", "If you leave, I'll hurt you.", "high", ["threat"]],
   ["reassurance question stays contextual", "Are we okay?", "uncertain", ["reassurance-seeking"]],
   ["softener alone is not a verdict", "No worries, all good.", "uncertain", []],
@@ -75,6 +85,7 @@ function exists(file) {
   ["no pressure disclaimer", "I don't want to pressure you.", "uncertain", []],
   ["benign schedule alternative", "If Friday doesn't work, Saturday is fine.", "uncertain", []],
   ["neutral Spanish stays unclear", "Todo bien, nos vemos a las seis.", "uncertain", []],
+  ["short Spanish stays unclear until language is selected", "Como quieras.", "uncertain", []],
   ["unsupported French stays unclear", "Je suis désolé que tu te sentes comme ça.", "uncertain", []],
   ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
   ["empty input stays unclear", "", "uncertain", []],
@@ -107,6 +118,15 @@ else fail("after-conflict context note missing");
 if (concernWithContext.contextNotes.some((note) => note.indexOf("Your stated goal is repair") !== -1)) pass("repair goal note is available");
 else fail("repair goal context note missing");
 
+const shortSpanishAuto = analyze("Como quieras.");
+const shortSpanishSelected = analyze("Como quieras.", { language: "es" });
+if (shortSpanishAuto.level === "uncertain") pass("ambiguous short Spanish stays unclear in auto-detect");
+else fail("short Spanish auto-detect was overconfident");
+if (shortSpanishSelected.level === "medium" && shortSpanishSelected.language === "es" && shortSpanishSelected.signals.some((item) => item.id === "reluctant-agreement")) pass("selected Spanish pack reads a short Spanish phrase");
+else fail("selected Spanish pack did not read the short Spanish phrase");
+if (shortSpanishSelected.contextNotes.some((note) => note.indexOf("repertorio de frases en español") !== -1)) pass("selected language pack is disclosed in the result");
+else fail("selected language pack disclosure missing");
+
 const quotedDraft = "He said, “I’m sorry you feel that way.”";
 const quotedBase = analyze(quotedDraft);
 const quotedContext = analyze(quotedDraft, { quoted: true });
@@ -116,6 +136,23 @@ if (!quotedContext.signals.some((item) => item.id === "deflective-apology") && q
 else fail("marked quoted words were still scored as sender wording");
 if (quotedContext.contextNotes.some((note) => note.indexOf("excluded from wording signals") !== -1)) pass("quote exclusion is explained");
 else fail("quote exclusion note missing");
+
+const evidenceResult = analyze("No worries. Apparently I’m the only one who remembers.");
+const evidenceSignal = evidenceResult.signals.find((item) => item.id === "polite-resentment");
+if (evidenceSignal && evidenceSignal.evidence.join(" + ") === "no worries + apparently") pass("exact local wording evidence is returned");
+else fail("exact local wording evidence is missing or incorrect");
+
+const profileCases = [
+  ["boundary cue maps to a move", "I can't make it Saturday.", "Boundary Protector-style limit"],
+  ["reassurance cue maps to a move", "Are we okay?", "Reassurance Seeker-style request"],
+  ["clarifier cue maps to a move", "To be clear, can you clarify the time?", "Clarifier-style explanation"],
+  ["repair cue maps to a move", "Can we talk this through?", "Conflict Resolver-style repair"],
+];
+profileCases.forEach(([name, message, expected]) => {
+  const result = analyze(message);
+  if (result.styleHints.includes(expected)) pass(name);
+  else fail(name+": expected "+expected);
+});
 
 // 1. Required files exist
 [

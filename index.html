@@ -422,6 +422,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .presend-signal{display:grid;gap:3px;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);}
 .presend-signal b{font-size:13px;color:var(--text);font-weight:500;}
 .presend-signal span,.presend-style-hints,.presend-context-note{font-size:12px;line-height:1.5;color:var(--muted);}
+.presend-match{display:block;margin-top:3px;font-size:10px;line-height:1.45;color:var(--gold-2);word-break:break-word;}
 .presend-style-hints{padding-top:8px;}
 .presend-context-note{margin:10px 0 0;}
 .presend-context{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
@@ -1256,7 +1257,7 @@ function afterFormHtml() {
 }
 
 function presendFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">Your goal and situation shape the explanation. Marked quotes are excluded from phrase matching when they are inside quotation marks. This cannot prove intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><div class="presend-context-field"><label for="presendLanguage">Language of this draft</label><select id="presendLanguage" onchange="onPresendContextChange()"><option value="">Auto-detect</option><option value="en">English</option><option value="es">Español</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">English and Spanish phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
@@ -1560,6 +1561,7 @@ function readPresendContext() {
   return {
     goal: document.getElementById("presendGoal") ? document.getElementById("presendGoal").value : "",
     situation: document.getElementById("presendSituation") ? document.getElementById("presendSituation").value : "",
+    language: document.getElementById("presendLanguage") ? document.getElementById("presendLanguage").value : "",
     quoted: !!(document.getElementById("presendQuoted") && document.getElementById("presendQuoted").checked)
   };
 }
@@ -1601,7 +1603,11 @@ function renderPresendOutput(raw, context) {
   if (analysis.signals.length) {
     html += "<div class=\"presend-signals\"><strong>Possible wording signals</strong>";
     analysis.signals.forEach(function(signal) {
-      html += "<div class=\"presend-signal\"><b>"+signal.label+"</b><span>"+signal.detail+"</span></div>";
+      html += "<div class=\"presend-signal\"><b>"+signal.label+"</b><span>"+signal.detail+"</span>";
+      if (signal.evidence && signal.evidence.length) {
+        html += "<small class=\"presend-match\">Matched wording: "+signal.evidence.map(function(phrase) { return "&ldquo;"+escapeHtml(phrase)+"&rdquo;"; }).join(" + ")+"</small>";
+      }
+      html += "</div>";
     });
     if (analysis.styleHints.length) {
       html += "<div class=\"presend-style-hints\">Possible message moves: "+analysis.styleHints.join(", ")+"</div>";

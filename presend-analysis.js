@@ -25,11 +25,22 @@
     if (en >= 1 && en >= es) return { code: "en", name: "English", supported: true };
     return { code: "unknown", name: "Unclear", supported: false };
   }
-  function has(text, regexes) { return regexes.some(function (r) { r.lastIndex = 0; return r.test(text); }); }
+  function firstMatch(text, regexes) {
+    for (var i = 0; i < regexes.length; i++) {
+      regexes[i].lastIndex = 0;
+      var match = text.match(regexes[i]);
+      if (match) return match[0];
+    }
+    return "";
+  }
 
   function contextNotesFor(context, found, en, quoteRemoved) {
     context = context || {};
     var notes = [];
+    if (context.language === "en" || context.language === "es")
+      notes.push(en
+        ? "The English phrase pack was selected for this draft."
+        : "Se seleccionó el repertorio de frases en español para este borrador.");
     var goal = context.goal || "";
     if (goal === "boundary") {
       notes.push(found.boundary
@@ -74,7 +85,7 @@
 
   function signalsHaveConcern(found) {
     return Object.keys(found).some(function (key) {
-      return found[key] && ["deflective", "selfBlame", "reluctant", "sarcasm", "guilt", "withdrawal", "blame", "reassurance", "minimizing", "resentment", "resignation", "insult", "threat"].indexOf(key) >= 0;
+      return found[key] && ["deflective", "selfBlame", "reluctant", "sarcasm", "guilt", "withdrawal", "blame", "reassurance", "minimizing", "resentment", "resignation", "frustration", "deferential", "defensiveProof", "repetition", "intentAttribution", "insult", "threat"].indexOf(key) >= 0;
     });
   }
 
@@ -91,7 +102,9 @@
       scanText = text.replace(/“[^”]*”|"[^"]*"|‘[^’]*’/g, " ");
       quoteRemoved = scanText !== text;
     }
-    var lang = detectLanguage(text, words);
+    var lang = context && (context.language === "en" || context.language === "es")
+      ? { code: context.language, name: context.language === "es" ? "Spanish" : "English", supported: true }
+      : detectLanguage(text, words);
     if (!lang.supported) return { supported: false, language: lang.code, languageName: lang.name, level: "uncertain",
       label: "UNCLEAR. More context is needed.", summary: "This local phrase library currently checks English and Spanish patterns. It cannot reliably read this language or assign a clean-to-send result.",
       signals: [], styleHints: [], contextNotes: [], note: "No green or red verdict is assigned when language coverage is uncertain." };
@@ -107,6 +120,11 @@
       minimizing: [/\bno worries\b/, /\bno problem\b/, /\ball good\b/, /\b(?:it's|it is) fine\b/, /\bnot a big deal\b/, /\bdon't worry about it\b/],
       resentment: [/\bapparently\b/, /\bif you say so\b/, /\bshould have known\b/, /\bshould've known\b/, /\bas usual\b/, /\bnot surprised\b/],
       resignation: [/\bi guess i'll do it myself\b/, /\bi guess (?:i am|i'm) on my own\b/],
+      frustration: [/\bi'?m (?:honestly )?tired of this\b/, /\bso tired of this\b/, /\bthis is getting old\b/, /\bthis is frustrating\b/, /\bnot fair\b/],
+      deferential: [/\btake your time\b/, /\bwhenever (?:works|you can|you get a chance)\b/, /\bi know you'?re busy\b/, /\bprobably busy\b/],
+      defensiveProof: [/\bi already (?:told|said|explained) you\b/, /\bi did tell you\b/, /\bi'?ve explained this\b/, /\bi told you already\b/],
+      repetition: [/\bhow many times\b/, /\bfor the (?:second|third|fourth) time\b/, /\bagain\b/],
+      intentAttribution: [/\byou'?re trying to\b/, /\byou are trying to\b/, /\byou just want to\b/, /\byou want me to\b/],
       blame: [/\byou always\b/, /\byou never\b/, /\byou made me\b/, /\byou don'?t care\b/],
       reassurance: [/\bare we okay\b/, /\bdo you still care\b/, /\bare you mad at me\b/, /\bplease tell me (?:we'?re|you'?re)\b/, /\bdid i do something wrong\b/],
       boundary: [/\bi can'?t make it\b/, /\bi cannot make it\b/, /\bi'?m not available\b/, /\bthat doesn'?t work for me\b/, /\bplease don'?t\b/, /\bplease stop\b/, /\bi need some space\b/],
@@ -125,6 +143,11 @@
       minimizing: [/\bno pasa nada\b/, /\bno hay problema\b/, /\besta bien\b/, /\bno importa\b/],
       resentment: [/\bcomo siempre\b/, /\bsi tu lo dices\b/, /\bya me lo imaginaba\b/, /\bno me sorprende\b/],
       resignation: [/\bme las arreglo solo\b/, /\bme las arreglo sola\b/],
+      frustration: [/\bestoy harto de\b/, /\bestoy harta de\b/, /\bestoy cansado de\b/, /\bestoy cansada de\b/, /\bme canse de\b/, /\besto es injusto\b/, /\besto ya cansa\b/],
+      deferential: [/\bcuando puedas\b/, /\bcuando tengas tiempo\b/, /\bse que estas ocupado\b/, /\bse que estas ocupada\b/],
+      defensiveProof: [/\bya te dije\b/, /\bya te explique\b/, /\bte lo dije antes\b/],
+      repetition: [/\bcuantas veces\b/, /\bpor tercera vez\b/, /\botra vez\b/],
+      intentAttribution: [/\bestas tratando de\b/, /\bquieres que yo\b/, /\bsolo quieres\b/],
       blame: [/\bsiempre haces\b/, /\bnunca haces\b/, /\btu me hiciste\b/, /\bno te importa\b/],
       reassurance: [/\bestamos bien\b/, /\btodavia te importo\b/, /\bestas enojado conmigo\b/, /\bhice algo mal\b/],
       boundary: [/\bno puedo ir\b/, /\bno puedo asistir\b/, /\bno estoy disponible\b/, /\bno me funciona\b/, /\bpor favor no\b/, /\bnecesito espacio\b/],
@@ -136,13 +159,31 @@
     };
 
     var found = {};
-    Object.keys(P).forEach(function (k) { found[k] = has(scanText, P[k]); });
+    var matches = {};
+    Object.keys(P).forEach(function (k) {
+      matches[k] = firstMatch(scanText, P[k]);
+      found[k] = !!matches[k];
+    });
     if (found.blame && /\b(?:not saying|not claiming|don't think|do not think|didn't say|did not say)\s+(?:that\s+)?you\s+(?:always|never)\b/.test(scanText))
       found.blame = false;
     var signals = [], hints = [];
     function add(id, label, detail, kind, hint) {
       if (signals.some(function (s) { return s.id === id; })) return;
-      signals.push({ id: id, label: label, detail: detail, kind: kind || "concern" });
+      var evidenceMap = {
+        "deflective-apology": ["deflective"], "self-blame-shift": ["selfBlame"],
+        "reluctant-agreement": ["reluctant"], "sarcasm-dismissal": ["sarcasm"],
+        "polite-resentment": ["minimizing", "resentment"], "softener-frustration": ["minimizing", "deferential", "frustration"],
+        "reassurance-pressure": ["reassurance", "minimizing", "deferential", "guilt"],
+        "defensive-proof": ["defensiveProof"], "repeated-explanation": ["repetition"],
+        "intent-attribution": ["intentAttribution"], "guilt-pressure": ["guilt"],
+        "conversation-close": ["withdrawal"], "absolute-blame": ["blame"],
+        "reassurance-seeking": ["reassurance"], "boundary-setting": ["boundary"],
+        "accountability-apology": ["apology"], "clarifier": ["clarifier"],
+        "repair-attempt": ["repair"], "threat": ["threat"], "insult": ["insult"],
+        "resigned-self-reliance": ["resignation"]
+      };
+      var evidence = (evidenceMap[id] || []).map(function (key) { return matches[key]; }).filter(Boolean).slice(0, 3);
+      signals.push({ id: id, label: label, detail: detail, kind: kind || "concern", evidence: evidence });
       if (hint && hints.indexOf(hint) < 0) hints.push(hint);
     }
     if (found.deflective) add("deflective-apology", en ? "Apology may deflect" : "La disculpa puede desviar el tema", en ? "Focuses on how the recipient feels rather than naming the sender's action." : "Se enfoca en cómo se siente la otra persona, no en nombrar la acción propia.", "concern", "Conflict Resolver-style repair");
@@ -151,6 +192,11 @@
     if (found.reluctant) add("reluctant-agreement", en ? "Reluctant agreement" : "Acuerdo posiblemente resignado", en ? "May read as concealed disagreement, especially beside an abrupt ending." : "Puede leerse como desacuerdo oculto, especialmente junto a un cierre abrupto.", "concern");
     if (found.sarcasm) add("sarcasm-dismissal", en ? "Sarcasm or dismissal cue" : "Señal de sarcasmo o desdén", en ? "Can sound sarcastic or dismissive depending on context." : "Puede sonar sarcástico o despectivo según el contexto.", "concern");
     if (found.minimizing && found.resentment) add("polite-resentment", en ? "Polite wording beside resentment" : "Cortesía junto a resentimiento", en ? "Softening language appears beside a dismissive or frustrated cue; the combination may read as passive-aggressive, but context matters." : "Una frase suavizante aparece junto a una señal despectiva o frustrada; la combinación puede leerse como pasivo-agresiva, pero depende del contexto.", "concern", "Clarifier-style explanation");
+    if ((found.minimizing || found.deferential) && found.frustration) add("softener-frustration", en ? "Softening beside frustration" : "Atenuación junto a frustración", en ? "A softener or deferential phrase appears beside stated frustration; the combination may sound passive-aggressive, though it can also express genuine restraint." : "Una frase atenuante o deferente aparece junto a frustración explícita; la combinación puede sonar pasivo-agresiva, aunque también puede expresar moderación sincera.", "concern");
+    if (found.reassurance && (found.minimizing || found.deferential || found.guilt)) add("reassurance-pressure", en ? "Reassurance request beside a softener" : "Petición de tranquilidad junto a una atenuación", en ? "The combination may soften a request while still asking the recipient to reassure you. Timing and context matter." : "La combinación puede suavizar una petición y aun así pedir tranquilidad a la otra persona. El momento y el contexto importan.", "concern");
+    if (found.defensiveProof) add("defensive-proof", en ? "Defensive proof cue" : "Señal de defensa mediante pruebas", en ? "A phrase emphasizes that the point was already explained; this can be factual, but may sound defensive beside frustration." : "La frase enfatiza que ya se explicó el punto; puede ser factual, pero sonar defensiva junto a frustración.", found.frustration || found.repetition ? "concern" : "context");
+    if (found.repetition) add("repeated-explanation", en ? "Repeated-explanation cue" : "Señal de explicación repetida", en ? "Words like 'again' or 'how many times' may signal repeated explanation; alone they do not establish pressure." : "Palabras como 'otra vez' o 'cuántas veces' pueden señalar una explicación repetida; por sí solas no prueban presión.", found.frustration || found.defensiveProof ? "concern" : "context");
+    if (found.intentAttribution) add("intent-attribution", en ? "Intent-attribution cue" : "Señal de atribución de intención", en ? "This wording assigns a motive to the recipient. It may shift the exchange from what happened to why they did it." : "La frase atribuye un motivo a la otra persona. Puede desviar el intercambio de lo ocurrido hacia por qué lo hizo.", "concern");
     if (found.guilt) add("guilt-pressure", en ? "Possible guilt pressure" : "Posible presión mediante culpa", en ? "May make the recipient feel responsible for the sender's wellbeing or past effort." : "Puede hacer que la otra persona se sienta responsable del bienestar o los esfuerzos pasados de quien escribe.", "concern");
     if (found.withdrawal) add("conversation-close", en ? "Conversation-closing cue" : "Señal de cierre de conversación", en ? "Signals withdrawal. That can be a valid boundary; paired with reluctant agreement it may sound punitive." : "Señala distancia. Puede ser un límite válido; junto con un acuerdo resignado puede sonar punitivo.", found.reluctant ? "concern" : "context", "Boundary Protector-style limit");
     if (found.blame) add("absolute-blame", en ? "Absolute or blaming wording" : "Frase absoluta o acusatoria", en ? "Words like 'always' or 'never' can turn a specific concern into a character judgment." : "Palabras como 'siempre' o 'nunca' pueden convertir una preocupación concreta en un juicio personal.", "concern");
