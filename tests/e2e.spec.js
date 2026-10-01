@@ -519,6 +519,19 @@ test("20. pre-send result shows the matched phrases behind a cue", async ({ page
   await expect(output).toContainText("“no worries” + “apparently”");
 });
 
+
+test("22. affectionate care wording gets a grounded low-pressure result", async ({ page }) => {
+  await skipToApp(page);
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Thank you, babe. I appreciate it. I’m so tired. I got cereal bowls. You can have a bowl of cereal. That’s what I had for dinner. I love you. I’m glad you’re on the way home. Xoxo.");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toHaveClass(/active/);
+  await expect(output).toContainText("LOW. No common pressure cue detected.");
+  await expect(output).toContainText("Warmth or care cue");
+  await expect(output).toContainText("“i love you” + “you can have”");
+});
+
 test("21. selecting a supported language resolves a short ambiguous phrase", async ({ page }) => {
   await skipToApp(page);
   await page.click(".panic-btn");
