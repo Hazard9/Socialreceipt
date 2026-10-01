@@ -86,7 +86,10 @@ function exists(file) {
   ["benign schedule alternative", "If Friday doesn't work, Saturday is fine.", "uncertain", []],
   ["neutral Spanish stays unclear", "Todo bien, nos vemos a las seis.", "uncertain", []],
   ["short Spanish stays unclear until language is selected", "Como quieras.", "uncertain", []],
-  ["unsupported French stays unclear", "Je suis désolé que tu te sentes comme ça.", "uncertain", []],
+  ["French passive-aggressive combination", "Pas de souci. Comme d’habitude, je vais le faire moi-même.", "medium", ["polite-resentment"]],
+  ["French isolated softener stays unclear", "Pas de souci, à demain.", "uncertain", []],
+  ["French boundary is positive", "Je ne peux pas venir samedi.", "low", ["boundary-setting"]],
+  ["unsupported French threat is flagged", "Tu vas le regretter, je vais te frapper.", "high", ["threat"]],
   ["unknown short draft stays unclear", "Dinner at 7?", "uncertain", []],
   ["empty input stays unclear", "", "uncertain", []],
 ].forEach(([name, message, expectedLevel, expectedSignals]) => {
@@ -117,6 +120,15 @@ if (concernWithContext.contextNotes.some((note) => note.indexOf("following a dis
 else fail("after-conflict context note missing");
 if (concernWithContext.contextNotes.some((note) => note.indexOf("Your stated goal is repair") !== -1)) pass("repair goal note is available");
 else fail("repair goal context note missing");
+
+const frenchAuto = analyze("Pas de souci. Comme d’habitude, je vais le faire moi-même.");
+if (frenchAuto.language === "fr" && frenchAuto.supported && frenchAuto.level === "medium") pass("French pack auto-detects a clear French sentence");
+else fail("French pack did not auto-detect a clear French sentence");
+if (frenchAuto.signals.some((item) => item.evidence.length > 0)) pass("French wording evidence is returned");
+else fail("French wording evidence is missing");
+const frenchSelected = analyze("Comme tu veux.", { language: "fr" });
+if (frenchSelected.supported && frenchSelected.language === "fr" && frenchSelected.level === "uncertain") pass("selected French pack keeps an isolated ambiguous phrase uncertain");
+else fail("selected French pack overstates an isolated ambiguous phrase");
 
 const shortSpanishAuto = analyze("Como quieras.");
 const shortSpanishSelected = analyze("Como quieras.", { language: "es" });
