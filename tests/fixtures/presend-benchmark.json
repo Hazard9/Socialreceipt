@@ -1118,15 +1118,16 @@
     },
     {
       "id": "es-conversation-pause",
-      "group": "spanish-positive",
+      "group": "spanish-reviewed",
       "text": "Ya no quiero hablar ahora; mañana seguimos.",
       "context": {
         "language": "es",
         "goal": "close"
       },
-      "expectedLevel": "uncertain",
+      "expectedLevel": "low",
       "expectedSignals": [
-        "conversation-close"
+        "conversation-close",
+        "boundary-setting"
       ],
       "forbiddenSignals": []
     },
@@ -1326,20 +1327,6 @@
       "forbiddenSignals": [
         "polite-resentment"
       ]
-    },
-    {
-      "id": "es-reviewed-phrase-05",
-      "group": "spanish-reviewed",
-      "text": "Ya no quiero hablar ahora; mañana seguimos.",
-      "context": {
-        "language": "es"
-      },
-      "expectedLevel": "low",
-      "expectedSignals": [
-        "boundary-setting",
-        "conversation-close"
-      ],
-      "forbiddenSignals": []
     },
     {
       "id": "es-reviewed-phrase-06",
