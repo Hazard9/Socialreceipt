@@ -73,6 +73,7 @@ test("0d. translated scenario chips retain canonical saved values", async ({ pag
   await page.locator("#interactionText").fill("We had a good conversation and agreed to meet again.");
   await page.click('button[onclick="generateReceipt()"]');
   await page.waitForSelector("#receiptOutput.active", { timeout: 5000 });
+  await page.click('button[onclick="saveCurrentReceipt()"]');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("socialReceipts") || "[]")[0]);
   expect(saved.scenario).toBe("Date");
 });
