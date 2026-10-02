@@ -178,7 +178,7 @@
       if (match) target = "Eventos del embudo registrados: " + match[1];
       match = trimmed.match(/^\/mo$/);
       if (match) target = "/mes";
-      var match = trimmed.match(/^Matched wording:\s*(.+)$/);
+      match = trimmed.match(/^Matched wording:\s*(.+)$/);
       if (match) target = "Frases detectadas: " + match[1];
       match = trimmed.match(/^Possible message moves:\s*(.+)$/);
       if (match) {
