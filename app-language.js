@@ -340,5 +340,39 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+  Object.assign(translations, {
+    "Social Receipt | Check a message before you send": "Social Receipt | Revisa un mensaje antes de enviarlo",
+    "Pause before you send.": "Haz una pausa antes de enviar.",
+    "Choose your next step": "Elige tu siguiente paso",
+    "with more clarity.": "con más claridad.",
+    "Paste a message you plan to send or an exchange you want to understand. Social Receipt points out wording patterns, offers a clearer option, and helps you decide whether to send, wait, or edit. It cannot know anyone’s intent, so use your context.": "Pega un mensaje que piensas enviar o un intercambio que quieres entender. Social Receipt señala patrones de redacción, ofrece una opción más clara y te ayuda a decidir si enviar, esperar o editar. No puede saber la intención de nadie; usa tu propio contexto.",
+    "Use it for texts, DMs, emails, and captions—with a date, coworker, client, friend, or family member.": "Úsalo para mensajes, DMs, correos y publicaciones, ya sea con una cita, compañero de trabajo, cliente, amistad o familiar.",
+    "A short reply can be hard to read.": "A veces cuesta interpretar una respuesta breve.",
+    "Review possible wording signals and decide whether more context would change your response.": "Revisa posibles señales en la redacción y piensa si más contexto cambiaría tu respuesta.",
+    "Not sure whether to follow up?": "¿No sabes si conviene dar seguimiento?",
+    "Review what you know and choose a next step that fits the situation.": "Revisa lo que sabes y elige un siguiente paso adecuado para la situación.",
+    "Want to be clear?": "¿Quieres expresarte con claridad?",
+    "Compare your draft with a shorter option before you decide what to send.": "Compara tu borrador con una opción más breve antes de decidir qué enviar.",
+    "Paste a draft or describe what happened.": "Pega un borrador o describe lo que pasó.",
+    "Review wording patterns and what remains unclear.": "Revisa patrones de redacción y lo que aún no está claro.",
+    "Choose whether to send, wait, or edit.": "Decide si enviar, esperar o editar.",
+    "Example Social Receipt": "Ejemplo de Social Receipt",
+    "Possible wording pattern: seeking reassurance. A delay alone cannot tell us why someone has not replied. Consider waiting or sending a clear, low-pressure follow-up.": "Posible patrón de redacción: buscar seguridad. Una demora por sí sola no explica por qué alguien no ha respondido. Considera esperar o enviar un seguimiento claro y sin presión.",
+    "Start in seconds. No account required. Your draft is not included in usage analytics.": "Empieza en segundos. No necesitas una cuenta. Tu borrador no se incluye en las estadísticas de uso.",
+    "Your message text is not included in usage analytics.": "El texto de tus mensajes no se incluye en las estadísticas de uso.",
+    "Need more ways to review your messages?": "¿Quieres más opciones para revisar tus mensajes?",
+    "Pro adds deeper wording analysis, rewrite comparisons, and tools to track patterns over time. Keep using the free plan if it gives you what you need.": "Pro añade un análisis más detallado de la redacción, comparaciones de versiones y herramientas para seguir patrones. Puedes seguir usando el plan gratis si te funciona.",
+    "See more wording context": "Revisa más contexto de redacción",
+    "Review patterns and compare possible ways to phrase your message.": "Revisa patrones y compara distintas formas de redactar tu mensaje.",
+    "Compare a rewrite suggestion": "Compara una sugerencia de reescritura",
+    "Review an alternate version and check that it keeps your meaning.": "Revisa una versión alternativa y confirma que conserve tu significado.",
+    "Save your reads and track outcomes": "Guarda tus análisis y registra resultados",
+    "Build a personal record you can review later.": "Crea un historial personal que puedes consultar después.",
+    "I wanted a clearer read before replying. Social Receipt helped me review the wording.": "Quería entender mejor el mensaje antes de responder. Social Receipt me ayudó a revisar la redacción.",
+    "Clearer choices before you send.": "Decide con más claridad antes de enviar.",
+    "Check a message before I send it": "Revisa un mensaje antes de enviarlo",
+    "Review how your wording may come across.": "Revisa cómo podría interpretarse tu mensaje.",
+    "Compare plans": "Comparar planes"
+  });
   window.SRLanguage = { get: get, set: choose, apply: apply };
 }());
