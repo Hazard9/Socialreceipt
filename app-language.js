@@ -117,9 +117,9 @@
     var trimmed = value.trim();
     var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
     if (!target && lang === "es") {
-      var match = trimmed.match(/^Matched wording:\\s*(.+)$/);
+      var match = trimmed.match(/^Matched wording:\s*(.+)$/);
       if (match) target = "Frases detectadas: " + match[1];
-      match = trimmed.match(/^Possible message moves:\\s*(.+)$/);
+      match = trimmed.match(/^Possible message moves:\s*(.+)$/);
       if (match) {
         var hints = {
           "Clarifier-style explanation": "Enfoque para aclarar",
@@ -127,9 +127,9 @@
           "Reassurance Seeker-style request": "Enfoque para pedir tranquilidad",
           "Conflict Resolver-style repair": "Enfoque para reparar la conversación"
         };
-        target = "Posibles enfoques de comunicación: " + match[1].split(/,\\s*/).map(function (hint) { return hints[hint] || hint; }).join(", ");
+        target = "Posibles enfoques de comunicación: " + match[1].split(/,\s*/).map(function (hint) { return hints[hint] || hint; }).join(", ");
       }
-      match = trimmed.match(/^\\$9\\/mo\\s*·\\s*\\$39 lifetime$/);
+      match = trimmed.match(/^\$9\/mo\s*·\s*\$39 lifetime$/);
       if (match) target = "$9/mes · $39 de por vida";
       match = trimmed.match(/^This exchange of (\\d+) messages does not show a strong pressure pattern in the wording\\. That does not guarantee the timing is right, only that the language itself looks reasonably direct\\.$/);
       if (match) target = "En este intercambio de " + match[1] + " mensajes no se observa un patrón claro de presión en la redacción. Esto no garantiza que el momento sea adecuado; solo indica que el lenguaje parece bastante directo.";
