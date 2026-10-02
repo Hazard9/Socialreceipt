@@ -189,7 +189,7 @@
     var trimmed = value.trim();
     var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
     if (!target && lang === "es") {
-      var match = trimmed.match(/^QUESTION (\d+) OF 7$/);
+      var match = trimmed.match(/^Question (\d+) of 7$/i);
       if (match) target = "PREGUNTA " + match[1] + " DE 7";
       match = trimmed.match(/^Tracked funnel events:\s*(.+)$/);
       if (match) target = "Eventos del embudo registrados: " + match[1];
