@@ -1656,7 +1656,8 @@ function renderPresendOutput(raw, context) {
     html += "<div class=\"presend-rewrite-box\" id=\"presendRewrite\" data-language=\""+escapeHtml(analysis.language)+"\">"+escapeHtml(rewritten)+"</div>";
     html += "<div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copyPresendRewrite()\">"+escapeHtml(rewriteLabels.copy)+"</button><button class=\"mini-btn\" onclick=\"runPresend()\">"+escapeHtml(rewriteLabels.again)+"</button></div>";
   } else if (pro) {
-    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(noSpecificRewrite ? rewriteLabels.noPattern : rewriteLabels.unavailable)+"</strong></div>";
+    var noRewriteMessage = noSpecificRewrite ? rewriteLabels.noPattern : (analysis.supported ? rewriteLabels.noSafe : rewriteLabels.unavailable);
+    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(noRewriteMessage)+"</strong></div>";
   } else {
     html += "<div class=\"presend-locked\">";
     html += "<strong>Compare another wording option.</strong>";
@@ -2255,68 +2256,48 @@ function presendRewriteLabels(language) {
     copy: "Copiar versión",
     again: "Revisar de nuevo",
     unavailable: "No hay una reescritura disponible para este idioma",
-    noPattern: "No se generó una reescritura específica porque no se detectó un patrón claro."
+    noPattern: "No se generó una reescritura específica porque no se detectó un patrón claro.",
+    noSafe: "No tengo suficiente contexto para sugerir una versión que conserve tu sentido. Prueba editarla con tus propias palabras."
   };
   if (language === "fr") return {
     title: "Version reformulée",
     copy: "Copier la reformulation",
     again: "Vérifier à nouveau",
     unavailable: "Aucune reformulation n’est disponible pour cette langue",
-    noPattern: "Aucune reformulation précise n’a été générée, car aucun schéma clair n’a été détecté."
+    noPattern: "Aucune reformulation précise n’a été générée, car aucun schéma clair n’a été détecté.",
+    noSafe: "Le contexte ne suffit pas pour proposer une reformulation qui préserve votre sens. Essayez de la modifier avec vos propres mots."
   };
   return {
     title: "Rewritten Version",
     copy: "Copy Rewrite",
     again: "Check Again",
     unavailable: "A rewrite is not available for this language",
-    noPattern: "No draft-specific rewrite was generated because no clear wording pattern was detected."
+    noPattern: "No draft-specific rewrite was generated because no clear wording pattern was detected.",
+    noSafe: "I don't have enough context to suggest a version that preserves your meaning. Try editing it in your own words."
   };
 }
 
 function rewriteMessage(raw, receipt, analysis) {
-  var original = raw.trim();
-  var lower = original.toLowerCase();
-  var language = analysis && analysis.language ? analysis.language : "en";
-  if (analysis && !analysis.supported) return "";
+  var original = String(raw || "").trim();
+  if (!original || !analysis || !analysis.supported) return "";
 
-  /* Handle mixed signals: frustration softened by minimizing language. */
-  var mixedSignal = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done)\b/i.test(lower)
-    && /\b(no worries|no problem|totally understand|it's fine|it is fine|all good|take your time|whenever works|probably busy|absolutely busy)\b/i.test(lower);
-
-  if (mixedSignal) {
-    if (language === "es") return "Me frustra que esto siga pasando. Por favor, dime qué momento te viene bien.";
-    if (language === "fr") return "Cette situation me frustre. Dis-moi quel moment te conviendrait.";
-    return "I’m frustrated that this keeps happening. Please let me know a specific time that works.";
-  }
-  if (language === "es") return "Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.";
-  if (language === "fr") return "Je veux aborder cela directement. Dis-moi quel moment te conviendrait.";
-
-  var cleaned = original;
-  var fillers = ["hey so ","hey, ","hi so ","okay so ","so i ","i just ","just wanted to ","i was thinking ","i feel like ","i don't know if ","sorry if ","sorry but ","i know this might be "];
-  fillers.forEach(function(f) {
-    var re = new RegExp("^" + f.replace(/[.*+?^()|[\]\\]/g,"\\$&"),"i");
-    cleaned = cleaned.replace(re,"");
+  var hasRelevantSignal = (analysis.signals || []).some(function(signal) {
+    return signal.id === "softener-frustration" || signal.id === "polite-resentment";
   });
-  cleaned = cleaned.replace(/\b(honestly,?\s*)/gi,"");
-  cleaned = cleaned.replace(/\b(i\s*)?just\s+(wanted|thought|hoped|was\s+wondering)\b/gi,"");
-  cleaned = cleaned.replace(/\bsorry\s+(for|if|to|about)\b[^.!?]*/gi,"");
-  cleaned = cleaned.replace(/\bdoes\s+that\s+make\s+sense\?/gi,"");
-  cleaned = cleaned.replace(/\bi\s+don.t\s+know\b/gi,"");
-  cleaned = cleaned.replace(/\bif\s+that(.s|\s+is)\s+(okay|cool|alright|fine)\b/gi,"");
-  cleaned = cleaned.replace(/\bjust\s+checking\s+in\b/gi,"checking in");
-  var sentences = cleaned.match(/[^.!?]+[.!?]*/g) || [cleaned];
-  if (sentences.length > 2) sentences = sentences.slice(0,2);
-  cleaned = sentences.join(" ").replace(/\s{2,}/g," ").trim();
-  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
-  if (cleaned && !/[.!?]$/.test(cleaned)) cleaned += ".";
+  if (!hasRelevantSignal) return "";
 
-  /* Never present the original as a rewrite. */
-  if (!cleaned || cleaned.toLowerCase() === original.toLowerCase()) {
-    if (language === "es") return "Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.";
-    if (language === "fr") return "Je veux aborder cela directement. Dis-moi quel moment te conviendrait.";
-    return "I want to address this directly. Please let me know a specific time that works.";
-  }
-  return cleaned;
+  var language = analysis.language || "en";
+  var opening = language === "es"
+    ? /^no pasa nada\s*[,.;:]?\s*(?:pero\s*)?/i
+    : language === "fr"
+      ? /^pas de souci\s*[,.;:]?\s*/i
+      : /^(?:no worries|no problem|all good|it's fine|it is fine|totally understand)\s*[,.;:]?\s*/i;
+  var revised = original.replace(opening, "").replace(/^\s*[,.;:]\s*/, "").trim();
+  if (!revised || revised.toLowerCase() === original.toLowerCase()) return "";
+
+  /* Only remove the minimizing opener; keep the sender's substantive words intact. */
+  revised = revised.charAt(0).toLocaleUpperCase(language) + revised.slice(1);
+  return revised;
 }
 /* ── SAVE / LOAD ── */
 function saveCurrentReceipt() {
