@@ -110,7 +110,8 @@
   function shouldSkip(node) {
     var el = node.parentElement;
     if (!el) return true;
-    if (el.closest("script,style,textarea,input,select,option,[contenteditable='true'],[data-user-content],#historyList,#presendText,#coldText,#interactionText,.message-box,.decision-compare,.presend-rewrite-box,.presend-diagnosis,.presend-signal,.pattern-callout-text,.pattern-callout-sub,.presend-context-reading p,.transcript-line,.transcript-text,.tl-quote,.flag-evidence,#draftBox,[data-user-content]")) return true;
+    if (el.closest(".presend-match")) return false;
+    if (el.closest("script,style,textarea,input,select,option,[contenteditable='true'],[data-user-content],#historyList,#presendText,#coldText,#interactionText,.message-box,.decision-compare,.presend-match,.presend-rewrite-box,.presend-diagnosis,.presend-signal,.pattern-callout-text,.pattern-callout-sub,.presend-context-reading p,.transcript-line,.transcript-text,.tl-quote,.flag-evidence,#draftBox,[data-user-content]")) return true;
     return false;
   }
   function translateValue(value, lang) {
