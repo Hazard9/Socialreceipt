@@ -279,7 +279,17 @@
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-labelledby", "srLanguageTitle");
-    overlay.innerHTML = '<div class="sr-language-card"><p class="sr-language-brand">SOCIAL RECEIPT</p><h2 id="srLanguageTitle">Choose your language / Elige tu idioma</h2><p class="sr-language-note">You can change this anytime. Your messages stay on this device.<br>Puedes cambiarlo cuando quieras. Tus mensajes permanecen en este dispositivo.</p><button type="button" data-lang="en">English</button><button type="button" data-lang="es">Español</button></div>';
+    var currentLanguage = get() || "en";
+    var chooserTitle = firstRun ? "Choose your language / Elige tu idioma" : currentLanguage === "es" ? "Elige tu idioma" : "Choose your language";
+    var chooserNote = firstRun
+      ? "You can change this anytime. Your messages stay on this device.<br>Puedes cambiarlo cuando quieras. Tus mensajes permanecen en este dispositivo."
+      : currentLanguage === "es"
+        ? "Puedes cambiarlo cuando quieras. Tus mensajes permanecen en este dispositivo."
+        : "You can change this anytime. Your messages stay on this device.";
+    var englishName = currentLanguage === "es" ? "Inglés" : "English";
+    var spanishName = currentLanguage === "es" ? "Español" : "Spanish";
+    if (firstRun) spanishName = "Español";
+    overlay.innerHTML = '<div class="sr-language-card"><p class="sr-language-brand">SOCIAL RECEIPT</p><h2 id="srLanguageTitle">' + chooserTitle + '</h2><p class="sr-language-note">' + chooserNote + '</p><button type="button" data-lang="en">' + englishName + '</button><button type="button" data-lang="es">' + spanishName + '</button></div>';
     var style = document.createElement("style");
     style.id = "srLanguageStyles";
     style.textContent = '#srLanguageChooser{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;font-family:system-ui,-apple-system,sans-serif;color:#f2ece0}#srLanguageChooser .sr-language-card{width:min(100%,420px);background:#171512;border:1px solid rgba(212,170,90,.4);border-radius:20px;padding:26px;box-shadow:0 20px 70px #000}#srLanguageChooser .sr-language-brand{font-size:11px;letter-spacing:.16em;color:#d9b75c;margin:0 0 14px}#srLanguageChooser h2{font-size:26px;margin:0 0 10px;color:#f2ece0}#srLanguageChooser .sr-language-note{color:#b9ad9e;line-height:1.5;margin:0 0 20px}#srLanguageChooser button{display:block;width:100%;margin-top:10px;padding:14px;border:1px solid #51432b;border-radius:12px;background:#211d18;color:#f2ece0;font:600 16px system-ui;cursor:pointer}#srLanguageChooser button:focus{outline:2px solid #d9b75c}[data-sr-app-language]{position:fixed;z-index:1000;top:12px;right:12px;border:1px solid rgba(212,170,90,.5);border-radius:999px;background:#171512;color:#f2ece0;padding:7px 10px;font:600 12px system-ui;cursor:pointer;box-shadow:0 3px 14px #0008}';
