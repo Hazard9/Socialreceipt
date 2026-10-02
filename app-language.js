@@ -307,6 +307,10 @@
       var current = get();
       if (current !== "es") return;
       records.forEach(function (record) {
+        if (record.type === "characterData") {
+          translateNode(record.target, current);
+          return;
+        }
         record.addedNodes.forEach(function (node) {
           if (node.nodeType === 3) translateNode(node, current);
           else if (node.nodeType === 1) {
@@ -319,9 +323,9 @@
         });
       });
     });
-    // Observe inserted UI only. Watching characterData also watches our own translations
-    // and can keep the main thread busy when a whole screen is localized.
-    observer.observe(document.body, { childList: true, subtree: true });
+    // Translate inserted UI and in-place status updates. Protected draft text is skipped,
+    // and per-node markers prevent reprocessing our own translated text.
+    observer.observe(document.body, { childList: true, characterData: true, subtree: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
