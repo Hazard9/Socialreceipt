@@ -29,6 +29,18 @@ test("0. first visit asks for app language and saves the choice locally", async 
   await expect(page.locator("#srLanguageChooser")).toHaveCount(0);
 });
 
+test("0a. visible voice controls are translated in Spanish", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  await page.click('.nav-btn[data-screen="createScreen"]');
+  const voiceButton = page.locator(".voice-input-btn").first();
+  await expect(voiceButton).toContainText("🎤 Dictar");
+  await expect(voiceButton).not.toContainText("Talk to text");
+  await page.click('.nav-btn[onclick="openPresend()"]');
+  await expect(page.locator(".voice-input-btn").first()).toContainText("🎤 Dictar");
+});
+
 test("0b. changing app language leaves the draft and analysis-language choice untouched", async ({ page }) => {
   await skipToApp(page);
   await page.click('.nav-btn[onclick="openPresend()"]');
