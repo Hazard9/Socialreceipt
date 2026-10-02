@@ -53,7 +53,7 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await expect(page.locator("#presendText")).toHaveValue(draft);
   await expect(page.locator("#presendLanguage")).toHaveValue("es");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
-  await expect(page).toHaveTitle("Social Receipt. Decide antes de enviar.");
+  await expect(page).toHaveTitle("Social Receipt | Revisa un mensaje antes de enviarlo");
   await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega exactamente lo que ibas a enviar. No lo edites. El análisis es más preciso con el texto original.");
 
   await page.click('[data-sr-app-language]');
@@ -61,7 +61,7 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("#presendText")).toHaveValue(draft);
   await expect(page.locator("#presendLanguage")).toHaveValue("es");
-  await expect(page).toHaveTitle("Social Receipt. Know the move before you send it.");
+  await expect(page).toHaveTitle("Social Receipt | Check a message before you send");
 });
 
 test("0c. Spanish app language localizes Conversation Replay without translating quoted messages", async ({ page }) => {
