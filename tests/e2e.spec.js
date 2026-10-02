@@ -102,17 +102,14 @@ test("1. first visit shows the landing screen with pricing and no console errors
   expect(errors).toEqual([]);
 });
 
-test("2. starting Free hides the landing screen and shows the app", async ({ page }) => {
+test("2. starting Free opens the message check without a multi-screen onboarding", async ({ page }) => {
   await page.reload();
   await page.click("text=Start Free. Try Now.");
   await expect(page.locator("#landingScreen")).toBeHidden();
-  await expect(page.locator("#homeScreen")).toBeVisible();
-  await expect(page.locator("#homeScreen")).toContainText("About to send");
-  await expect(page.locator("#homeScreen")).toContainText("Received something");
-  await expect(page.locator("#dailyRitualCard")).toContainText("What are you about to send?");
-  await expect(page.locator("#homeProgressCard")).toContainText("Your progress");
-  await expect(page.locator("#homeReflectionCard")).toContainText("Weekly reflection");
-  await expect(page.locator("#homeReflectionCard")).toContainText("Your week has not started yet.");
+  await expect(page.locator("#onboarding")).toBeHidden();
+  await expect(page.locator("#createScreen")).toBeVisible();
+  await expect(page.locator("#presendText")).toBeVisible();
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", /message/i);
 });
 
 async function skipToApp(page) {
