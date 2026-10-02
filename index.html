@@ -1477,11 +1477,11 @@ function getVerdict(a, feeling, scenario) {
   if (a.conflict && feeling === "Annoyed") return "This exchange sounds tense. Waiting until you feel settled may help.";
   if (a.conflict) return "This exchange sounds tense. Consider a short pause before responding.";
   if (a.delay && feeling === "Anxious") return "A delay can feel unsettling, but it does not tell us why they have not replied.";
+  if (scenario === "Sales / Client" && a.delay) return "There has been a delay. If you follow up, keep it brief; the reason for the delay is unknown.";
   if (a.delay) return "There is a gap in the conversation. The reason is unclear.";
   if (feeling === "Rejected" && !a.positive) return "It may help to pause before replying from a feeling of rejection.";
   if (a.positive && scenario === "Date") return "The wording sounds warm. One message cannot confirm someone's level of interest.";
   if (a.positive) return "The wording reads positively, though context matters.";
-  if (scenario === "Sales / Client" && a.delay) return "There has been a delay. If you follow up, keep it brief; the reason for the delay is unknown.";
   if (scenario === "Sales / Client") return "The other person's interest is unclear from this exchange. A clear question may help.";
   if (scenario === "Work") return "Keep the message clear and professional. This read cannot tell us how it was received.";
   if (feeling === "Anxious") return "The message feels uncertain to you. That feeling alone does not tell us how it was received.";
