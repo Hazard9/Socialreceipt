@@ -389,6 +389,9 @@
     "Your communication patterns": "Tus patrones de comunicación",
     "Waiting may be the clearest next step.": "Esperar puede ser el siguiente paso más claro.",
     "GET SOCIAL RECEIPT UPDATES.": "RECIBE NOVEDADES DE SOCIAL RECEIPT.",
+    "Get email updates": "Recibe novedades por correo",
+    "Get Social Receipt updates.": "Recibe novedades de Social Receipt.",
+    "Join the email list": "Unirme a la lista de correo",
     "Join the email list for product news and communication tips. Your receipts stay in this browser, and message text is not included.": "Únete a la lista para recibir novedades y consejos de comunicación. Tus análisis permanecen en este navegador y no se incluye el texto de tus mensajes."
   });
   Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
