@@ -9,13 +9,13 @@
 <meta name="apple-mobile-web-app-title" content="Social Receipt"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="application-name" content="Social Receipt"/>
-<meta name="description" content="Pause before sending a text, DM, email, or caption. Review wording signals, consider a clearer version, and decide whether to send or wait."/>
+<meta name="description" content="Check a text, DM, email, or caption before sending. Review wording patterns, consider a clearer option, and choose what to do next."/>
 <link rel="canonical" href="https://socialreceipt.netlify.app/"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Social Receipt"/>
 <meta property="og:title" content="Social Receipt. Know the move before you send it."/>
-<meta property="og:description" content="Pause before sending a text, DM, email, or caption. Review wording signals, consider a clearer version, and decide whether to send or wait."/>
+<meta property="og:description" content="Check a text, DM, email, or caption before sending. Review wording patterns, consider a clearer option, and choose what to do next."/>
 <meta property="og:image" content="https://socialreceipt.netlify.app/social-preview.png"/>
 <meta property="og:image:secure_url" content="https://socialreceipt.netlify.app/social-preview.png"/>
 <meta property="og:image:type" content="image/png"/>
@@ -25,14 +25,14 @@
 <meta property="og:url" content="https://socialreceipt.netlify.app/"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Social Receipt. Know the move before you send it."/>
-<meta name="twitter:description" content="Pause before sending a text, DM, email, or caption. Review wording signals, consider a clearer version, and decide whether to send or wait."/>
+<meta name="twitter:description" content="Check a text, DM, email, or caption before sending. Review wording patterns, consider a clearer option, and choose what to do next."/>
 <meta name="twitter:image" content="https://socialreceipt.netlify.app/social-preview.png"/>
 <meta name="twitter:image:alt" content="Social Receipt: Pause before the send. Review wording signals, compare possible next moves, and decide whether to send or wait."/>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="apple-touch-icon" href="/icon.svg"/>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon.svg"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/icon.svg"/>
-<title>Social Receipt. Know the move before you send it.</title>
+<title>Social Receipt | Check a message before you send</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -189,7 +189,7 @@ button{border:0;cursor:pointer;}
 .limit-bar-track{height:3px;background:rgba(255,245,220,0.08);border-radius:999px;overflow:hidden;}
 .limit-bar-fill{height:100%;border-radius:999px;background:linear-gradient(to right,var(--gold),var(--gold-2));transition:width 0.6s ease;}
 .limit-banner-text{font-size:12px;color:var(--muted);margin-top:8px;font-weight:300;line-height:1.45;}
-.limit-banner-text a{color:var(--gold);cursor:pointer;}
+.limit-banner-text a,.limit-banner-text button.inline-action-link{color:var(--gold);cursor:pointer;} .limit-banner-text button.inline-action-link{background:transparent;border:0;padding:0;text-decoration:underline;}
 
 /* ── BUTTONS ── */
 .primary-btn,.secondary-btn,.ghost-btn{width:100%;border-radius:var(--radius-md);padding:15px 18px;font-family:var(--font-sans);font-weight:600;font-size:15px;letter-spacing:0.01em;transition:transform 0.15s,opacity 0.15s,box-shadow 0.15s;}
@@ -706,27 +706,27 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div id="landingScreen">
   <div class="landing-wrap">
     <div class="landing-logo"><div class="landing-logo-dot"></div>Social Receipt</div>
-    <h1 class="landing-pain">Stop rereading.<br><em>Know the move</em><br>before you send it.</h1>
-    <p class="landing-sub">You are about to send something that costs you the interaction. Or say nothing when one sentence would have changed everything. Social Receipt reads the actual signals and tells you exactly what to do before you blow it.</p>
-    <p class="landing-sub" style="margin-top:-20px;font-size:13px;">For anyone about to send a text, DM, email, or caption they are not sure about &mdash; before a date, at work, with a client, or with a friend.</p>
+    <h1 class="landing-pain">Pause before you send.<br><em>Choose your next step</em><br>with more clarity.</h1>
+    <p class="landing-sub">Paste a message you plan to send or an exchange you want to understand. Social Receipt points out wording patterns, offers a clearer option, and helps you decide whether to send, wait, or edit. It cannot know anyone’s intent, so use your context.</p>
+    <p class="landing-sub" style="margin-top:-20px;font-size:13px;">Use it for texts, DMs, emails, and captions—with a date, coworker, client, friend, or family member.</p>
     <div class="landing-proof">
-      <div class="landing-proof-item"><div class="landing-proof-icon">💬</div><div class="landing-proof-text"><strong>They replied with two words.</strong> You have read it 14 times. The app tells you what it actually means. And whether responding right now makes it worse.</div></div>
-      <div class="landing-proof-item"><div class="landing-proof-icon">📵</div><div class="landing-proof-text"><strong>Left on read.</strong> Most people send a follow-up that drops their position. Social Receipt gives you the one move that does not.</div></div>
-      <div class="landing-proof-item"><div class="landing-proof-icon">✉</div><div class="landing-proof-text"><strong>About to send a long message.</strong> Paste it first. The app tells you if it reads as over-invested. It rewrites it before you make the mistake.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">💬</div><div class="landing-proof-text"><strong>A short reply can be hard to read.</strong> Review possible wording signals and decide whether more context would change your response.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">📵</div><div class="landing-proof-text"><strong>Not sure whether to follow up?</strong> Review what you know and choose a next step that fits the situation.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">✉</div><div class="landing-proof-text"><strong>Want to be clear?</strong> Compare your draft with a shorter option before you decide what to send.</div></div>
     </div>
     <div class="landing-how">
-      <div class="landing-how-step"><span class="landing-how-num">1</span>Paste the message, or what they said.</div>
-      <div class="landing-how-step"><span class="landing-how-num">2</span>Get your receipt: the risk, the hidden signal, what not to do.</div>
-      <div class="landing-how-step"><span class="landing-how-num">3</span>Send the move that keeps your position, not the one you almost sent.</div>
+      <div class="landing-how-step"><span class="landing-how-num">1</span>Paste a draft or describe what happened.</div>
+      <div class="landing-how-step"><span class="landing-how-num">2</span>Review wording patterns and what remains unclear.</div>
+      <div class="landing-how-step"><span class="landing-how-num">3</span>Choose whether to send, wait, or edit.</div>
     </div>
     <div class="landing-example" data-sr-event="sample_receipt_viewed" style="margin:0 0 24px;padding:17px 16px;border:1px solid var(--border-warm);border-radius:var(--radius-lg);background:linear-gradient(145deg,rgba(201,168,76,0.08),rgba(255,245,220,0.025));">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Example Social Receipt</div>
       <div style="font-family:var(--font-serif);font-size:18px;color:var(--text);margin-bottom:6px;">The strongest move may be to wait.</div>
-      <div style="font-size:12px;line-height:1.5;color:var(--muted);">Pattern detected: pressure for reassurance. Recommended move: hold your position before sending again.</div>
+      <div style="font-size:12px;line-height:1.5;color:var(--muted);">Possible wording pattern: seeking reassurance. A delay alone cannot tell us why someone has not replied. Consider waiting or sending a clear, low-pressure follow-up.</div>
     </div>
     <div class="landing-cta-eyebrow">3 free receipts. No account required.</div>
     <button class="primary-btn" data-sr-cta="landing_free_check" onclick="startFree()">Start Free. Try Now.</button>
-    <div class="landing-free-note">Takes 30 seconds. No sign-up. No data stored.</div>
+    <div class="landing-free-note">Start in seconds. No account required. Your draft is not included in usage analytics.</div>
     <a href="/confidence-profile.html" class="secondary-btn" data-sr-event="confidence_profile_quiz_opened" data-feature="communication_profile_quiz" style="display:block;width:100%;margin-top:12px;padding:15px;text-align:center;border-color:var(--border-warm);border-radius:var(--radius-md);text-decoration:none;font-size:13px">Take the 7-question communication profile quiz</a>
     <div class="landing-divider"></div>
     <div class="landing-pricing-label">Simple pricing. Start free. Upgrade when it matters.</div>
@@ -735,7 +735,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="pricing-card featured"><div class="pricing-card-badge">Most Popular</div><div class="pricing-card-name">Pro Monthly</div><div class="pricing-card-price"><span class="pricing-card-amount">$9</span><span class="pricing-card-period">/mo</span></div><ul class="pricing-features"><li>Unlimited receipts</li><li>Full analysis + corrections</li><li>Pre-Send check on every message</li><li>Rewrite Engine</li><li>Cold Read mode</li><li>Pattern profile</li></ul><button class="primary-btn" data-sr-cta="landing_monthly_checkout" onclick="startCheckout('monthly')" style="margin-top:12px">Get Pro. $9/mo</button></div>
       <div class="pricing-card featured"><div class="pricing-card-badge" style="background:var(--green);color:#0c0b09">Beta Offer</div><div class="pricing-card-name">Lifetime Beta</div><div class="pricing-card-price"><span class="pricing-card-amount">$39</span><span class="pricing-card-period">once</span></div><ul class="pricing-features"><li>Everything in Pro forever</li><li>Your saved reads and personal patterns</li><li>All future features released before public launch</li><li>One payment, no recurring charge</li></ul><button class="secondary-btn" data-sr-cta="landing_lifetime_checkout" onclick="startCheckout('lifetime')" style="margin-top:12px">Get Lifetime. $39</button></div>
     </div>
-    <p style="font-size:11px;color:var(--muted-2);text-align:center;font-family:var(--font-mono);letter-spacing:0.04em;line-height:1.6;">Payments via Stripe. Cancel anytime.<br>Nothing leaves your device on Free plan.</p>
+    <p style="font-size:11px;color:var(--muted-2);text-align:center;font-family:var(--font-mono);letter-spacing:0.04em;line-height:1.6;">Payments via Stripe. Cancel anytime.<br>Your message text is not included in usage analytics.</p>
   </div>
 </div>
 
@@ -745,12 +745,12 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <div class="paywall-handle"></div>
     <div class="paywall-spike" id="paywallSpike">You are about to guess.</div>
     <div class="paywall-eyebrow">Your next move is locked</div>
-    <h2 class="paywall-headline">If you don't unlock this, you are guessing.</h2>
-    <p class="paywall-sub">The exact move. The message that keeps your position. The timing window. Lifetime Beta keeps the full decision layer available for one payment.</p>
+    <h2 class="paywall-headline">Need more ways to review your messages?</h2>
+    <p class="paywall-sub">Pro adds deeper wording analysis, rewrite comparisons, and tools to track patterns over time. Keep using the free plan if it gives you what you need.</p>
     <div class="paywall-perks">
-      <div class="paywall-perk"><div class="paywall-perk-icon">→</div><div class="paywall-perk-text"><strong>You are sending without seeing the outcome pattern.</strong><span>The next section shows exactly where this interaction turns against you.</span></div></div>
-      <div class="paywall-perk"><div class="paywall-perk-icon">✉</div><div class="paywall-perk-text"><strong>The message you were going to send is risky</strong><span>The rewrite removes the phrases that make you look like you are chasing.</span></div></div>
-      <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Timing is the part most people get wrong</strong><span>The right message at the wrong moment still loses position. This shows you the window.</span></div></div>
+      <div class="paywall-perk"><div class="paywall-perk-icon">→</div><div class="paywall-perk-text"><strong>See more wording context</strong><span>Review patterns and compare possible ways to phrase your message.</span></div></div>
+      <div class="paywall-perk"><div class="paywall-perk-icon">✉</div><div class="paywall-perk-text"><strong>Compare a rewrite suggestion</strong><span>Review an alternate version and check that it keeps your meaning.</span></div></div>
+      <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Save your reads and track outcomes</strong><span>Build a personal record you can review later.</span></div></div>
     </div>
     <div class="detail-card" style="margin:12px 0;border-color:var(--border-warm);background:rgba(201,168,76,.06)"><div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">Lifetime Beta means ownership</div><p style="margin:0;color:var(--text);font-size:13px;line-height:1.5">Keep the full decision layer, your pattern history, and future pre-launch features for $39 once. No recurring charge.</p></div>
     <div id="paywallOwnershipProof" class="detail-card" style="margin:0 0 14px;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px"></div>
@@ -804,7 +804,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <div class="share-inner">
     <div class="share-preview">
       <div class="share-app-label">Social Receipt</div>
-      <div class="share-hook" id="shareHook">I was about to send something. This app said it would drop my position.</div>
+      <div class="share-hook" id="shareHook">I wanted a clearer read before replying. Social Receipt helped me review the wording.</div>
       <div class="share-verdict" id="shareVerdict"></div>
       <div class="share-signals" id="shareSignals"></div>
       <div class="share-viral-line">Send this to someone who overthinks like you do.</div><div class="share-privacy-note">No private message text is included in the share card.</div>
@@ -823,13 +823,13 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <!-- HOME -->
   <section id="homeScreen" class="screen active">
     <div class="topbar">
-      <div class="brand-lockup"><h1>Social Receipt</h1><p>Know the move before you send it.</p></div>
+      <div class="brand-lockup"><h1>Social Receipt</h1><p>Clearer choices before you send.</p></div>
       <div id="homeStatusPill" class="status-pill" onclick="openProfilePanel()"><span class="pulse-dot"></span>Free</div>
     </div>
     <div id="homeLimitBanner" class="limit-banner">
       <div class="limit-banner-top"><span class="limit-banner-label">Free reads used</span><span class="limit-banner-count" id="limitCount">0 / 3</span></div>
       <div class="limit-bar-track"><div class="limit-bar-fill" id="limitBarFill" style="width:0%"></div></div>
-      <div class="limit-banner-text">You have <span id="limitRemaining">3</span> read<span id="limitPluralS">s</span> left. After this, <a onclick="openPaywall()">you are guessing</a>. <a onclick="openPaywall()" style="color:var(--gold)">Upgrade</a></div>
+      <div class="limit-banner-text">You have <span id="limitRemaining">3</span> read<span id="limitPluralS">s</span> left. <button type="button" class="inline-action-link" onclick="openPaywall()">Compare plans</button></div>
     </div>
     <div id="homeReturnCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))"></div>
     <div class="hero-card card">
@@ -843,8 +843,8 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <!-- PANIC MODE — most-used entry point -->
     <button class="panic-btn" onclick="openPresend()">
       <div class="panic-btn-inner">
-        I'm about to send something
-        <div class="panic-btn-sub">Paste it. Get instant judgment before you send.</div>
+        Check a message before I send it
+        <div class="panic-btn-sub">Review how your wording may come across.</div>
       </div>
       <div class="panic-btn-icon">&#9888;</div>
     </button>
