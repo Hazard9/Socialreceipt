@@ -642,7 +642,38 @@ test("22. selecting a supported language resolves a short ambiguous phrase", asy
 });
 
 
-test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page }) => {
+test("23. Spanish rewrite removes only the minimising opener and keeps the sender's words", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "No pasa nada, pero estoy cansada de ser la única que avisa.");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "es");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("Versión reescrita");
+  await expect(output).toContainText("Estoy cansada de ser la única que avisa.");
+  await expect(output).toContainText("Copiar versión");
+  await expect(output).toContainText("Revisar de nuevo");
+  await expect(output).not.toContainText("Quiero hablar de esto directamente");
+});
+
+test("24. French rewrite removes only the minimising opener and keeps the sender's words", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Pas de souci. Comme d’habitude, je vais le faire moi-même.");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "fr");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("Version reformulée");
+  await expect(output).toContainText("Comme d’habitude, je vais le faire moi-même.");
+  await expect(output).toContainText("Copier la reformulation");
+  await expect(output).not.toContainText("Je veux aborder cela directement");
+});
+
+test("25. an unrelated Spanish concern does not get an invented rewrite", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
@@ -651,30 +682,13 @@ test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page
   await page.selectOption("#presendLanguage", "es");
   await page.click('button[onclick="runPresend()"]');
   const output = page.locator("#receiptOutput");
-  await expect(output).toContainText("Versión reescrita");
-  await expect(output).toContainText("Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.");
-  await expect(output).toContainText("Copiar versión");
-  await expect(output).toContainText("Revisar de nuevo");
-  await expect(output).not.toContainText("I want to address this directly");
+  await expect(output).toContainText("MEDIO. Posible presión en el tono.");
+  await expect(output).toContainText("No tengo suficiente contexto para sugerir una versión que conserve tu sentido.");
+  await expect(output.locator("#presendRewrite")).toHaveCount(0);
+  await expect(output).not.toContainText("Quiero hablar de esto directamente");
 });
 
-test("24. French Pre-Send rewrite uses French", async ({ page }) => {
-  await skipToApp(page);
-  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
-  await page.click(".panic-btn");
-  await page.fill("#presendText", "Ne t’inquiète pas pour moi. J’en ai marre de devoir demander.");
-  await page.locator(".presend-context summary").click();
-  await page.selectOption("#presendLanguage", "fr");
-  await page.click('button[onclick="runPresend()"]');
-  const output = page.locator("#receiptOutput");
-  await expect(output).toContainText("Version reformulée");
-  await expect(output).toContainText("Je veux aborder cela directement. Dis-moi quel moment te conviendrait.");
-  await expect(output).toContainText("Copier la reformulation");
-  await expect(output).not.toContainText("I want to address this directly");
-});
-
-
-test("25. Spanish unclear result does not get a generic copyable rewrite", async ({ page }) => {
+test("25a. an unclear Spanish draft gets no generic copyable rewrite", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
