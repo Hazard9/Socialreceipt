@@ -482,6 +482,15 @@ if (!secretFound) pass("no committed Stripe/Kit secrets found in scanned files")
   else fail("index.html is missing meta tag: " + tag);
 });
 
+const viewportMeta = indexHtml.match(/<meta name="viewport" content="([^"]+)"/i);
+if (!viewportMeta) {
+  fail("index.html is missing its viewport meta tag");
+} else if (/user-scalable\s*=\s*no|maximum-scale\s*=\s*1(?:\.0)?/i.test(viewportMeta[1])) {
+  fail("index.html must not disable mobile zoom");
+} else {
+  pass("index.html allows user zoom");
+}
+
 // 9. manifest.json is valid JSON and icons exist
 try {
   const manifest = JSON.parse(read("manifest.json"));
