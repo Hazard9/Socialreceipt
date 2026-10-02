@@ -744,7 +744,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="paywall-overlay hidden" id="paywallOverlay">
   <div class="paywall-sheet">
     <div class="paywall-handle"></div>
-    <div class="paywall-spike" id="paywallSpike">You are about to guess.</div>
+    <div class="paywall-spike" id="paywallSpike">Optional email signup.</div>
     <div class="paywall-eyebrow">Your next move is locked</div>
     <h2 class="paywall-headline">Need more ways to review your messages?</h2>
     <p class="paywall-sub">Pro adds deeper wording analysis, rewrite comparisons, and tools to track patterns over time. Keep using the free plan if it gives you what you need.</p>
@@ -967,16 +967,16 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="modal-overlay hidden" id="emailModal">
   <div class="modal-sheet">
     <div style="text-align:center;margin-bottom:6px">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">You are about to guess</div>
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Optional email signup</div>
     </div>
-    <h2 class="modal-title" id="emailModalTitle">Want the exact move?</h2>
-    <p class="modal-sub" id="emailModalSub">This is the moment people lose the interaction. Enter your email to see what the signals actually say.</p>
+    <h2 class="modal-title" id="emailModalTitle">Get Social Receipt updates</h2>
+    <p class="modal-sub" id="emailModalSub">Join the email list for product news and practical communication tips. Your message text is not included.</p>
     <input class="modal-input" type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"/>
     <div class="modal-actions">
-      <button class="primary-btn" id="emailModalSubmitBtn" onclick="saveEmailProfile()">Show me the move</button>
+      <button class="primary-btn" id="emailModalSubmitBtn" onclick="saveEmailProfile()">Join the email list</button>
       <button class="ghost-btn" onclick="closeEmailModal()">Not now</button>
     </div>
-    <div class="modal-note" id="emailModalNote">Saved on this device to keep your access linked. No spam.</div>
+    <div class="modal-note" id="emailModalNote">Your saved receipts stay in this browser. Your email is used for Social Receipt updates.</div>
   </div>
 </div>
 
@@ -2311,8 +2311,8 @@ function saveCurrentReceipt() {
     setTimeout(function() {
       var modal = document.getElementById("emailModal");
       if (modal) {
-        document.getElementById("emailModalTitle").textContent = "Want the exact move?";
-        document.getElementById("emailModalSub").textContent = "This is the moment people lose the interaction. Enter your email to unlock the full analysis.";
+        document.getElementById("emailModalTitle").textContent = "Get Social Receipt updates";
+        document.getElementById("emailModalSub").textContent = "Join the email list for product news and practical communication tips. Your message text is not included.";
         modal.classList.remove("hidden");
         trackEvent("email_capture_viewed");
       }
@@ -2888,12 +2888,12 @@ function saveEmailProfile() {
   })
     .then(function(resp) { return resp.json().catch(function(){ return {ok:false}; }); })
     .then(function(data) {
-      if (btn) { btn.disabled = false; btn.textContent = "Show me the move"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Join the email list"; }
       closeEmailModal();
       renderProfilePanel();
       renderAll();
       if (data && data.ok) {
-        toast("You are in. Your receipts are linked and you are subscribed.");
+        toast("You’re subscribed to Social Receipt updates. Your receipts remain saved in this browser.");
         trackEvent("email_capture_succeeded", { via: "kit" });
       } else if (data && data.error === "not_configured") {
         toast("Saved on this device. Email list signup is not connected yet.");
@@ -2905,7 +2905,7 @@ function saveEmailProfile() {
       haptic([15, 30, 20]);
     })
     .catch(function() {
-      if (btn) { btn.disabled = false; btn.textContent = "Show me the move"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Join the email list"; }
       closeEmailModal();
       renderProfilePanel();
       renderAll();
