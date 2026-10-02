@@ -1160,9 +1160,11 @@ function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT + getReferra
 /* ── LANDING ── */
 function startFree() {
   localStorage.setItem("sr_seen_landing","1");
+  localStorage.setItem("sr_onboarded","1");
   document.getElementById("landingScreen").classList.add("hidden");
-  initOnboarding();
+  document.getElementById("onboarding").classList.add("hidden");
   renderAll();
+  openPresend();
   trackEvent("free_started");
 }
 
