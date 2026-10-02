@@ -246,27 +246,6 @@ profileCases.forEach(([name, message, expected]) => {
   else fail(name+": expected "+expected);
 });
 
-// Rewrite suggestions must be evidence-based and preserve the sender's substantive words.
-const rewriteStart = indexHtml.indexOf("function rewriteMessage(raw, receipt, analysis)");
-const rewriteEnd = indexHtml.indexOf("/* ── SAVE / LOAD ── */", rewriteStart);
-try {
-  const rewriteSource = rewriteStart >= 0 && rewriteEnd > rewriteStart ? indexHtml.slice(rewriteStart, rewriteEnd).trim() : "";
-  const rewriteMessage = rewriteSource ? new Function("return (" + rewriteSource + ");")() : null;
-  const signal = [{ id: "softener-frustration" }];
-  const enRewrite = rewriteMessage && rewriteMessage("No worries. I'm honestly tired of this.", null, { supported: true, language: "en", signals: signal });
-  const esRewrite = rewriteMessage && rewriteMessage("No pasa nada, pero estoy cansada de ser la única que avisa.", null, { supported: true, language: "es", signals: signal });
-  const frRewrite = rewriteMessage && rewriteMessage("Pas de souci. Comme d’habitude, je vais le faire moi-même.", null, { supported: true, language: "fr", signals: [{ id: "polite-resentment" }] });
-  if (enRewrite === "I'm honestly tired of this." && esRewrite === "Estoy cansada de ser la única que avisa." &&
-      frRewrite === "Comme d’habitude, je vais le faire moi-même.") pass("supported rewrites only remove the minimizing opener and retain the draft's content");
-  else fail("supported rewrite changed substantive meaning or was not specific");
-  const invented = rewriteMessage && rewriteMessage("No te preocupes por mí. Siempre haces lo mismo.", null,
-    { supported: true, language: "es", signals: [{ id: "absolute-blame" }] });
-  if (invented === "") pass("unrelated concerns do not receive a generic invented rewrite");
-  else fail("unrelated concern received a generic rewrite");
-} catch (error) {
-  fail("rewrite safety validation threw: " + error.message);
-}
-
 // 1. Required files exist
 [
   "index.html",
@@ -297,6 +276,27 @@ const subscribeEmailJs = read("netlify/functions/subscribe-email.js");
 const verifyCheckoutJs = read("netlify/functions/verify-checkout.js");
 const swJs = read("sw.js");
 const appLanguageJs = read("app-language.js");
+
+// Rewrite suggestions must be evidence-based and preserve the sender's substantive words.
+const rewriteStart = indexHtml.indexOf("function rewriteMessage(raw, receipt, analysis)");
+const rewriteEnd = indexHtml.indexOf("/* ── SAVE / LOAD ── */", rewriteStart);
+try {
+  const rewriteSource = rewriteStart >= 0 && rewriteEnd > rewriteStart ? indexHtml.slice(rewriteStart, rewriteEnd).trim() : "";
+  const rewriteMessage = rewriteSource ? new Function("return (" + rewriteSource + ");")() : null;
+  const signal = [{ id: "softener-frustration" }];
+  const enRewrite = rewriteMessage && rewriteMessage("No worries. I'm honestly tired of this.", null, { supported: true, language: "en", signals: signal });
+  const esRewrite = rewriteMessage && rewriteMessage("No pasa nada, pero estoy cansada de ser la única que avisa.", null, { supported: true, language: "es", signals: signal });
+  const frRewrite = rewriteMessage && rewriteMessage("Pas de souci. Comme d’habitude, je vais le faire moi-même.", null, { supported: true, language: "fr", signals: [{ id: "polite-resentment" }] });
+  if (enRewrite === "I'm honestly tired of this." && esRewrite === "Estoy cansada de ser la única que avisa." &&
+      frRewrite === "Comme d’habitude, je vais le faire moi-même.") pass("supported rewrites only remove the minimizing opener and retain the draft's content");
+  else fail("supported rewrite changed substantive meaning or was not specific");
+  const invented = rewriteMessage && rewriteMessage("No te preocupes por mí. Siempre haces lo mismo.", null,
+    { supported: true, language: "es", signals: [{ id: "absolute-blame" }] });
+  if (invented === "") pass("unrelated concerns do not receive a generic invented rewrite");
+  else fail("unrelated concern received a generic rewrite");
+} catch (error) {
+  fail("rewrite safety validation threw: " + error.message);
+}
 
 // App language is a local UI preference, independent of draft analysis.
 if (appLanguageJs.includes('"sr_app_language"') &&
