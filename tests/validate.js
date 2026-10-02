@@ -298,6 +298,32 @@ try {
   fail("rewrite safety validation threw: " + error.message);
 }
 
+// The analysis must describe observable wording and preserve uncertainty about intent.
+const verdictStart = indexHtml.indexOf("function getVerdict(a, feeling, scenario)");
+const verdictEnd = indexHtml.indexOf("/* ── BUILD RECEIPT ── */", verdictStart);
+try {
+  const verdictSource = verdictStart >= 0 && verdictEnd > verdictStart ? indexHtml.slice(verdictStart, verdictEnd).trim() : "";
+  const getVerdict = verdictSource ? new Function("return (" + verdictSource + ");")() : null;
+  const silenceVerdict = getVerdict && getVerdict({ silence: true }, "Anxious", "Date");
+  const warmVerdict = getVerdict && getVerdict({ positive: true }, "Confused", "Date");
+  const replyVerdict = getVerdict && getVerdict({ oneWord: true }, "Confused", "DM / Text");
+  if (silenceVerdict === "There is no reply yet. The reason is not clear from this alone." &&
+      warmVerdict === "The wording sounds warm. One message cannot confirm someone's level of interest." &&
+      replyVerdict === "The reply is brief, so there is little wording to interpret.") {
+    pass("analysis verdicts describe wording and keep intent uncertain");
+  } else {
+    fail("analysis verdicts overstate what the wording can establish");
+  }
+  if (appLanguageJs.includes('"There is no reply yet. The reason is not clear from this alone.": "Aún no hay respuesta. Esto por sí solo no permite saber el motivo."') &&
+      appLanguageJs.includes('"The wording sounds warm. One message cannot confirm someone\'s level of interest."')) {
+    pass("calibrated analysis copy is available in Spanish");
+  } else {
+    fail("calibrated analysis copy is missing Spanish translations");
+  }
+} catch (error) {
+  fail("analysis verdict validation threw: " + error.message);
+}
+
 // App language is a local UI preference, independent of draft analysis.
 if (appLanguageJs.includes('"sr_app_language"') &&
     appLanguageJs.includes('localStorage.setItem(KEY, lang)') &&
