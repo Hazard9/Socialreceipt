@@ -414,7 +414,7 @@ test("11. text must be confirmed before a screenshot can be analyzed", async ({ 
 test("11b. email capture is visible from the home screen", async ({ page }) => {
   await skipToApp(page);
   await expect(page.locator("#homeEmailCaptureCard")).toBeVisible();
-  await expect(page.locator("#homeEmailCaptureCard")).toContainText("Add my email");
+  await expect(page.locator("#homeEmailCaptureCard")).toContainText("Join the email list");
   await page.click("#homeEmailCaptureCard button");
   await expect(page.locator("#emailModal")).toBeVisible();
   await expect(page.locator("#emailInput")).toBeVisible();
