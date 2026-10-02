@@ -485,15 +485,16 @@ if (!secretFound) pass("no committed Stripe/Kit secrets found in scanned files")
 });
 
 // All navigation anchors must be crawlable links, not click-only anchors.
-const nonCrawlableAnchors = [...indexHtml.matchAll(/<a\\b(?![^>]*\\bhref\\s*=)[^>]*>/gi)];
+const indexAnchors = [...indexHtml.matchAll(/<a\b[^>]*>/gi)];
+const nonCrawlableAnchors = indexAnchors.filter((match) => !/\bhref\s*=/.test(match[0]));
 if (nonCrawlableAnchors.length === 0) pass("index.html has no click-only, non-crawlable anchors");
 else fail("index.html contains " + nonCrawlableAnchors.length + " anchor(s) without href");
 
 // Public discovery files must describe only same-origin public pages.
 const robotsTxt = read("robots.txt");
 const sitemapXml = read("sitemap.xml");
-const sitemapUrls = [...sitemapXml.matchAll(/<loc>(https:\\/\\/[^<]+)<\\/loc>/g)].map((m) => m[1]);
-if (/^User-agent: \\*/m.test(robotsTxt) && /Sitemap: https:\\/\\/socialreceipt\\.netlify\\.app\\/sitemap\\.xml/.test(robotsTxt) &&
+const sitemapUrls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+if (/^User-agent: \*/m.test(robotsTxt) && /Sitemap: https:\/\/socialreceipt\.netlify\.app\/sitemap\.xml/.test(robotsTxt) &&
     /<urlset[ >]/.test(sitemapXml) && sitemapUrls.length >= 1 &&
     sitemapUrls.every((url) => url.startsWith("https://socialreceipt.netlify.app/"))) {
   pass("robots.txt and sitemap.xml expose public same-origin pages");
