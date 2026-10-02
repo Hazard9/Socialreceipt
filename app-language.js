@@ -379,7 +379,17 @@
     "Join the email list for product news and practical communication tips. Your message text is not included.": "Únete a la lista de correo para recibir novedades y consejos prácticos de comunicación. El texto de tus mensajes no se incluye.",
     "Join the email list": "Unirme a la lista de correo",
     "Your saved receipts stay in this browser. Your email is used for Social Receipt updates.": "Tus análisis guardados permanecen en este navegador. Tu correo se usa para enviarte novedades de Social Receipt.",
-    "You’re subscribed to Social Receipt updates. Your receipts remain saved in this browser.": "Ya recibes novedades de Social Receipt. Tus análisis siguen guardados en este navegador."
+    "You’re subscribed to Social Receipt updates. Your receipts remain saved in this browser.": "Ya recibes novedades de Social Receipt. Tus análisis siguen guardados en este navegador.",
+    "Summary with wording to review": "Resumen con aspectos de redacción para revisar",
+    "Things to avoid": "Aspectos que conviene evitar",
+    "Possible context to consider": "Posible contexto para tener en cuenta",
+    "More detail and suggestions": "Más detalles y sugerencias",
+    "Message rewrite suggestions": "Sugerencias para reescribir mensajes",
+    "Review a message without extra context": "Revisa un mensaje sin contexto adicional",
+    "Your communication patterns": "Tus patrones de comunicación",
+    "Waiting may be the clearest next step.": "Esperar puede ser el siguiente paso más claro.",
+    "GET SOCIAL RECEIPT UPDATES.": "RECIBE NOVEDADES DE SOCIAL RECEIPT.",
+    "Join the email list for product news and communication tips. Your receipts stay in this browser, and message text is not included.": "Únete a la lista para recibir novedades y consejos de comunicación. Tus análisis permanecen en este navegador y no se incluye el texto de tus mensajes."
   });
   Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
   window.SRLanguage = { get: get, set: choose, apply: apply };
