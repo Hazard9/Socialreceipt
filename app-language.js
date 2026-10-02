@@ -373,7 +373,13 @@
     "Check a message before I send it": "Revisa un mensaje antes de enviarlo",
     "Review how your wording may come across.": "Revisa cómo podría interpretarse tu mensaje.",
     "Compare plans": "Comparar planes",
-    "Paste the message you want help with.": "Pega el mensaje con el que necesitas ayuda."
+    "Paste the message you want help with.": "Pega el mensaje con el que necesitas ayuda.",
+    "Optional email signup": "Registro opcional por correo",
+    "Get Social Receipt updates": "Recibe novedades de Social Receipt",
+    "Join the email list for product news and practical communication tips. Your message text is not included.": "Únete a la lista de correo para recibir novedades y consejos prácticos de comunicación. El texto de tus mensajes no se incluye.",
+    "Join the email list": "Unirme a la lista de correo",
+    "Your saved receipts stay in this browser. Your email is used for Social Receipt updates.": "Tus análisis guardados permanecen en este navegador. Tu correo se usa para enviarte novedades de Social Receipt.",
+    "You’re subscribed to Social Receipt updates. Your receipts remain saved in this browser.": "Ya recibes novedades de Social Receipt. Tus análisis siguen guardados en este navegador."
   });
   Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
   window.SRLanguage = { get: get, set: choose, apply: apply };
