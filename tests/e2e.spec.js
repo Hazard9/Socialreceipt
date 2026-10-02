@@ -54,7 +54,7 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await expect(page.locator("#presendLanguage")).toHaveValue("es");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
   await expect(page).toHaveTitle("Social Receipt | Revisa un mensaje antes de enviarlo");
-  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega exactamente lo que ibas a enviar. No lo edites. El análisis es más preciso con el texto original.");
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega el mensaje con el que necesitas ayuda.");
 
   await page.click('[data-sr-app-language]');
   await page.locator('#srLanguageChooser button[data-lang="en"]').click();
@@ -109,7 +109,7 @@ test("2. starting Free opens the message check without a multi-screen onboarding
   await expect(page.locator("#onboarding")).toBeHidden();
   await expect(page.locator("#createScreen")).toBeVisible();
   await expect(page.locator("#presendText")).toBeVisible();
-  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", /message/i);
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", /Paste the message/i);
 });
 
 async function skipToApp(page) {
