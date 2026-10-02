@@ -97,9 +97,10 @@
   Object.assign(translations, {
     "Pre-Send Check": "Revisión antes de enviar",
     "Before you hit send.": "Antes de enviar.",
-    "A rewrite is one option to compare. Check that it keeps your meaning before using it.": "Una reescritura es una opción para comparar. Antes de usarla, comprueba que conserve lo que quieres decir.",
+    "A rewrite is one option to compare. Check that it keeps your meaning before using it.": "Compara esta versión con tu borrador y comprueba que conserve lo que quieres decir.",
     "See a rewrite suggestion →": "Ver una sugerencia de reescritura →"
   });
+  Object.assign(translations, { "Possible wording signals": "Posibles señales en la redacción", "Compare another wording option.": "Compara otra opción de redacción." });
   var reverse = {};
   Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
   function get() {
@@ -123,12 +124,12 @@
       match = trimmed.match(/^Possible message moves:\s*(.+)$/);
       if (match) {
         var hints = {
-          "Clarifier-style explanation": "Enfoque para aclarar",
-          "Boundary Protector-style limit": "Enfoque para expresar un límite",
-          "Reassurance Seeker-style request": "Enfoque para pedir tranquilidad",
-          "Conflict Resolver-style repair": "Enfoque para reparar la conversación"
+          "Clarifier-style explanation": "Aclarar el contexto",
+          "Boundary Protector-style limit": "Establecer un límite",
+          "Reassurance Seeker-style request": "Buscar tranquilidad",
+          "Conflict Resolver-style repair": "Reparar el diálogo"
         };
-        target = "Posibles enfoques de comunicación: " + match[1].split(/,\s*/).map(function (hint) { return hints[hint] || hint; }).join(", ");
+        target = "Posibles enfoques: " + match[1].split(/,\s*/).map(function (hint) { return hints[hint] || hint; }).join(", ");
       }
       match = trimmed.match(/^\$9\/mo\s*·\s*\$39 lifetime$/);
       if (match) target = "$9/mes · $39 de por vida";
