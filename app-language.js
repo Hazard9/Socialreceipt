@@ -149,6 +149,10 @@
     "PATTERN INSIGHT": "ANÁLISIS DE PATRONES",
     "Create your first receipt to start building your behavioral profile.": "Crea tu primer análisis para empezar a formar tu perfil de comunicación.",
     "REFLEXION SEMANAL": "REFLEXIÓN SEMANAL",
+    "Weekly reflection": "Reflexión semanal",
+    "Keep your progress": "CONSERVA TU PROGRESO",
+    "Save your receipts and get your next read.": "GUARDA TUS ANÁLISIS Y RECIBE TU PRÓXIMA LECTURA.",
+    "📷 Screenshot": "📷 Captura",
     "Pruebalo": "Pruébalo",
     "Conclusion y senales": "Conclusiones y señales"
   });
@@ -218,6 +222,21 @@
     node.__srTranslatedText = target;
     node.nodeValue = value.slice(0, start) + target + value.slice(start + trimmed.length);
   }
+  function translateAttributes(root, lang) {
+    var selector = "[placeholder],[title],[aria-label],[alt]";
+    var elements = [];
+    if (root.nodeType === 1 && root.matches(selector)) elements.push(root);
+    if (root.querySelectorAll) root.querySelectorAll(selector).forEach(function (el) { elements.push(el); });
+    elements.forEach(function (el) {
+      ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (!value) return;
+        var trimmed = value.trim();
+        var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
+        if (target) el.setAttribute(attr, value.replace(trimmed, target));
+      });
+    });
+  }
   function apply(lang) {
     document.documentElement.lang = lang;
     var pageTitle = document.title;
@@ -232,15 +251,7 @@
     var nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(function (node) { translateNode(node, lang); });
-    document.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(function (el) {
-      ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
-        var value = el.getAttribute(attr);
-        if (!value) return;
-        var trimmed = value.trim();
-        var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
-        if (target) el.setAttribute(attr, value.replace(trimmed, target));
-      });
-    });
+    translateAttributes(document, lang);
   }
   function choose(lang) {
     try { localStorage.setItem(KEY, lang); } catch (e) {}
@@ -290,6 +301,7 @@
             var nodes = [];
             while (walker.nextNode()) nodes.push(walker.currentNode);
             nodes.forEach(function (textNode) { translateNode(textNode, current); });
+            translateAttributes(node, current);
           }
         });
       });
