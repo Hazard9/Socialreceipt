@@ -1469,24 +1469,24 @@ function buildWhySignals(a, feeling) {
 }
 
 function getVerdict(a, feeling, scenario) {
-  if(a.silence)                           return "Silence is the signal. Don't overwrite it.";
-  if(a.highIntent&&!a.positive)           return "You're over-investing. They're not matching you.";
-  if(a.highIntent&&a.delay)              return "Interest is there... but you're about to lose leverage.";
-  if(a.oneWord&&!a.positive)             return "They stayed polite. Not invested.";
-  if(a.overExplain)                       return "You're explaining. They stopped listening.";
-  if(a.conflict&&feeling==="Annoyed")    return "You're still activated. Don't send anything yet.";
-  if(a.conflict)                          return "This needed space. You almost overplayed it.";
-  if(a.delay&&feeling==="Anxious")       return "The delay feels like rejection. It likely is not. Yet.";
-  if(a.delay)                             return "The gap is information. Don't fill it.";
-  if(feeling==="Rejected"&&!a.positive)  return "Acting from rejection makes the read self-fulfilling.";
-  if(a.positive&&scenario==="Date")      return "The signal is warm. Stop second-guessing it.";
-  if(a.positive)                          return "This is working. The risk is over-managing it.";
-  if(scenario==="Sales / Client"&&a.delay) return "They went quiet. One more move. Then move on.";
-  if(scenario==="Sales / Client")         return "Interest is unconfirmed. Your next move tests it.";
-  if(scenario==="Work")                   return "Keep this professional. Emotion doesn't live here.";
-  if(feeling==="Anxious")                 return "Your read is anxious, not accurate. Wait 12 hours.";
-  if(feeling==="Confused")                return "The ambiguity is theirs, not yours. One move creates clarity.";
-  return "The next move matters more than the read. Make it count.";
+  if (a.silence) return "There is no reply yet. The reason is not clear from this alone.";
+  if (a.highIntent && !a.positive) return "Your draft uses a lot of effort, but this exchange gives little context about the other person's view.";
+  if (a.highIntent && a.delay) return "There is a gap in the exchange. This wording cannot show what the other person intends.";
+  if (a.oneWord && !a.positive) return "The reply is brief, so there is little wording to interpret.";
+  if (a.overExplain) return "This draft includes several points. A shorter version may be easier to follow.";
+  if (a.conflict && feeling === "Annoyed") return "This exchange sounds tense. Waiting until you feel settled may help.";
+  if (a.conflict) return "This exchange sounds tense. Consider a short pause before responding.";
+  if (a.delay && feeling === "Anxious") return "A delay can feel unsettling, but it does not tell us why they have not replied.";
+  if (a.delay) return "There is a gap in the conversation. The reason is unclear.";
+  if (feeling === "Rejected" && !a.positive) return "It may help to pause before replying from a feeling of rejection.";
+  if (a.positive && scenario === "Date") return "The wording sounds warm. One message cannot confirm someone's level of interest.";
+  if (a.positive) return "The wording reads positively, though context matters.";
+  if (scenario === "Sales / Client" && a.delay) return "There has been a delay. If you follow up, keep it brief; the reason for the delay is unknown.";
+  if (scenario === "Sales / Client") return "The other person's interest is unclear from this exchange. A clear question may help.";
+  if (scenario === "Work") return "Keep the message clear and professional. This read cannot tell us how it was received.";
+  if (feeling === "Anxious") return "The message feels uncertain to you. That feeling alone does not tell us how it was received.";
+  if (feeling === "Confused") return "Some context is missing. A clear question may help, but the wording cannot resolve every uncertainty.";
+  return "Consider the context, then choose a response that fits your goal.";
 }
 
 /* ── BUILD RECEIPT ── */
@@ -1504,7 +1504,7 @@ function buildReceipt(rawText) {
   var message="Hey. I am around whenever you want to pick this back up.";
   var timing="Tomorrow morning";
 
-  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="They read the message and chose not to respond yet. More from you does not change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);}
+  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="There is no reply yet. We cannot tell from this alone whether they saw the message or why they have not answered.";dont="Consider waiting before sending another message. A lack of reply does not explain why they have not answered.";next="Choose how long you are comfortable waiting. If you follow up, keep it brief and clear.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);}
   if(scenario==="Work"||a.professional){interest="Professional";energy="Work dynamic";risk="Low";momentum="Stable";bestMove="Follow up clearly";hidden="Workplace tension resolves faster when you stay neutral and document clearly.";dont="Do not make this personal in writing. Tone in email is permanent.";next="Send one short, professional follow-up. Move the action forward without emotional weight.";message="Hi. Just wanted to follow up. Happy to connect briefly.";timing="Within business hours";}
   if(scenario==="Sales / Client"||a.sales){interest="Evaluating";energy="Client-paced";risk="Medium";momentum="Pending";bestMove="Soft close";hidden="Silence from a client usually means they are deciding, not decided against.";dont="Do not send a second follow-up before the first one has had time to land.";next="One short message. Clear and easy next step. Then hold.";message="Hey. Just checking in. Happy to answer questions or jump on a quick call.";timing="24-48 hours";}
   if(scenario==="Conflict"||a.conflict){interest="Unclear";energy="Tense";risk="High";momentum="Stalled";bestMove="Create space";hidden="In conflict, they need to feel heard before they can respond calmly.";dont="Do not try to win this over text. The channel is too low for this conversation.";next="Give this 24 hours. Then one sentence acknowledging their position, not defending yours.";message="I hear you. I do not want to make this worse over text. Let's come back to it calmly.";timing="24 hours minimum";}
