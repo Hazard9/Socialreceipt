@@ -101,6 +101,57 @@
     "See a rewrite suggestion →": "Ver una sugerencia de reescritura →"
   });
   Object.assign(translations, { "Possible wording signals": "Posibles señales en la redacción", "Compare another wording option.": "Compara otra opción de redacción." });
+  Object.assign(translations, {
+    "They replied with two words.": "Te respondió con dos palabras.",
+    "About to send a long message.": "Estás por enviar un mensaje largo.",
+    "Start Free. Try Now.": "Empieza gratis. Pruébalo ahora.",
+    "Take 30 seconds. No sign-up. No data stored.": "Solo toma 30 segundos. No necesitas registrarte. No guardamos tus datos.",
+    "Verdict + signal cards": "Conclusiones y señales",
+    "Am I overthinking this?": "¿Le estoy dando demasiadas vueltas?",
+    "What are you trying to do?": "¿Qué quieres hacer?",
+    "Choose a goal (optional)": "Elige un objetivo (opcional)",
+    "Set a boundary": "Establecer un límite",
+    "Repair after a disagreement": "Reparar después de un desacuerdo",
+    "Clarify something": "Aclarar algo",
+    "Make a request": "Hacer una petición",
+    "Decline": "Rechazar",
+    "Pause or close the conversation": "Hacer una pausa o cerrar la conversación",
+    "What is the situation?": "¿Cuál es la situación?",
+    "Not sure / skip": "No estoy seguro / omitir",
+    "This follows a disagreement": "Esto ocurre después de un desacuerdo",
+    "Routine conversation": "Conversación cotidiana",
+    "English": "Inglés",
+    "Auto-detect": "Detectar automáticamente",
+    "French": "Francés",
+    "Français": "Francés",
+    "Some wording is quoted from someone else": "Parte del texto citado pertenece a otra persona",
+    "English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.": "Hay paquetes de frases en inglés, español y francés; en otros idiomas, el resultado será «no está claro». Tu objetivo y la situación ayudan a contextualizar la explicación. El texto entre comillas que marques se excluye de la búsqueda de frases. Esto no demuestra la intención.",
+    "Talk to text for your message": "Dictar mensaje",
+    "Talk to text for your interaction": "Dictar interacción",
+    "Check This Message": "Revisar este mensaje",
+    "Log one real interaction this week. The value compounds when you return to see what happened.": "Registra una interacción real esta semana. Lo que aprendes se acumula cuando vuelves a ver qué ocurrió.",
+    "Start this week’s first read": "Haz la primera lectura de esta semana",
+    "KEEP YOUR PROGRESS": "CONSERVA TU PROGRESO",
+    "SAVE YOUR RECEIPTS AND GET YOUR NEXT READ.": "GUARDA TUS ANÁLISIS Y RECIBE TU PRÓXIMA LECTURA.",
+    "Add your email to keep your profile linked on this device and receive Social Receipt updates. Your message text stays private.": "Añade tu correo electrónico para vincular tu perfil a este dispositivo y recibir novedades de Social Receipt. El texto de tus mensajes sigue siendo privado.",
+    "Add my email": "Añadir mi correo",
+    "Create one after your next uncertain interaction.": "Crea uno después de tu próxima interacción incierta.",
+    "Not attributed": "Sin atribución",
+    "This is visit context only. It does not expose anyone else’s data.": "Esto solo muestra el contexto de la visita. No expone datos de otras personas.",
+    "PLATFORM": "PLATAFORMA",
+    "CAMPAIGN": "CAMPAÑA",
+    "CONTENT ID": "ID DEL CONTENIDO",
+    "SERIES": "SERIE",
+    "HOOK": "GANCHO",
+    "EXPERIMENT": "EXPERIMENTO",
+    "direct": "directo",
+    "not set": "sin definir",
+    "PATTERN INSIGHT": "ANÁLISIS DE PATRONES",
+    "Create your first receipt to start building your behavioral profile.": "Crea tu primer análisis para empezar a formar tu perfil de comunicación.",
+    "REFLEXION SEMANAL": "REFLEXIÓN SEMANAL",
+    "Pruebalo": "Pruébalo",
+    "Conclusion y senales": "Conclusiones y señales"
+  });
   var reverse = {};
   Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
   function get() {
@@ -112,6 +163,8 @@
     var el = node.parentElement;
     if (!el) return true;
     if (el.closest(".presend-match")) return false;
+    if (el.closest("#historyList .empty-state")) return false;
+    if (el.closest("option")) return false;
     if (el.closest("script,style,textarea,input,select,option,[contenteditable='true'],[data-user-content],#historyList,#presendText,#coldText,#interactionText,.message-box,.decision-compare,.presend-match,.presend-rewrite-box,.presend-diagnosis,.presend-signal,.pattern-callout-text,.pattern-callout-sub,.presend-context-reading p,.transcript-line,.transcript-text,.tl-quote,.flag-evidence,#draftBox,[data-user-content]")) return true;
     return false;
   }
@@ -119,6 +172,12 @@
     var trimmed = value.trim();
     var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
     if (!target && lang === "es") {
+      var match = trimmed.match(/^QUESTION (\d+) OF 7$/);
+      if (match) target = "PREGUNTA " + match[1] + " DE 7";
+      match = trimmed.match(/^Tracked funnel events:\s*(.+)$/);
+      if (match) target = "Eventos del embudo registrados: " + match[1];
+      match = trimmed.match(/^\/mo$/);
+      if (match) target = "/mes";
       var match = trimmed.match(/^Matched wording:\s*(.+)$/);
       if (match) target = "Frases detectadas: " + match[1];
       match = trimmed.match(/^Possible message moves:\s*(.+)$/);
