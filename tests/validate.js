@@ -482,6 +482,21 @@ if (!secretFound) pass("no committed Stripe/Kit secrets found in scanned files")
   else fail("index.html is missing meta tag: " + tag);
 });
 
+// Canonical URL and share preview should be crawler-ready and dimension-checked.
+const canonicalUrl = indexHtml.match(/<link rel="canonical" href="([^"]+)"/i);
+const ogImage = indexHtml.match(/<meta property="og:image" content="([^"]+)"/i);
+const twitterCard = indexHtml.match(/<meta name="twitter:card" content="([^"]+)"/i);
+const imageBytes = fs.readFileSync(path.join(ROOT, "social-preview.png"));
+const imageIsPng = imageBytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+if (canonicalUrl && canonicalUrl[1] === "https://socialreceipt.netlify.app/" &&
+    ogImage && ogImage[1] === "https://socialreceipt.netlify.app/social-preview.png" &&
+    twitterCard && twitterCard[1] === "summary_large_image" &&
+    imageIsPng && imageBytes.readUInt32BE(16) === 1200 && imageBytes.readUInt32BE(20) === 630) {
+  pass("canonical URL and Open Graph/Twitter preview point to the 1200x630 PNG");
+} else {
+  fail("canonical URL, social image, card type, or 1200x630 image dimensions are incorrect");
+}
+
 const viewportMeta = indexHtml.match(/<meta name="viewport" content="([^"]+)"/i);
 if (!viewportMeta) {
   fail("index.html is missing its viewport meta tag");
