@@ -126,6 +126,7 @@
     "Français": "Francés",
     "Some wording is quoted from someone else": "Parte del texto citado pertenece a otra persona",
     "English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.": "Hay paquetes de frases en inglés, español y francés; en otros idiomas, el resultado será «no está claro». Tu objetivo y la situación ayudan a contextualizar la explicación. El texto entre comillas que marques se excluye de la búsqueda de frases. Esto no demuestra la intención.",
+    "🎤 Talk to text": "🎤 Dictar",
     "Talk to text for your message": "Dictar mensaje",
     "Talk to text for your interaction": "Dictar interacción",
     "Check This Message": "Revisar este mensaje",
