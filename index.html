@@ -2725,7 +2725,7 @@ function ensureEmailCaptureCard() {
   card.id = "homeEmailCaptureCard";
   card.className = "detail-card";
   card.style.cssText = "margin:0 0 12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.02))";
-  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Keep your progress</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Save your receipts and get your next read.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Join the email list for product news and communication tips. Your receipts stay in this browser, and message text is not included.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Add my email</button>";
+  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Get email updates</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Get Social Receipt updates.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Join the email list for product news and communication tips. Your receipts stay in this browser, and message text is not included.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Join the email list</button>";
   if (recent) recent.parentNode.insertBefore(card, recent);
   else home.appendChild(card);
 }
