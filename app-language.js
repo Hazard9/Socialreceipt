@@ -101,6 +101,74 @@
     "See a rewrite suggestion →": "Ver una sugerencia de reescritura →"
   });
   Object.assign(translations, { "Possible wording signals": "Posibles señales en la redacción", "Compare another wording option.": "Compara otra opción de redacción." });
+  Object.assign(translations, {
+    "They replied with two words.": "Te respondió con dos palabras.",
+    "About to send a long message.": "Estás por enviar un mensaje largo.",
+    "Start Free. Try Now.": "Empieza gratis. Pruébalo ahora.",
+    "Take 30 seconds. No sign-up. No data stored.": "Solo toma 30 segundos. No necesitas registrarte. No guardamos tus datos.",
+    "Verdict + signal cards": "Conclusiones y señales",
+    "Am I overthinking this?": "¿Le estoy dando demasiadas vueltas?",
+    "What are you trying to do?": "¿Qué quieres hacer?",
+    "Choose a goal (optional)": "Elige un objetivo (opcional)",
+    "Set a boundary": "Establecer un límite",
+    "Repair after a disagreement": "Reparar después de un desacuerdo",
+    "Clarify something": "Aclarar algo",
+    "Make a request": "Hacer una petición",
+    "Decline": "Rechazar",
+    "Pause or close the conversation": "Hacer una pausa o cerrar la conversación",
+    "What is the situation?": "¿Cuál es la situación?",
+    "Not sure / skip": "No lo sé / omitir",
+    "This follows a disagreement": "Esto ocurre después de un desacuerdo",
+    "Routine conversation": "Conversación cotidiana",
+    "English": "Inglés",
+    "Auto-detect": "Detectar automáticamente",
+    "French": "Francés",
+    "Français": "Francés",
+    "Some wording is quoted from someone else": "Parte del texto citado pertenece a otra persona",
+    "English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.": "Hay paquetes de frases en inglés, español y francés; en otros idiomas, el resultado será «no está claro». Tu objetivo y la situación ayudan a contextualizar la explicación. El texto entre comillas que marques se excluye de la búsqueda de frases. Esto no demuestra la intención.",
+    "Talk to text for your message": "Dictar mensaje",
+    "Talk to text for your interaction": "Dictar interacción",
+    "Check This Message": "Revisar este mensaje",
+    "Log one real interaction this week. The value compounds when you return to see what happened.": "Registra una interacción real esta semana. Lo que aprendes se acumula cuando vuelves a ver qué ocurrió.",
+    "Start this week’s first read": "Haz la primera lectura de esta semana",
+    "KEEP YOUR PROGRESS": "CONSERVA TU PROGRESO",
+    "SAVE YOUR RECEIPTS AND GET YOUR NEXT READ.": "GUARDA TUS ANÁLISIS Y RECIBE TU PRÓXIMA LECTURA.",
+    "Add your email to keep your profile linked on this device and receive Social Receipt updates. Your message text stays private.": "Agrega tu correo electrónico para vincular tu perfil a este dispositivo y recibir novedades de Social Receipt. El texto de tus mensajes sigue siendo privado.",
+    "Add my email": "Añadir mi correo",
+    "Create one after your next uncertain interaction.": "Crea uno después de tu próxima interacción incierta.",
+    "Not attributed": "Sin atribución",
+    "This is visit context only. It does not expose anyone else’s data.": "Esto solo muestra el contexto de la visita. No expone datos de otras personas.",
+    "PLATFORM": "PLATAFORMA",
+    "CAMPAIGN": "CAMPAÑA",
+    "CONTENT ID": "ID DEL CONTENIDO",
+    "SERIES": "SERIE",
+    "HOOK": "GANCHO",
+    "EXPERIMENT": "EXPERIMENTO",
+    "direct": "directo",
+    "not set": "sin definir",
+    "PATTERN INSIGHT": "ANÁLISIS DE PATRONES",
+    "Create your first receipt to start building your behavioral profile.": "Crea tu primer análisis para empezar a formar tu perfil de comunicación.",
+    "REFLEXION SEMANAL": "REFLEXIÓN SEMANAL",
+    "Weekly reflection": "Reflexión semanal",
+    "Keep your progress": "CONSERVA TU PROGRESO",
+    "Save your receipts and get your next read.": "GUARDA TUS ANÁLISIS Y RECIBE TU PRÓXIMA LECTURA.",
+    "📷 Screenshot": "📷 Captura",
+    "Platform": "Plataforma",
+    "Campaign": "Campaña",
+    "Content ID": "ID del contenido",
+    "Series": "Serie",
+    "Hook": "Gancho",
+    "Experiment": "Experimento",
+    "Pattern Insight": "Análisis de patrones",
+    "Weekly reflection": "Reflexión semanal",
+    "Keep your progress": "Conserva tu progreso",
+    "Save your receipts and get your next read.": "Guarda tus análisis y recibe tu próxima lectura.",
+    "Takes 30 seconds. No sign-up. No data stored.": "Solo toma 30 segundos. No necesitas registrarte. No guardamos tus datos.",
+    "Keep tone clean and professional.": "Mantén un tono claro y profesional.",
+    "Know when to follow up or hold.": "Decide cuándo dar seguimiento o esperar.",
+    "Pruebalo": "Pruébalo",
+    "Conclusion y senales": "Conclusiones y señales"
+  });
   var reverse = {};
   Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
   function get() {
@@ -112,6 +180,8 @@
     var el = node.parentElement;
     if (!el) return true;
     if (el.closest(".presend-match")) return false;
+    if (el.closest("#historyList .empty-state")) return false;
+    if (el.closest("option")) return false;
     if (el.closest("script,style,textarea,input,select,option,[contenteditable='true'],[data-user-content],#historyList,#presendText,#coldText,#interactionText,.message-box,.decision-compare,.presend-match,.presend-rewrite-box,.presend-diagnosis,.presend-signal,.pattern-callout-text,.pattern-callout-sub,.presend-context-reading p,.transcript-line,.transcript-text,.tl-quote,.flag-evidence,#draftBox,[data-user-content]")) return true;
     return false;
   }
@@ -119,7 +189,13 @@
     var trimmed = value.trim();
     var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
     if (!target && lang === "es") {
-      var match = trimmed.match(/^Matched wording:\s*(.+)$/);
+      var match = trimmed.match(/^Question (\d+) of 7$/i);
+      if (match) target = "PREGUNTA " + match[1] + " DE 7";
+      match = trimmed.match(/^Tracked funnel events:\s*(.+)$/);
+      if (match) target = "Eventos del embudo registrados: " + match[1];
+      match = trimmed.match(/^\/mo$/);
+      if (match) target = "/mes";
+      match = trimmed.match(/^Matched wording:\s*(.+)$/);
       if (match) target = "Frases detectadas: " + match[1];
       match = trimmed.match(/^Possible message moves:\s*(.+)$/);
       if (match) {
@@ -159,6 +235,21 @@
     node.__srTranslatedText = target;
     node.nodeValue = value.slice(0, start) + target + value.slice(start + trimmed.length);
   }
+  function translateAttributes(root, lang) {
+    var selector = "[placeholder],[title],[aria-label],[alt]";
+    var elements = [];
+    if (root.nodeType === 1 && root.matches(selector)) elements.push(root);
+    if (root.querySelectorAll) root.querySelectorAll(selector).forEach(function (el) { elements.push(el); });
+    elements.forEach(function (el) {
+      ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (!value) return;
+        var trimmed = value.trim();
+        var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
+        if (target) el.setAttribute(attr, value.replace(trimmed, target));
+      });
+    });
+  }
   function apply(lang) {
     document.documentElement.lang = lang;
     var pageTitle = document.title;
@@ -173,15 +264,7 @@
     var nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(function (node) { translateNode(node, lang); });
-    document.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(function (el) {
-      ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
-        var value = el.getAttribute(attr);
-        if (!value) return;
-        var trimmed = value.trim();
-        var target = lang === "es" ? translations[trimmed] : reverse[trimmed];
-        if (target) el.setAttribute(attr, value.replace(trimmed, target));
-      });
-    });
+    translateAttributes(document, lang);
   }
   function choose(lang) {
     try { localStorage.setItem(KEY, lang); } catch (e) {}
@@ -196,7 +279,17 @@
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-labelledby", "srLanguageTitle");
-    overlay.innerHTML = '<div class="sr-language-card"><p class="sr-language-brand">SOCIAL RECEIPT</p><h2 id="srLanguageTitle">Choose your language / Elige tu idioma</h2><p class="sr-language-note">You can change this anytime. Your messages stay on this device.<br>Puedes cambiarlo cuando quieras. Tus mensajes permanecen en este dispositivo.</p><button type="button" data-lang="en">English</button><button type="button" data-lang="es">Español</button></div>';
+    var currentLanguage = get() || "en";
+    var chooserTitle = firstRun ? "Choose your language / Elige tu idioma" : currentLanguage === "es" ? "Elige tu idioma" : "Choose your language";
+    var chooserNote = firstRun
+      ? "You can change this anytime. Your messages stay on this device.<br>Puedes cambiarlo cuando quieras. Tus mensajes permanecen en este dispositivo."
+      : currentLanguage === "es"
+        ? "Puedes cambiarlo cuando quieras. Tus mensajes permanecen en este dispositivo."
+        : "You can change this anytime. Your messages stay on this device.";
+    var englishName = currentLanguage === "es" ? "Inglés" : "English";
+    var spanishName = currentLanguage === "es" ? "Español" : "Spanish";
+    if (firstRun) spanishName = "Español";
+    overlay.innerHTML = '<div class="sr-language-card"><p class="sr-language-brand">SOCIAL RECEIPT</p><h2 id="srLanguageTitle">' + chooserTitle + '</h2><p class="sr-language-note">' + chooserNote + '</p><button type="button" data-lang="en">' + englishName + '</button><button type="button" data-lang="es">' + spanishName + '</button></div>';
     var style = document.createElement("style");
     style.id = "srLanguageStyles";
     style.textContent = '#srLanguageChooser{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;font-family:system-ui,-apple-system,sans-serif;color:#f2ece0}#srLanguageChooser .sr-language-card{width:min(100%,420px);background:#171512;border:1px solid rgba(212,170,90,.4);border-radius:20px;padding:26px;box-shadow:0 20px 70px #000}#srLanguageChooser .sr-language-brand{font-size:11px;letter-spacing:.16em;color:#d9b75c;margin:0 0 14px}#srLanguageChooser h2{font-size:26px;margin:0 0 10px;color:#f2ece0}#srLanguageChooser .sr-language-note{color:#b9ad9e;line-height:1.5;margin:0 0 20px}#srLanguageChooser button{display:block;width:100%;margin-top:10px;padding:14px;border:1px solid #51432b;border-radius:12px;background:#211d18;color:#f2ece0;font:600 16px system-ui;cursor:pointer}#srLanguageChooser button:focus{outline:2px solid #d9b75c}[data-sr-app-language]{position:fixed;z-index:1000;top:12px;right:12px;border:1px solid rgba(212,170,90,.5);border-radius:999px;background:#171512;color:#f2ece0;padding:7px 10px;font:600 12px system-ui;cursor:pointer;box-shadow:0 3px 14px #0008}';
@@ -224,6 +317,10 @@
       var current = get();
       if (current !== "es") return;
       records.forEach(function (record) {
+        if (record.type === "characterData") {
+          translateNode(record.target, current);
+          return;
+        }
         record.addedNodes.forEach(function (node) {
           if (node.nodeType === 3) translateNode(node, current);
           else if (node.nodeType === 1) {
@@ -231,13 +328,14 @@
             var nodes = [];
             while (walker.nextNode()) nodes.push(walker.currentNode);
             nodes.forEach(function (textNode) { translateNode(textNode, current); });
+            translateAttributes(node, current);
           }
         });
       });
     });
-    // Observe inserted UI only. Watching characterData also watches our own translations
-    // and can keep the main thread busy when a whole screen is localized.
-    observer.observe(document.body, { childList: true, subtree: true });
+    // Translate inserted UI and in-place status updates. Protected draft text is skipped,
+    // and per-node markers prevent reprocessing our own translated text.
+    observer.observe(document.body, { childList: true, characterData: true, subtree: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
