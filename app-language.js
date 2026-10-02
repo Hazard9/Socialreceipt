@@ -372,7 +372,9 @@
     "Clearer choices before you send.": "Decide con más claridad antes de enviar.",
     "Check a message before I send it": "Revisa un mensaje antes de enviarlo",
     "Review how your wording may come across.": "Revisa cómo podría interpretarse tu mensaje.",
-    "Compare plans": "Comparar planes"
+    "Compare plans": "Comparar planes",
+    "Paste the message you want help with.": "Pega el mensaje con el que necesitas ayuda."
   });
+  Object.keys(translations).forEach(function (en) { reverse[translations[en]] = en; });
   window.SRLanguage = { get: get, set: choose, apply: apply };
 }());
