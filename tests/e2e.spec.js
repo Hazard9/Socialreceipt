@@ -691,3 +691,19 @@ test("25. Spanish unclear result does not get a generic copyable rewrite", async
   await expect(output.locator("#presendRewrite")).toHaveCount(0);
   await expect(output).not.toContainText("Quiero hablar de esto directamente");
 });
+
+// Saved language must receive styles without reopening the chooser.
+test("saved English and Spanish keep the language switcher out of document layout", async ({ page }) => {
+  for (const lang of ["en", "es"]) {
+    await page.goto("/");
+    await page.locator("[data-sr-app-language]").click();
+    await page.locator('#srLanguageChooser button[data-lang="' + lang + '"]').click();
+    await page.reload();
+    const toggle = page.locator("[data-sr-app-language]");
+    await expect(toggle).toHaveText(lang.toUpperCase());
+    await expect(toggle).toHaveCSS("position", "fixed");
+    await expect(page.locator("#srLanguageChooser")).toHaveCount(0);
+    const box = await toggle.boundingBox();
+    expect(box.height).toBeLessThan(60);
+  }
+});
