@@ -41,6 +41,24 @@ test("0a. visible voice controls are translated in Spanish", async ({ page }) =>
   await expect(page.locator(".voice-input-btn").first()).toContainText("🎤 Dictar");
 });
 
+test("0aa. dynamic typing warnings translate and restore without changing the draft", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('.nav-btn[onclick="openPresend()"]');
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  const draft = "Siempre haces lo mismo. Si de verdad quisieras verme, encontrarías tiempo.";
+  await page.locator('#presendText').fill(draft);
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Posible presión en el tono. El contexto importa.');
+  await page.locator('#presendText').fill('Gracias por avisarme.');
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Hace falta más contexto. Esta biblioteca de frases quizá no cubra esta redacción.');
+  await page.locator('#presendText').fill(draft);
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Posible presión en el tono. El contexto importa.');
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="en"]').click();
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Possible wording pressure — context matters');
+  await expect(page.locator('#presendText')).toHaveValue(draft);
+});
+
 test("0b. changing app language leaves the draft and analysis-language choice untouched", async ({ page }) => {
   await skipToApp(page);
   await page.click('.nav-btn[onclick="openPresend()"]');
@@ -53,15 +71,15 @@ test("0b. changing app language leaves the draft and analysis-language choice un
   await expect(page.locator("#presendText")).toHaveValue(draft);
   await expect(page.locator("#presendLanguage")).toHaveValue("es");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
-  await expect(page).toHaveTitle("Social Receipt. Decide antes de enviar.");
-  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega exactamente lo que ibas a enviar. No lo edites. El análisis es más preciso con el texto original.");
+  await expect(page).toHaveTitle("Social Receipt | Revisa un mensaje antes de enviarlo");
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", "Pega el mensaje con el que necesitas ayuda.");
 
   await page.click('[data-sr-app-language]');
   await page.locator('#srLanguageChooser button[data-lang="en"]').click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("#presendText")).toHaveValue(draft);
   await expect(page.locator("#presendLanguage")).toHaveValue("es");
-  await expect(page).toHaveTitle("Social Receipt. Know the move before you send it.");
+  await expect(page).toHaveTitle("Social Receipt | Check a message before you send");
 });
 
 test("0c. Spanish app language localizes Conversation Replay without translating quoted messages", async ({ page }) => {
@@ -96,23 +114,20 @@ test("1. first visit shows the landing screen with pricing and no console errors
   await page.reload();
   await expect(page.locator("#landingScreen")).toBeVisible();
   await expect(page.locator("text=Start Free. Try Now.")).toBeVisible();
-  await expect(page.locator(".landing-example")).toContainText("The strongest move may be to wait.");
+  await expect(page.locator(".landing-example")).toContainText("Waiting may be the clearest next step.");
   await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Pro Monthly'))")).toContainText("$9");
   await expect(page.locator(".pricing-card:has(.pricing-card-name:text-is('Lifetime Beta'))")).toContainText("$39");
   expect(errors).toEqual([]);
 });
 
-test("2. starting Free hides the landing screen and shows the app", async ({ page }) => {
+test("2. starting Free opens the message check without a multi-screen onboarding", async ({ page }) => {
   await page.reload();
   await page.click("text=Start Free. Try Now.");
   await expect(page.locator("#landingScreen")).toBeHidden();
-  await expect(page.locator("#homeScreen")).toBeVisible();
-  await expect(page.locator("#homeScreen")).toContainText("About to send");
-  await expect(page.locator("#homeScreen")).toContainText("Received something");
-  await expect(page.locator("#dailyRitualCard")).toContainText("What are you about to send?");
-  await expect(page.locator("#homeProgressCard")).toContainText("Your progress");
-  await expect(page.locator("#homeReflectionCard")).toContainText("Weekly reflection");
-  await expect(page.locator("#homeReflectionCard")).toContainText("Your week has not started yet.");
+  await expect(page.locator("#onboarding")).toBeHidden();
+  await expect(page.locator("#createScreen")).toBeVisible();
+  await expect(page.locator("#presendText")).toBeVisible();
+  await expect(page.locator("#presendText")).toHaveAttribute("placeholder", /Paste the message/i);
 });
 
 async function skipToApp(page) {
@@ -417,7 +432,7 @@ test("11. text must be confirmed before a screenshot can be analyzed", async ({ 
 test("11b. email capture is visible from the home screen", async ({ page }) => {
   await skipToApp(page);
   await expect(page.locator("#homeEmailCaptureCard")).toBeVisible();
-  await expect(page.locator("#homeEmailCaptureCard")).toContainText("Add my email");
+  await expect(page.locator("#homeEmailCaptureCard")).toContainText("Join the email list");
   await page.click("#homeEmailCaptureCard button");
   await expect(page.locator("#emailModal")).toBeVisible();
   await expect(page.locator("#emailInput")).toBeVisible();
@@ -645,7 +660,38 @@ test("22. selecting a supported language resolves a short ambiguous phrase", asy
 });
 
 
-test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page }) => {
+test("23. Spanish rewrite removes only the minimising opener and keeps the sender's words", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "No pasa nada, pero estoy cansada de ser la única que avisa.");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "es");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("Versión reescrita");
+  await expect(output).toContainText("Estoy cansada de ser la única que avisa.");
+  await expect(output).toContainText("Copiar versión");
+  await expect(output).toContainText("Revisar de nuevo");
+  await expect(output).not.toContainText("Quiero hablar de esto directamente");
+});
+
+test("24. French rewrite removes only the minimising opener and keeps the sender's words", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Pas de souci. Comme d’habitude, je vais le faire moi-même.");
+  await page.locator(".presend-context summary").click();
+  await page.selectOption("#presendLanguage", "fr");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("Version reformulée");
+  await expect(output).toContainText("Comme d’habitude, je vais le faire moi-même.");
+  await expect(output).toContainText("Copier la reformulation");
+  await expect(output).not.toContainText("Je veux aborder cela directement");
+});
+
+test("25. an unrelated Spanish concern does not get an invented rewrite", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
@@ -654,30 +700,13 @@ test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page
   await page.selectOption("#presendLanguage", "es");
   await page.click('button[onclick="runPresend()"]');
   const output = page.locator("#receiptOutput");
-  await expect(output).toContainText("Versión reescrita");
-  await expect(output).toContainText("Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.");
-  await expect(output).toContainText("Copiar versión");
-  await expect(output).toContainText("Revisar de nuevo");
-  await expect(output).not.toContainText("I want to address this directly");
+  await expect(output).toContainText("MEDIO. Posible presión en el tono.");
+  await expect(output).toContainText("No tengo suficiente contexto para sugerir una versión que conserve tu sentido.");
+  await expect(output.locator("#presendRewrite")).toHaveCount(0);
+  await expect(output).not.toContainText("Quiero hablar de esto directamente");
 });
 
-test("24. French Pre-Send rewrite uses French", async ({ page }) => {
-  await skipToApp(page);
-  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
-  await page.click(".panic-btn");
-  await page.fill("#presendText", "Ne t’inquiète pas pour moi. J’en ai marre de devoir demander.");
-  await page.locator(".presend-context summary").click();
-  await page.selectOption("#presendLanguage", "fr");
-  await page.click('button[onclick="runPresend()"]');
-  const output = page.locator("#receiptOutput");
-  await expect(output).toContainText("Version reformulée");
-  await expect(output).toContainText("Je veux aborder cela directement. Dis-moi quel moment te conviendrait.");
-  await expect(output).toContainText("Copier la reformulation");
-  await expect(output).not.toContainText("I want to address this directly");
-});
-
-
-test("25. Spanish unclear result does not get a generic copyable rewrite", async ({ page }) => {
+test("25a. an unclear Spanish draft gets no generic copyable rewrite", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");

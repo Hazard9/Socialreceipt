@@ -9,13 +9,13 @@
 <meta name="apple-mobile-web-app-title" content="Social Receipt"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="application-name" content="Social Receipt"/>
-<meta name="description" content="Pause before sending a text, DM, email, or caption. Review wording signals, consider a clearer version, and decide whether to send or wait."/>
+<meta name="description" content="Check a text, DM, email, or caption before sending. Review wording patterns, consider a clearer option, and choose what to do next."/>
 <link rel="canonical" href="https://socialreceipt.netlify.app/"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Social Receipt"/>
-<meta property="og:title" content="Social Receipt. Know the move before you send it."/>
-<meta property="og:description" content="Pause before sending a text, DM, email, or caption. Review wording signals, consider a clearer version, and decide whether to send or wait."/>
+<meta property="og:title" content="Social Receipt | Check a message before you send"/>
+<meta property="og:description" content="Check a text, DM, email, or caption before sending. Review wording patterns, consider a clearer option, and choose what to do next."/>
 <meta property="og:image" content="https://socialreceipt.netlify.app/social-preview.png"/>
 <meta property="og:image:secure_url" content="https://socialreceipt.netlify.app/social-preview.png"/>
 <meta property="og:image:type" content="image/png"/>
@@ -24,15 +24,16 @@
 <meta property="og:image:alt" content="Social Receipt: Pause before the send. Review wording signals, compare possible next moves, and decide whether to send or wait."/>
 <meta property="og:url" content="https://socialreceipt.netlify.app/"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Social Receipt. Know the move before you send it."/>
-<meta name="twitter:description" content="Pause before sending a text, DM, email, or caption. Review wording signals, consider a clearer version, and decide whether to send or wait."/>
+<meta name="twitter:title" content="Social Receipt | Check a message before you send"/>
+<meta name="twitter:description" content="Check a text, DM, email, or caption before sending. Review wording patterns, consider a clearer option, and choose what to do next."/>
 <meta name="twitter:image" content="https://socialreceipt.netlify.app/social-preview.png"/>
 <meta name="twitter:image:alt" content="Social Receipt: Pause before the send. Review wording signals, compare possible next moves, and decide whether to send or wait."/>
 <link rel="manifest" href="/manifest.json"/>
-<link rel="apple-touch-icon" href="/icon.svg"/>
-<link rel="icon" type="image/png" sizes="192x192" href="/icon.svg"/>
-<link rel="icon" type="image/png" sizes="512x512" href="/icon.svg"/>
-<title>Social Receipt. Know the move before you send it.</title>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
+<link rel="icon" type="image/svg+xml" href="/icon.svg"/>
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png"/>
+<title>Social Receipt | Check a message before you send</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -189,7 +190,7 @@ button{border:0;cursor:pointer;}
 .limit-bar-track{height:3px;background:rgba(255,245,220,0.08);border-radius:999px;overflow:hidden;}
 .limit-bar-fill{height:100%;border-radius:999px;background:linear-gradient(to right,var(--gold),var(--gold-2));transition:width 0.6s ease;}
 .limit-banner-text{font-size:12px;color:var(--muted);margin-top:8px;font-weight:300;line-height:1.45;}
-.limit-banner-text a{color:var(--gold);cursor:pointer;}
+.limit-banner-text a,.limit-banner-text button.inline-action-link{color:var(--gold);cursor:pointer;} .limit-banner-text button.inline-action-link{background:transparent;border:0;padding:0;text-decoration:underline;}
 
 /* ── BUTTONS ── */
 .primary-btn,.secondary-btn,.ghost-btn{width:100%;border-radius:var(--radius-md);padding:15px 18px;font-family:var(--font-sans);font-weight:600;font-size:15px;letter-spacing:0.01em;transition:transform 0.15s,opacity 0.15s,box-shadow 0.15s;}
@@ -706,36 +707,36 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div id="landingScreen">
   <div class="landing-wrap">
     <div class="landing-logo"><div class="landing-logo-dot"></div>Social Receipt</div>
-    <h1 class="landing-pain">Stop rereading.<br><em>Know the move</em><br>before you send it.</h1>
-    <p class="landing-sub">You are about to send something that costs you the interaction. Or say nothing when one sentence would have changed everything. Social Receipt reads the actual signals and tells you exactly what to do before you blow it.</p>
-    <p class="landing-sub" style="margin-top:-20px;font-size:13px;">For anyone about to send a text, DM, email, or caption they are not sure about &mdash; before a date, at work, with a client, or with a friend.</p>
+    <h1 class="landing-pain">Pause before you send.<br><em>Choose your next step</em><br>with more clarity.</h1>
+    <p class="landing-sub">Paste a message you plan to send or an exchange you want to understand. Social Receipt points out wording patterns, offers a clearer option, and helps you decide whether to send, wait, or edit. It cannot know anyone’s intent, so use your context.</p>
+    <p class="landing-sub" style="margin-top:-20px;font-size:13px;">Use it for texts, DMs, emails, and captions—with a date, coworker, client, friend, or family member.</p>
     <div class="landing-proof">
-      <div class="landing-proof-item"><div class="landing-proof-icon">💬</div><div class="landing-proof-text"><strong>They replied with two words.</strong> You have read it 14 times. The app tells you what it actually means. And whether responding right now makes it worse.</div></div>
-      <div class="landing-proof-item"><div class="landing-proof-icon">📵</div><div class="landing-proof-text"><strong>Left on read.</strong> Most people send a follow-up that drops their position. Social Receipt gives you the one move that does not.</div></div>
-      <div class="landing-proof-item"><div class="landing-proof-icon">✉</div><div class="landing-proof-text"><strong>About to send a long message.</strong> Paste it first. The app tells you if it reads as over-invested. It rewrites it before you make the mistake.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">💬</div><div class="landing-proof-text"><strong>A short reply can be hard to read.</strong> Review possible wording signals and decide whether more context would change your response.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">📵</div><div class="landing-proof-text"><strong>Not sure whether to follow up?</strong> Review what you know and choose a next step that fits the situation.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">✉</div><div class="landing-proof-text"><strong>Want to be clear?</strong> Compare your draft with a shorter option before you decide what to send.</div></div>
     </div>
     <div class="landing-how">
-      <div class="landing-how-step"><span class="landing-how-num">1</span>Paste the message, or what they said.</div>
-      <div class="landing-how-step"><span class="landing-how-num">2</span>Get your receipt: the risk, the hidden signal, what not to do.</div>
-      <div class="landing-how-step"><span class="landing-how-num">3</span>Send the move that keeps your position, not the one you almost sent.</div>
+      <div class="landing-how-step"><span class="landing-how-num">1</span>Paste a draft or describe what happened.</div>
+      <div class="landing-how-step"><span class="landing-how-num">2</span>Review wording patterns and what remains unclear.</div>
+      <div class="landing-how-step"><span class="landing-how-num">3</span>Choose whether to send, wait, or edit.</div>
     </div>
     <div class="landing-example" data-sr-event="sample_receipt_viewed" style="margin:0 0 24px;padding:17px 16px;border:1px solid var(--border-warm);border-radius:var(--radius-lg);background:linear-gradient(145deg,rgba(201,168,76,0.08),rgba(255,245,220,0.025));">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Example Social Receipt</div>
-      <div style="font-family:var(--font-serif);font-size:18px;color:var(--text);margin-bottom:6px;">The strongest move may be to wait.</div>
-      <div style="font-size:12px;line-height:1.5;color:var(--muted);">Pattern detected: pressure for reassurance. Recommended move: hold your position before sending again.</div>
+      <div style="font-family:var(--font-serif);font-size:18px;color:var(--text);margin-bottom:6px;">Waiting may be the clearest next step.</div>
+      <div style="font-size:12px;line-height:1.5;color:var(--muted);">Possible wording pattern: seeking reassurance. A delay alone cannot tell us why someone has not replied. Consider waiting or sending a clear, low-pressure follow-up.</div>
     </div>
     <div class="landing-cta-eyebrow">3 free receipts. No account required.</div>
     <button class="primary-btn" data-sr-cta="landing_free_check" onclick="startFree()">Start Free. Try Now.</button>
-    <div class="landing-free-note">Takes 30 seconds. No sign-up. No data stored.</div>
+    <div class="landing-free-note">Start in seconds. No account required. Your draft is not included in usage analytics.</div>
     <a href="/confidence-profile.html" class="secondary-btn" data-sr-event="confidence_profile_quiz_opened" data-feature="communication_profile_quiz" style="display:block;width:100%;margin-top:12px;padding:15px;text-align:center;border-color:var(--border-warm);border-radius:var(--radius-md);text-decoration:none;font-size:13px">Take the 7-question communication profile quiz</a>
     <div class="landing-divider"></div>
     <div class="landing-pricing-label">Simple pricing. Start free. Upgrade when it matters.</div>
     <div class="pricing-cards">
-      <div class="pricing-card"><div class="pricing-card-name">Free</div><div class="pricing-card-price"><span class="pricing-card-amount">$0</span></div><ul class="pricing-features"><li>3 receipts per month</li><li>Verdict + signal cards</li><li>What not to do</li><li>Hidden signal</li></ul></div>
-      <div class="pricing-card featured"><div class="pricing-card-badge">Most Popular</div><div class="pricing-card-name">Pro Monthly</div><div class="pricing-card-price"><span class="pricing-card-amount">$9</span><span class="pricing-card-period">/mo</span></div><ul class="pricing-features"><li>Unlimited receipts</li><li>Full analysis + corrections</li><li>Pre-Send check on every message</li><li>Rewrite Engine</li><li>Cold Read mode</li><li>Pattern profile</li></ul><button class="primary-btn" data-sr-cta="landing_monthly_checkout" onclick="startCheckout('monthly')" style="margin-top:12px">Get Pro. $9/mo</button></div>
+      <div class="pricing-card"><div class="pricing-card-name">Free</div><div class="pricing-card-price"><span class="pricing-card-amount">$0</span></div><ul class="pricing-features"><li>3 receipts per month</li><li>Summary with wording to review</li><li>Things to avoid</li><li>Possible context to consider</li></ul></div>
+      <div class="pricing-card featured"><div class="pricing-card-badge">Most Popular</div><div class="pricing-card-name">Pro Monthly</div><div class="pricing-card-price"><span class="pricing-card-amount">$9</span><span class="pricing-card-period">/mo</span></div><ul class="pricing-features"><li>Unlimited receipts</li><li>More detail and suggestions</li><li>Pre-Send check on every message</li><li>Message rewrite suggestions</li><li>Review a message without extra context</li><li>Your communication patterns</li></ul><button class="primary-btn" data-sr-cta="landing_monthly_checkout" onclick="startCheckout('monthly')" style="margin-top:12px">Get Pro. $9/mo</button></div>
       <div class="pricing-card featured"><div class="pricing-card-badge" style="background:var(--green);color:#0c0b09">Beta Offer</div><div class="pricing-card-name">Lifetime Beta</div><div class="pricing-card-price"><span class="pricing-card-amount">$39</span><span class="pricing-card-period">once</span></div><ul class="pricing-features"><li>Everything in Pro forever</li><li>Your saved reads and personal patterns</li><li>All future features released before public launch</li><li>One payment, no recurring charge</li></ul><button class="secondary-btn" data-sr-cta="landing_lifetime_checkout" onclick="startCheckout('lifetime')" style="margin-top:12px">Get Lifetime. $39</button></div>
     </div>
-    <p style="font-size:11px;color:var(--muted-2);text-align:center;font-family:var(--font-mono);letter-spacing:0.04em;line-height:1.6;">Payments via Stripe. Cancel anytime.<br>Nothing leaves your device on Free plan.</p>
+    <p style="font-size:11px;color:var(--muted-2);text-align:center;font-family:var(--font-mono);letter-spacing:0.04em;line-height:1.6;">Payments via Stripe. Cancel anytime.<br>Your message text is not included in usage analytics.</p>
   </div>
 </div>
 
@@ -743,14 +744,14 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="paywall-overlay hidden" id="paywallOverlay">
   <div class="paywall-sheet">
     <div class="paywall-handle"></div>
-    <div class="paywall-spike" id="paywallSpike">You are about to guess.</div>
+    <div class="paywall-spike" id="paywallSpike">Optional email signup.</div>
     <div class="paywall-eyebrow">Your next move is locked</div>
-    <h2 class="paywall-headline">If you don't unlock this, you are guessing.</h2>
-    <p class="paywall-sub">The exact move. The message that keeps your position. The timing window. Lifetime Beta keeps the full decision layer available for one payment.</p>
+    <h2 class="paywall-headline">Need more ways to review your messages?</h2>
+    <p class="paywall-sub">Pro adds deeper wording analysis, rewrite comparisons, and tools to track patterns over time. Keep using the free plan if it gives you what you need.</p>
     <div class="paywall-perks">
-      <div class="paywall-perk"><div class="paywall-perk-icon">→</div><div class="paywall-perk-text"><strong>You are sending without seeing the outcome pattern.</strong><span>The next section shows exactly where this interaction turns against you.</span></div></div>
-      <div class="paywall-perk"><div class="paywall-perk-icon">✉</div><div class="paywall-perk-text"><strong>The message you were going to send is risky</strong><span>The rewrite removes the phrases that make you look like you are chasing.</span></div></div>
-      <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Timing is the part most people get wrong</strong><span>The right message at the wrong moment still loses position. This shows you the window.</span></div></div>
+      <div class="paywall-perk"><div class="paywall-perk-icon">→</div><div class="paywall-perk-text"><strong>See more wording context</strong><span>Review patterns and compare possible ways to phrase your message.</span></div></div>
+      <div class="paywall-perk"><div class="paywall-perk-icon">✉</div><div class="paywall-perk-text"><strong>Compare a rewrite suggestion</strong><span>Review an alternate version and check that it keeps your meaning.</span></div></div>
+      <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Save your reads and track outcomes</strong><span>Build a personal record you can review later.</span></div></div>
     </div>
     <div class="detail-card" style="margin:12px 0;border-color:var(--border-warm);background:rgba(201,168,76,.06)"><div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">Lifetime Beta means ownership</div><p style="margin:0;color:var(--text);font-size:13px;line-height:1.5">Keep the full decision layer, your pattern history, and future pre-launch features for $39 once. No recurring charge.</p></div>
     <div id="paywallOwnershipProof" class="detail-card" style="margin:0 0 14px;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px"></div>
@@ -804,7 +805,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <div class="share-inner">
     <div class="share-preview">
       <div class="share-app-label">Social Receipt</div>
-      <div class="share-hook" id="shareHook">I was about to send something. This app said it would drop my position.</div>
+      <div class="share-hook" id="shareHook">I wanted a clearer read before replying. Social Receipt helped me review the wording.</div>
       <div class="share-verdict" id="shareVerdict"></div>
       <div class="share-signals" id="shareSignals"></div>
       <div class="share-viral-line">Send this to someone who overthinks like you do.</div><div class="share-privacy-note">No private message text is included in the share card.</div>
@@ -823,13 +824,13 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <!-- HOME -->
   <section id="homeScreen" class="screen active">
     <div class="topbar">
-      <div class="brand-lockup"><h1>Social Receipt</h1><p>Know the move before you send it.</p></div>
+      <div class="brand-lockup"><h1>Social Receipt</h1><p>Clearer choices before you send.</p></div>
       <div id="homeStatusPill" class="status-pill" onclick="openProfilePanel()"><span class="pulse-dot"></span>Free</div>
     </div>
     <div id="homeLimitBanner" class="limit-banner">
       <div class="limit-banner-top"><span class="limit-banner-label">Free reads used</span><span class="limit-banner-count" id="limitCount">0 / 3</span></div>
       <div class="limit-bar-track"><div class="limit-bar-fill" id="limitBarFill" style="width:0%"></div></div>
-      <div class="limit-banner-text">You have <span id="limitRemaining">3</span> read<span id="limitPluralS">s</span> left. After this, <a onclick="openPaywall()">you are guessing</a>. <a onclick="openPaywall()" style="color:var(--gold)">Upgrade</a></div>
+      <div class="limit-banner-text">You have <span id="limitRemaining">3</span> read<span id="limitPluralS">s</span> left. <button type="button" class="inline-action-link" onclick="openPaywall()">Compare plans</button></div>
     </div>
     <div id="homeReturnCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))"></div>
     <div class="hero-card card">
@@ -843,8 +844,8 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <!-- PANIC MODE — most-used entry point -->
     <button class="panic-btn" onclick="openPresend()">
       <div class="panic-btn-inner">
-        I'm about to send something
-        <div class="panic-btn-sub">Paste it. Get instant judgment before you send.</div>
+        Check a message before I send it
+        <div class="panic-btn-sub">Review how your wording may come across.</div>
       </div>
       <div class="panic-btn-icon">&#9888;</div>
     </button>
@@ -966,16 +967,16 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="modal-overlay hidden" id="emailModal">
   <div class="modal-sheet">
     <div style="text-align:center;margin-bottom:6px">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">You are about to guess</div>
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Optional email signup</div>
     </div>
-    <h2 class="modal-title" id="emailModalTitle">Want the exact move?</h2>
-    <p class="modal-sub" id="emailModalSub">This is the moment people lose the interaction. Enter your email to see what the signals actually say.</p>
+    <h2 class="modal-title" id="emailModalTitle">Get Social Receipt updates</h2>
+    <p class="modal-sub" id="emailModalSub">Join the email list for product news and practical communication tips. Your message text is not included.</p>
     <input class="modal-input" type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"/>
     <div class="modal-actions">
-      <button class="primary-btn" id="emailModalSubmitBtn" onclick="saveEmailProfile()">Show me the move</button>
+      <button class="primary-btn" id="emailModalSubmitBtn" onclick="saveEmailProfile()">Join the email list</button>
       <button class="ghost-btn" onclick="closeEmailModal()">Not now</button>
     </div>
-    <div class="modal-note" id="emailModalNote">Saved on this device to keep your access linked. No spam.</div>
+    <div class="modal-note" id="emailModalNote">Your saved receipts stay in this browser. Your email is used for Social Receipt updates.</div>
   </div>
 </div>
 
@@ -1159,9 +1160,11 @@ function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT + getReferra
 /* ── LANDING ── */
 function startFree() {
   localStorage.setItem("sr_seen_landing","1");
+  localStorage.setItem("sr_onboarded","1");
   document.getElementById("landingScreen").classList.add("hidden");
-  initOnboarding();
+  document.getElementById("onboarding").classList.add("hidden");
   renderAll();
+  openPresend();
   trackEvent("free_started");
 }
 
@@ -1282,7 +1285,7 @@ function afterFormHtml() {
 }
 
 function presendFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><div class="presend-context-field"><label for="presendLanguage">Language of this draft</label><select id="presendLanguage" onchange="onPresendContextChange()"><option value="">Auto-detect</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste the message you want help with." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><div class="presend-context-field"><label for="presendLanguage">Language of this draft</label><select id="presendLanguage" onchange="onPresendContextChange()"><option value="">Auto-detect</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
     '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
@@ -1466,24 +1469,24 @@ function buildWhySignals(a, feeling) {
 }
 
 function getVerdict(a, feeling, scenario) {
-  if(a.silence)                           return "Silence is the signal. Don't overwrite it.";
-  if(a.highIntent&&!a.positive)           return "You're over-investing. They're not matching you.";
-  if(a.highIntent&&a.delay)              return "Interest is there... but you're about to lose leverage.";
-  if(a.oneWord&&!a.positive)             return "They stayed polite. Not invested.";
-  if(a.overExplain)                       return "You're explaining. They stopped listening.";
-  if(a.conflict&&feeling==="Annoyed")    return "You're still activated. Don't send anything yet.";
-  if(a.conflict)                          return "This needed space. You almost overplayed it.";
-  if(a.delay&&feeling==="Anxious")       return "The delay feels like rejection. It likely is not. Yet.";
-  if(a.delay)                             return "The gap is information. Don't fill it.";
-  if(feeling==="Rejected"&&!a.positive)  return "Acting from rejection makes the read self-fulfilling.";
-  if(a.positive&&scenario==="Date")      return "The signal is warm. Stop second-guessing it.";
-  if(a.positive)                          return "This is working. The risk is over-managing it.";
-  if(scenario==="Sales / Client"&&a.delay) return "They went quiet. One more move. Then move on.";
-  if(scenario==="Sales / Client")         return "Interest is unconfirmed. Your next move tests it.";
-  if(scenario==="Work")                   return "Keep this professional. Emotion doesn't live here.";
-  if(feeling==="Anxious")                 return "Your read is anxious, not accurate. Wait 12 hours.";
-  if(feeling==="Confused")                return "The ambiguity is theirs, not yours. One move creates clarity.";
-  return "The next move matters more than the read. Make it count.";
+  if (a.silence) return "There is no reply yet. The reason is not clear from this alone.";
+  if (a.highIntent && !a.positive) return "Your draft uses a lot of effort, but this exchange gives little context about the other person's view.";
+  if (a.highIntent && a.delay) return "There is a gap in the exchange. This wording cannot show what the other person intends.";
+  if (a.oneWord && !a.positive) return "The reply is brief, so there is little wording to interpret.";
+  if (a.overExplain) return "This draft includes several points. A shorter version may be easier to follow.";
+  if (a.conflict && feeling === "Annoyed") return "This exchange sounds tense. Waiting until you feel settled may help.";
+  if (a.conflict) return "This exchange sounds tense. Consider a short pause before responding.";
+  if (a.delay && feeling === "Anxious") return "A delay can feel unsettling, but it does not tell us why they have not replied.";
+  if (scenario === "Sales / Client" && a.delay) return "There has been a delay. If you follow up, keep it brief; the reason for the delay is unknown.";
+  if (a.delay) return "There is a gap in the conversation. The reason is unclear.";
+  if (feeling === "Rejected" && !a.positive) return "It may help to pause before replying from a feeling of rejection.";
+  if (a.positive && scenario === "Date") return "The wording sounds warm. One message cannot confirm someone's level of interest.";
+  if (a.positive) return "The wording reads positively, though context matters.";
+  if (scenario === "Sales / Client") return "The other person's interest is unclear from this exchange. A clear question may help.";
+  if (scenario === "Work") return "Keep the message clear and professional. This read cannot tell us how it was received.";
+  if (feeling === "Anxious") return "The message feels uncertain to you. That feeling alone does not tell us how it was received.";
+  if (feeling === "Confused") return "Some context is missing. A clear question may help, but the wording cannot resolve every uncertainty.";
+  return "Consider the context, then choose a response that fits your goal.";
 }
 
 /* ── BUILD RECEIPT ── */
@@ -1501,7 +1504,7 @@ function buildReceipt(rawText) {
   var message="Hey. I am around whenever you want to pick this back up.";
   var timing="Tomorrow morning";
 
-  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="They read the message and chose not to respond yet. More from you does not change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);}
+  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="There is no reply yet. We cannot tell from this alone whether they saw the message or why they have not answered.";dont="Consider waiting before sending another message. A lack of reply does not explain why they have not answered.";next="Choose how long you are comfortable waiting. If you follow up, keep it brief and clear.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);}
   if(scenario==="Work"||a.professional){interest="Professional";energy="Work dynamic";risk="Low";momentum="Stable";bestMove="Follow up clearly";hidden="Workplace tension resolves faster when you stay neutral and document clearly.";dont="Do not make this personal in writing. Tone in email is permanent.";next="Send one short, professional follow-up. Move the action forward without emotional weight.";message="Hi. Just wanted to follow up. Happy to connect briefly.";timing="Within business hours";}
   if(scenario==="Sales / Client"||a.sales){interest="Evaluating";energy="Client-paced";risk="Medium";momentum="Pending";bestMove="Soft close";hidden="Silence from a client usually means they are deciding, not decided against.";dont="Do not send a second follow-up before the first one has had time to land.";next="One short message. Clear and easy next step. Then hold.";message="Hey. Just checking in. Happy to answer questions or jump on a quick call.";timing="24-48 hours";}
   if(scenario==="Conflict"||a.conflict){interest="Unclear";energy="Tense";risk="High";momentum="Stalled";bestMove="Create space";hidden="In conflict, they need to feel heard before they can respond calmly.";dont="Do not try to win this over text. The channel is too low for this conversation.";next="Give this 24 hours. Then one sentence acknowledging their position, not defending yours.";message="I hear you. I do not want to make this worse over text. Let's come back to it calmly.";timing="24 hours minimum";}
@@ -1653,7 +1656,8 @@ function renderPresendOutput(raw, context) {
     html += "<div class=\"presend-rewrite-box\" id=\"presendRewrite\" data-language=\""+escapeHtml(analysis.language)+"\">"+escapeHtml(rewritten)+"</div>";
     html += "<div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copyPresendRewrite()\">"+escapeHtml(rewriteLabels.copy)+"</button><button class=\"mini-btn\" onclick=\"runPresend()\">"+escapeHtml(rewriteLabels.again)+"</button></div>";
   } else if (pro) {
-    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(noSpecificRewrite ? rewriteLabels.noPattern : rewriteLabels.unavailable)+"</strong></div>";
+    var noRewriteMessage = noSpecificRewrite ? rewriteLabels.noPattern : (analysis.supported ? rewriteLabels.noSafe : rewriteLabels.unavailable);
+    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(noRewriteMessage)+"</strong></div>";
   } else {
     html += "<div class=\"presend-locked\">";
     html += "<strong>Compare another wording option.</strong>";
@@ -2252,68 +2256,48 @@ function presendRewriteLabels(language) {
     copy: "Copiar versión",
     again: "Revisar de nuevo",
     unavailable: "No hay una reescritura disponible para este idioma",
-    noPattern: "No se generó una reescritura específica porque no se detectó un patrón claro."
+    noPattern: "No se generó una reescritura específica porque no se detectó un patrón claro.",
+    noSafe: "No tengo suficiente contexto para sugerir una versión que conserve tu sentido. Prueba editarla con tus propias palabras."
   };
   if (language === "fr") return {
     title: "Version reformulée",
     copy: "Copier la reformulation",
     again: "Vérifier à nouveau",
     unavailable: "Aucune reformulation n’est disponible pour cette langue",
-    noPattern: "Aucune reformulation précise n’a été générée, car aucun schéma clair n’a été détecté."
+    noPattern: "Aucune reformulation précise n’a été générée, car aucun schéma clair n’a été détecté.",
+    noSafe: "Le contexte ne suffit pas pour proposer une reformulation qui préserve votre sens. Essayez de la modifier avec vos propres mots."
   };
   return {
     title: "Rewritten Version",
     copy: "Copy Rewrite",
     again: "Check Again",
     unavailable: "A rewrite is not available for this language",
-    noPattern: "No draft-specific rewrite was generated because no clear wording pattern was detected."
+    noPattern: "No draft-specific rewrite was generated because no clear wording pattern was detected.",
+    noSafe: "I don't have enough context to suggest a version that preserves your meaning. Try editing it in your own words."
   };
 }
 
 function rewriteMessage(raw, receipt, analysis) {
-  var original = raw.trim();
-  var lower = original.toLowerCase();
-  var language = analysis && analysis.language ? analysis.language : "en";
-  if (analysis && !analysis.supported) return "";
+  var original = String(raw || "").trim();
+  if (!original || !analysis || !analysis.supported) return "";
 
-  /* Handle mixed signals: frustration softened by minimizing language. */
-  var mixedSignal = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done)\b/i.test(lower)
-    && /\b(no worries|no problem|totally understand|it's fine|it is fine|all good|take your time|whenever works|probably busy|absolutely busy)\b/i.test(lower);
-
-  if (mixedSignal) {
-    if (language === "es") return "Me frustra que esto siga pasando. Por favor, dime qué momento te viene bien.";
-    if (language === "fr") return "Cette situation me frustre. Dis-moi quel moment te conviendrait.";
-    return "I’m frustrated that this keeps happening. Please let me know a specific time that works.";
-  }
-  if (language === "es") return "Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.";
-  if (language === "fr") return "Je veux aborder cela directement. Dis-moi quel moment te conviendrait.";
-
-  var cleaned = original;
-  var fillers = ["hey so ","hey, ","hi so ","okay so ","so i ","i just ","just wanted to ","i was thinking ","i feel like ","i don't know if ","sorry if ","sorry but ","i know this might be "];
-  fillers.forEach(function(f) {
-    var re = new RegExp("^" + f.replace(/[.*+?^()|[\]\\]/g,"\\$&"),"i");
-    cleaned = cleaned.replace(re,"");
+  var hasRelevantSignal = (analysis.signals || []).some(function(signal) {
+    return signal.id === "softener-frustration" || signal.id === "polite-resentment";
   });
-  cleaned = cleaned.replace(/\b(honestly,?\s*)/gi,"");
-  cleaned = cleaned.replace(/\b(i\s*)?just\s+(wanted|thought|hoped|was\s+wondering)\b/gi,"");
-  cleaned = cleaned.replace(/\bsorry\s+(for|if|to|about)\b[^.!?]*/gi,"");
-  cleaned = cleaned.replace(/\bdoes\s+that\s+make\s+sense\?/gi,"");
-  cleaned = cleaned.replace(/\bi\s+don.t\s+know\b/gi,"");
-  cleaned = cleaned.replace(/\bif\s+that(.s|\s+is)\s+(okay|cool|alright|fine)\b/gi,"");
-  cleaned = cleaned.replace(/\bjust\s+checking\s+in\b/gi,"checking in");
-  var sentences = cleaned.match(/[^.!?]+[.!?]*/g) || [cleaned];
-  if (sentences.length > 2) sentences = sentences.slice(0,2);
-  cleaned = sentences.join(" ").replace(/\s{2,}/g," ").trim();
-  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
-  if (cleaned && !/[.!?]$/.test(cleaned)) cleaned += ".";
+  if (!hasRelevantSignal) return "";
 
-  /* Never present the original as a rewrite. */
-  if (!cleaned || cleaned.toLowerCase() === original.toLowerCase()) {
-    if (language === "es") return "Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.";
-    if (language === "fr") return "Je veux aborder cela directement. Dis-moi quel moment te conviendrait.";
-    return "I want to address this directly. Please let me know a specific time that works.";
-  }
-  return cleaned;
+  var language = analysis.language || "en";
+  var opening = language === "es"
+    ? /^no pasa nada\s*[,.;:]?\s*(?:pero\s*)?/i
+    : language === "fr"
+      ? /^pas de souci\s*[,.;:]?\s*/i
+      : /^(?:no worries|no problem|all good|it's fine|it is fine|totally understand)\s*[,.;:]?\s*/i;
+  var revised = original.replace(opening, "").replace(/^\s*[,.;:]\s*/, "").trim();
+  if (!revised || revised.toLowerCase() === original.toLowerCase()) return "";
+
+  /* Only remove the minimizing opener; keep the sender's substantive words intact. */
+  revised = revised.charAt(0).toLocaleUpperCase(language) + revised.slice(1);
+  return revised;
 }
 /* ── SAVE / LOAD ── */
 function saveCurrentReceipt() {
@@ -2327,8 +2311,8 @@ function saveCurrentReceipt() {
     setTimeout(function() {
       var modal = document.getElementById("emailModal");
       if (modal) {
-        document.getElementById("emailModalTitle").textContent = "Want the exact move?";
-        document.getElementById("emailModalSub").textContent = "This is the moment people lose the interaction. Enter your email to unlock the full analysis.";
+        document.getElementById("emailModalTitle").textContent = "Get Social Receipt updates";
+        document.getElementById("emailModalSub").textContent = "Join the email list for product news and practical communication tips. Your message text is not included.";
         modal.classList.remove("hidden");
         trackEvent("email_capture_viewed");
       }
@@ -2741,7 +2725,7 @@ function ensureEmailCaptureCard() {
   card.id = "homeEmailCaptureCard";
   card.className = "detail-card";
   card.style.cssText = "margin:0 0 12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.02))";
-  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Keep your progress</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Save your receipts and get your next read.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Add your email to keep your profile linked on this device and receive Social Receipt updates. Your message text stays private.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Add my email</button>";
+  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Get email updates</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Get Social Receipt updates.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Join the email list for product news and communication tips. Your receipts stay in this browser, and message text is not included.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Join the email list</button>";
   if (recent) recent.parentNode.insertBefore(card, recent);
   else home.appendChild(card);
 }
@@ -2904,12 +2888,12 @@ function saveEmailProfile() {
   })
     .then(function(resp) { return resp.json().catch(function(){ return {ok:false}; }); })
     .then(function(data) {
-      if (btn) { btn.disabled = false; btn.textContent = "Show me the move"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Join the email list"; }
       closeEmailModal();
       renderProfilePanel();
       renderAll();
       if (data && data.ok) {
-        toast("You are in. Your receipts are linked and you are subscribed.");
+        toast("You’re subscribed to Social Receipt updates. Your receipts remain saved in this browser.");
         trackEvent("email_capture_succeeded", { via: "kit" });
       } else if (data && data.error === "not_configured") {
         toast("Saved on this device. Email list signup is not connected yet.");
@@ -2921,7 +2905,7 @@ function saveEmailProfile() {
       haptic([15, 30, 20]);
     })
     .catch(function() {
-      if (btn) { btn.disabled = false; btn.textContent = "Show me the move"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Join the email list"; }
       closeEmailModal();
       renderProfilePanel();
       renderAll();

@@ -249,6 +249,8 @@ profileCases.forEach(([name, message, expected]) => {
 // 1. Required files exist
 [
   "index.html",
+  "robots.txt",
+  "sitemap.xml",
   "presend-analysis.js",
   "app-language.js",
   "analytics.js",
@@ -274,6 +276,53 @@ const subscribeEmailJs = read("netlify/functions/subscribe-email.js");
 const verifyCheckoutJs = read("netlify/functions/verify-checkout.js");
 const swJs = read("sw.js");
 const appLanguageJs = read("app-language.js");
+
+// Rewrite suggestions must be evidence-based and preserve the sender's substantive words.
+const rewriteStart = indexHtml.indexOf("function rewriteMessage(raw, receipt, analysis)");
+const rewriteEnd = indexHtml.indexOf("/* ── SAVE / LOAD ── */", rewriteStart);
+try {
+  const rewriteSource = rewriteStart >= 0 && rewriteEnd > rewriteStart ? indexHtml.slice(rewriteStart, rewriteEnd).trim() : "";
+  const rewriteMessage = rewriteSource ? new Function("return (" + rewriteSource + ");")() : null;
+  const signal = [{ id: "softener-frustration" }];
+  const enRewrite = rewriteMessage && rewriteMessage("No worries. I'm honestly tired of this.", null, { supported: true, language: "en", signals: signal });
+  const esRewrite = rewriteMessage && rewriteMessage("No pasa nada, pero estoy cansada de ser la única que avisa.", null, { supported: true, language: "es", signals: signal });
+  const frRewrite = rewriteMessage && rewriteMessage("Pas de souci. Comme d’habitude, je vais le faire moi-même.", null, { supported: true, language: "fr", signals: [{ id: "polite-resentment" }] });
+  if (enRewrite === "I'm honestly tired of this." && esRewrite === "Estoy cansada de ser la única que avisa." &&
+      frRewrite === "Comme d’habitude, je vais le faire moi-même.") pass("supported rewrites only remove the minimizing opener and retain the draft's content");
+  else fail("supported rewrite changed substantive meaning or was not specific");
+  const invented = rewriteMessage && rewriteMessage("No te preocupes por mí. Siempre haces lo mismo.", null,
+    { supported: true, language: "es", signals: [{ id: "absolute-blame" }] });
+  if (invented === "") pass("unrelated concerns do not receive a generic invented rewrite");
+  else fail("unrelated concern received a generic rewrite");
+} catch (error) {
+  fail("rewrite safety validation threw: " + error.message);
+}
+
+// The analysis must describe observable wording and preserve uncertainty about intent.
+const verdictStart = indexHtml.indexOf("function getVerdict(a, feeling, scenario)");
+const verdictEnd = indexHtml.indexOf("/* ── BUILD RECEIPT ── */", verdictStart);
+try {
+  const verdictSource = verdictStart >= 0 && verdictEnd > verdictStart ? indexHtml.slice(verdictStart, verdictEnd).trim() : "";
+  const getVerdict = verdictSource ? new Function("return (" + verdictSource + ");")() : null;
+  const silenceVerdict = getVerdict && getVerdict({ silence: true }, "Anxious", "Date");
+  const warmVerdict = getVerdict && getVerdict({ positive: true }, "Confused", "Date");
+  const replyVerdict = getVerdict && getVerdict({ oneWord: true }, "Confused", "DM / Text");
+  if (silenceVerdict === "There is no reply yet. The reason is not clear from this alone." &&
+      warmVerdict === "The wording sounds warm. One message cannot confirm someone's level of interest." &&
+      replyVerdict === "The reply is brief, so there is little wording to interpret.") {
+    pass("analysis verdicts describe wording and keep intent uncertain");
+  } else {
+    fail("analysis verdicts overstate what the wording can establish");
+  }
+  if (appLanguageJs.includes('"There is no reply yet. The reason is not clear from this alone.": "Aún no hay respuesta. Esto por sí solo no permite saber el motivo."') &&
+      appLanguageJs.includes('"The wording sounds warm. One message cannot confirm someone\'s level of interest."')) {
+    pass("calibrated analysis copy is available in Spanish");
+  } else {
+    fail("calibrated analysis copy is missing Spanish translations");
+  }
+} catch (error) {
+  fail("analysis verdict validation threw: " + error.message);
+}
 
 // App language is a local UI preference, independent of draft analysis.
 if (appLanguageJs.includes('"sr_app_language"') &&
@@ -482,6 +531,24 @@ if (!secretFound) pass("no committed Stripe/Kit secrets found in scanned files")
   else fail("index.html is missing meta tag: " + tag);
 });
 
+// All navigation anchors must be crawlable links, not click-only anchors.
+const indexAnchors = [...indexHtml.matchAll(/<a\b[^>]*>/gi)];
+const nonCrawlableAnchors = indexAnchors.filter((match) => !/\bhref\s*=/.test(match[0]));
+if (nonCrawlableAnchors.length === 0) pass("index.html has no click-only, non-crawlable anchors");
+else fail("index.html contains " + nonCrawlableAnchors.length + " anchor(s) without href");
+
+// Public discovery files must describe only same-origin public pages.
+const robotsTxt = read("robots.txt");
+const sitemapXml = read("sitemap.xml");
+const sitemapUrls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+if (/^User-agent: \*/m.test(robotsTxt) && /Sitemap: https:\/\/socialreceipt\.netlify\.app\/sitemap\.xml/.test(robotsTxt) &&
+    /<urlset[ >]/.test(sitemapXml) && sitemapUrls.length >= 1 &&
+    sitemapUrls.every((url) => url.startsWith("https://socialreceipt.netlify.app/"))) {
+  pass("robots.txt and sitemap.xml expose public same-origin pages");
+} else {
+  fail("robots.txt or sitemap.xml is missing or contains an invalid URL");
+}
+
 // Canonical URL and share preview should be crawler-ready and dimension-checked.
 const canonicalUrl = indexHtml.match(/<link rel="canonical" href="([^"]+)"/i);
 const ogImage = indexHtml.match(/<meta property="og:image" content="([^"]+)"/i);
@@ -539,6 +606,42 @@ assetRefs.forEach((ref) => {
   if (exists(rel)) pass("local asset resolves: " + ref);
   else fail("local asset does NOT resolve: " + ref);
 });
+
+// Run the real analytics module with isolated storage and event transport.
+try {
+  const vm = require('vm');
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) || null, setItem: (key, value) => values.set(key, String(value)) };
+  function visit() {
+    const events = [];
+    const win = {
+      location: { search: '?utm_source=tiktok&utm_medium=organic_social&utm_campaign=spanish_launch&utm_content=spanish_demo_01', pathname: '/', hostname: 'socialreceipt.netlify.app' },
+      gtag: (kind, name, params) => events.push({ name, params }),
+      dispatchEvent() {}, addEventListener() {}
+    };
+    vm.runInNewContext(read('analytics.js'), {
+      window: win, localStorage: storage, sessionStorage: storage,
+      document: { referrer: '', readyState: 'loading', addEventListener() {} },
+      URLSearchParams, URL, CustomEvent: function () {}, crypto: { randomUUID: () => 'anonymous-test' }
+    });
+    return { win, events };
+  }
+  const fresh = visit();
+  fresh.win.SRAnalytics.track('receipt_created', { message: 'private draft', email: 'private@example.com' });
+  if (fresh.events.every(e => e.params.returning_user === 'false') && !fresh.events.some(e => e.name === 'return_visit')) pass('fresh visitor stays fresh across all events');
+  else fail('fresh visitor was classified as returning');
+  const returning = visit();
+  if (returning.events.every(e => e.params.returning_user === 'true') && returning.events.filter(e => e.name === 'return_visit').length === 1) pass('repeat visit emits one return event');
+  else fail('repeat visit classification is incorrect');
+  const attributed = fresh.events.find(e => e.name === 'content_attributed_visit');
+  if (attributed && attributed.params.source === 'tiktok' && attributed.params.content_id === 'spanish_demo_01') pass('Spanish demo attribution reaches the event transport');
+  else fail('Spanish demo attribution was lost');
+  const receipt = fresh.events.find(e => e.name === 'receipt_created');
+  if (receipt && !('message' in receipt.params) && !('email' in receipt.params)) pass('analytics excludes draft and email fields');
+  else fail('private content leaked into analytics');
+} catch (error) {
+  fail('analytics behavior validation threw: ' + error.message);
+}
 
 console.log("\n" + checks + " checks passed, " + failures + " failed.");
 if (failures > 0) process.exit(1);

@@ -7,6 +7,13 @@
   var STORAGE_KEY = 'sr_attribution_v1';
   var SESSION_KEY = 'sr_session_id_v1';
   var RETURN_KEY = 'sr_return_seen_v1';
+  // Capture this once per page visit. Building metadata must not turn the
+  // first visitor's later events into returning-user events.
+  var returningVisit = false;
+  try {
+    returningVisit = localStorage.getItem(RETURN_KEY) === '1';
+    localStorage.setItem(RETURN_KEY, '1');
+  } catch (_) {}
   var allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'threads', 'direct', 'other'];
   var allowedPlans = ['free', 'pro', 'lifetime', 'unknown'];
   var allowedResultLevels = ['low', 'medium', 'high', 'unknown'];
@@ -87,11 +94,6 @@
     var a = attribution();
     var first = a.first_touch || {};
     var latest = a.latest_touch || {};
-    var returning = false;
-    try {
-      returning = localStorage.getItem(RETURN_KEY) === '1';
-      localStorage.setItem(RETURN_KEY, '1');
-    } catch (_) {}
     return {
       platform: normalizePlatform(latest.platform || latest.source),
       source: safeString(latest.source || 'direct', 40),
@@ -110,7 +112,7 @@
       plan_type: plan(),
       session_id: sessionId(),
       anonymous_user_id: id('sr_anon_user_id'),
-      returning_user: returning ? 'true' : 'false',
+      returning_user: returningVisit ? 'true' : 'false',
       app_version: 'analytics-v1'
     };
   }
