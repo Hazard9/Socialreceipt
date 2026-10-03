@@ -41,6 +41,24 @@ test("0a. visible voice controls are translated in Spanish", async ({ page }) =>
   await expect(page.locator(".voice-input-btn").first()).toContainText("🎤 Dictar");
 });
 
+test("0aa. dynamic typing warnings translate and restore without changing the draft", async ({ page }) => {
+  await skipToApp(page);
+  await page.click('.nav-btn[onclick="openPresend()"]');
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="es"]').click();
+  const draft = "Siempre haces lo mismo. Si de verdad quisieras verme, encontrarías tiempo.";
+  await page.locator('#presendText').fill(draft);
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Posible presión en el tono. El contexto importa.');
+  await page.locator('#presendText').fill('Gracias por avisarme.');
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Hace falta más contexto. Esta biblioteca de frases quizá no cubra esta redacción.');
+  await page.locator('#presendText').fill(draft);
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Posible presión en el tono. El contexto importa.');
+  await page.click('[data-sr-app-language]');
+  await page.locator('#srLanguageChooser button[data-lang="en"]').click();
+  await expect(page.locator('#presendFeedbackText')).toHaveText('Possible wording pressure — context matters');
+  await expect(page.locator('#presendText')).toHaveValue(draft);
+});
+
 test("0b. changing app language leaves the draft and analysis-language choice untouched", async ({ page }) => {
   await skipToApp(page);
   await page.click('.nav-btn[onclick="openPresend()"]');

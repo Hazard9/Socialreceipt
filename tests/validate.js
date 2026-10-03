@@ -607,5 +607,41 @@ assetRefs.forEach((ref) => {
   else fail("local asset does NOT resolve: " + ref);
 });
 
+// Run the real analytics module with isolated storage and event transport.
+try {
+  const vm = require('vm');
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) || null, setItem: (key, value) => values.set(key, String(value)) };
+  function visit() {
+    const events = [];
+    const win = {
+      location: { search: '?utm_source=tiktok&utm_medium=organic_social&utm_campaign=spanish_launch&utm_content=spanish_demo_01', pathname: '/', hostname: 'socialreceipt.netlify.app' },
+      gtag: (kind, name, params) => events.push({ name, params }),
+      dispatchEvent() {}, addEventListener() {}
+    };
+    vm.runInNewContext(read('analytics.js'), {
+      window: win, localStorage: storage, sessionStorage: storage,
+      document: { referrer: '', readyState: 'loading', addEventListener() {} },
+      URLSearchParams, URL, CustomEvent: function () {}, crypto: { randomUUID: () => 'anonymous-test' }
+    });
+    return { win, events };
+  }
+  const fresh = visit();
+  fresh.win.SRAnalytics.track('receipt_created', { message: 'private draft', email: 'private@example.com' });
+  if (fresh.events.every(e => e.params.returning_user === 'false') && !fresh.events.some(e => e.name === 'return_visit')) pass('fresh visitor stays fresh across all events');
+  else fail('fresh visitor was classified as returning');
+  const returning = visit();
+  if (returning.events.every(e => e.params.returning_user === 'true') && returning.events.filter(e => e.name === 'return_visit').length === 1) pass('repeat visit emits one return event');
+  else fail('repeat visit classification is incorrect');
+  const attributed = fresh.events.find(e => e.name === 'content_attributed_visit');
+  if (attributed && attributed.params.source === 'tiktok' && attributed.params.content_id === 'spanish_demo_01') pass('Spanish demo attribution reaches the event transport');
+  else fail('Spanish demo attribution was lost');
+  const receipt = fresh.events.find(e => e.name === 'receipt_created');
+  if (receipt && !('message' in receipt.params) && !('email' in receipt.params)) pass('analytics excludes draft and email fields');
+  else fail('private content leaked into analytics');
+} catch (error) {
+  fail('analytics behavior validation threw: ' + error.message);
+}
+
 console.log("\n" + checks + " checks passed, " + failures + " failed.");
 if (failures > 0) process.exit(1);

@@ -341,6 +341,10 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
   Object.assign(translations, {
+    "Direct threat or coercive wording — review carefully": "Amenaza directa o lenguaje coercitivo. Revisa con cuidado.",
+    "Possible wording pressure — context matters": "Posible presión en el tono. El contexto importa.",
+    "No common pressure cue detected — context still matters": "No se detectó una señal común de presión. El contexto sigue importando.",
+    "More context needed — this phrase library may not cover the wording": "Hace falta más contexto. Esta biblioteca de frases quizá no cubra esta redacción.",
     "Social Receipt | Check a message before you send": "Social Receipt | Revisa un mensaje antes de enviarlo",
     "Pause before you send.": "Haz una pausa antes de enviar.",
     "Choose your next step": "Elige tu siguiente paso",
