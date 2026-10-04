@@ -600,7 +600,7 @@ test("19. pre-send context stays local and separates quoted words", async ({ pag
   await page.click('button[onclick="runPresend()"]');
   const output = page.locator("#receiptOutput");
   await expect(output).toHaveClass(/active/);
-  await expect(output).toContainText("UNCLEAR. More context may change the read.");
+  await expect(output).toContainText("UNCLEAR. No clear wording pattern detected.");
   await expect(output).toContainText("excluded from wording signals");
   await expect(output).toContainText("Your stated goal is repair");
 });
@@ -706,4 +706,23 @@ test("saved English and Spanish keep the language switcher out of document layou
     const box = await toggle.boundingBox();
     expect(box.height).toBeLessThan(60);
   }
+});
+
+
+test("pre-send catches repeated self-reliance and preserves a direct shift refusal", async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
+  await page.click(".panic-btn");
+  await page.fill("#presendText", "Fine. I'll do it myself, like always.");
+  await page.click('button[onclick="runPresend()"]');
+  const output = page.locator("#receiptOutput");
+  await expect(output).toContainText("MEDIUM");
+  await expect(output).toContainText("Resigned self-reliance cue");
+  await expect(output).toContainText("like always");
+  await expect(output).toContainText("I\'ll do it myself.");
+  await output.getByRole("button", { name: "Check Another Message" }).click();
+  await page.fill("#presendText", "I can't cover this one.");
+  await page.click('button[onclick="runPresend()"]');
+  await expect(output).toContainText("LOW");
+  await expect(output).toContainText("Clear boundary or limit");
 });
