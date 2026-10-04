@@ -711,6 +711,7 @@ test("saved English and Spanish keep the language switcher out of document layou
 
 test("pre-send catches repeated self-reliance and preserves a direct shift refusal", async ({ page }) => {
   await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
   await page.fill("#presendText", "Fine. I'll do it myself, like always.");
   await page.click('button[onclick="runPresend()"]');
@@ -719,7 +720,7 @@ test("pre-send catches repeated self-reliance and preserves a direct shift refus
   await expect(output).toContainText("Resigned self-reliance cue");
   await expect(output).toContainText("like always");
   await expect(output).toContainText("I\'ll do it myself.");
-  await page.click('button[onclick="openPresend()"]');
+  await output.getByRole("button", { name: "Check Another Message" }).click();
   await page.fill("#presendText", "I can't cover this one.");
   await page.click('button[onclick="runPresend()"]');
   await expect(output).toContainText("LOW");
