@@ -2276,6 +2276,15 @@ function rewriteMessage(raw, receipt, analysis) {
   var language = analysis && analysis.language ? analysis.language : "en";
   if (analysis && !analysis.supported) return "";
 
+  /* Preserve the stated action; removing a history cue must not invent a refusal. */
+  if (language === "en" && analysis && analysis.signals.some(function(signal) { return signal.id === "resigned-self-reliance"; })) {
+    var repeatedSelfReliance = original.match(/^(?:fine[.!?,]\s*)?(i(?:'ll|’ll| will) (?:do|handle|cover) (?:it|this) myself)[, ]+(?:like always|as usual)[.!?]?$/i);
+    if (repeatedSelfReliance) {
+      var directAction = repeatedSelfReliance[1];
+      return directAction.charAt(0).toUpperCase() + directAction.slice(1) + ".";
+    }
+  }
+
   /* Handle mixed signals: frustration softened by minimizing language. */
   var mixedSignal = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done)\b/i.test(lower)
     && /\b(no worries|no problem|totally understand|it's fine|it is fine|all good|take your time|whenever works|probably busy|absolutely busy)\b/i.test(lower);

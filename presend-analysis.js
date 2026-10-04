@@ -200,7 +200,7 @@
       withdrawal: [/\bi'?m done talking\b/, /\bi don'?t want to talk to you\b/, /\bforget it\b/, /\bdon'?t bother\b/, /\bwe'?re done\b/],
       minimizing: [/\bno worries\b/, /\bno problem\b/, /\ball good\b/, /\b(?:it's|it is) fine\b/, /\bnot a big deal\b/, /\bdon't worry about it\b/],
       resentment: [/\bapparently\b/, /\bif you say so\b/, /\bshould have known\b/, /\bshould've known\b/, /\bas usual\b/, /\bnot surprised\b/],
-      resignation: [/\bi guess i'll do it myself\b/, /\bi guess (?:i am|i'm) on my own\b/],
+      resignation: [/(?:^|[.!?]\s*)(?:fine[.!?,]\s*)?i(?:'ll| will) (?:do|handle|cover) (?:it|this) myself[, ]+(?:like always|as usual)\b/, /\bi guess i'll do it myself\b/, /\bi guess (?:i am|i'm) on my own\b/],
       frustration: [/\bi'?m (?:honestly )?tired of this\b/, /\bso tired of this\b/, /\bthis is getting old\b/, /\bthis is frustrating\b/, /\bnot fair\b/],
       deferential: [/\btake your time\b/, /\bwhenever (?:works|you can|you get a chance)\b/, /\bi know you'?re busy\b/, /\bprobably busy\b/],
       defensiveProof: [/\bi already (?:told|said|explained) you\b/, /\bi did tell you\b/, /\bi'?ve explained this\b/, /\bi told you already\b/],
@@ -208,7 +208,7 @@
       intentAttribution: [/\byou'?re trying to\b/, /\byou are trying to\b/, /\byou just want to\b/, /\byou want me to\b/],
       blame: [/\byou always\b/, /\byou never\b/, /\byou made me\b/, /\byou don'?t care\b/],
       reassurance: [/\bare we okay\b/, /\bdo you still care\b/, /\bare you mad at me\b/, /\bplease tell me (?:we'?re|you'?re)\b/, /\bdid i do something wrong\b/],
-      boundary: [/\bi can'?t make it\b/, /\bi cannot make it\b/, /\bi can'?t take this on\b/, /\bi cannot take this on\b/, /\bi'?m not available\b/, /\bthat doesn'?t work for me\b/, /\bplease don'?t\b/, /\bplease stop\b/, /\bi need some space\b/],
+      boundary: [/\bi (?:can't|cannot) cover (?:this one|your shift|the shift|another shift)\b/, /\bi can'?t make it\b/, /\bi cannot make it\b/, /\bi can'?t take this on\b/, /\bi cannot take this on\b/, /\bi'?m not available\b/, /\bthat doesn'?t work for me\b/, /\bplease don'?t\b/, /\bplease stop\b/, /\bi need some space\b/],
       apology: [/\bi'?m sorry i\b/, /\bi apologize for\b/, /\bthat was my fault\b/, /\bi was wrong to\b/],
       clarifier: [/\bto be clear\b/, /\bfor context\b/, /\bwhat i mean is\b/, /\bcan you clarify\b/],
       repair: [/\bi want to fix this\b/, /\bcan we talk this through\b/, /\bcan we figure this out\b/],
@@ -313,7 +313,7 @@
       level = "low"; label = en ? "LOW. No common pressure cue detected." : "BAJO. No se detectó una señal común de presión.";
       summary = en ? "The wording includes warmth, care, a boundary, accountability, repair, or clarification. This is not a guarantee about how it will land." : "La frase expresa afecto, atención, un límite, responsabilidad, reparación o aclaración. Esto no garantiza cómo se recibirá.";
     } else {
-      level = "uncertain"; label = en ? "UNCLEAR. More context may change the read." : "NO ESTÁ CLARO. Más contexto puede cambiar la lectura.";
+      level = "uncertain"; label = en ? "UNCLEAR. No clear wording pattern detected." : "NO ESTÁ CLARO. No se detectó un patrón claro.";
       summary = en ? "No strong pattern from this local phrase library was detected. That does not prove the message is neutral or low-pressure." : "La biblioteca local no detectó un patrón claro. Eso no demuestra que el mensaje sea neutral o sin presión.";
     }
     var contextNotes = contextNotesFor(context, found, en, quoteRemoved);

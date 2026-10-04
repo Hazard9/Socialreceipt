@@ -61,6 +61,16 @@ function exists(file) {
   ["Spanish softener and resentment", "No pasa nada. Como siempre.", "medium", ["polite-resentment"]],
   ["passive-aggressive softener plus resentment", "No worries. Apparently I’m the only one who remembers.", "medium", ["polite-resentment"]],
   ["resigned self-reliance", "I guess I'll do it myself, as usual.", "medium", ["resigned-self-reliance"]],
+  ["agreement with repeated self-reliance", "Fine. I'll do it myself, like always.", "medium", ["resigned-self-reliance"]],
+  ["curly apostrophe and punctuation variant", "Fine! I’ll handle it myself, like always", "medium", ["resigned-self-reliance"]],
+  ["repeated self-reliance without fine", "I will do this myself, as usual.", "medium", ["resigned-self-reliance"]],
+  ["literal self-reliance stays unclear", "I'll do it myself.", "uncertain", []],
+  ["fine alone stays unclear", "Fine.", "uncertain", []],
+  ["friendly habitual phrase stays unclear", "Thanks for helping, like always.", "uncertain", []],
+  ["routine statement stays unclear", "I'll cover your shift, like always.", "uncertain", []],
+  ["negated repeated self-reliance stays unclear", "I'm not saying I'll do it myself, like always.", "uncertain", []],
+  ["shift refusal", "I can't cover this one.", "low", ["boundary-setting"]],
+  ["shift refusal does not hide blame", "I can't cover your shift. You never help me.", "medium", ["boundary-setting", "absolute-blame"]],
   ["absolute blame", "You never listen to me.", "medium", ["absolute-blame"]],
   ["sarcasm cue", "Thanks for nothing.", "medium", ["sarcasm-dismissal"]],
   ["guilt pressure", "After all I've done, don't worry about me. I'll remember this.", "medium", ["guilt-pressure"]],
@@ -103,6 +113,17 @@ function exists(file) {
     else fail("pre-send "+name+": missing signal "+signal);
   });
 });
+
+
+const coverageDraft = "Fine. I'll do it myself, like always.";
+const coverageResult = analyze(coverageDraft);
+const coverageSignal = coverageResult.signals.find(item => item.id === "resigned-self-reliance");
+if (coverageSignal && coverageSignal.evidence.some(value => value.includes("like always"))) pass("repeated self-reliance shows matched evidence");
+else fail("repeated self-reliance evidence missing");
+if (analyze(coverageDraft, {goal:"decline", language:"en"}).level === coverageResult.level) pass("context does not invent the repeated self-reliance signal");
+else fail("context changed repeated self-reliance level");
+if (!analyze('He wrote, "'+coverageDraft+'"', {quoted:true, language:"en"}).signals.some(item => item.id === "resigned-self-reliance")) pass("quoted repeated self-reliance is excluded");
+else fail("quoted repeated self-reliance was counted");
 
 /* Context adds an explanation locally. Goal and situation must not alter the signal level. */
 const boundaryDraft = "I can't make it Saturday. I can do Sunday afternoon if that works.";
