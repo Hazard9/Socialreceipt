@@ -723,5 +723,5 @@ test("pre-send catches repeated self-reliance and preserves a direct shift refus
   await page.fill("#presendText", "I can't cover this one.");
   await page.click('button[onclick="runPresend()"]');
   await expect(output).toContainText("LOW");
-  await expect(output).toContainText("Boundary");
+  await expect(output).toContainText("Clear boundary or limit");
 });

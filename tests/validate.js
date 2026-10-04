@@ -65,6 +65,7 @@ function exists(file) {
   ["curly apostrophe and punctuation variant", "Fine! I’ll handle it myself, like always", "medium", ["resigned-self-reliance"]],
   ["repeated self-reliance without fine", "I will do this myself, as usual.", "medium", ["resigned-self-reliance"]],
   ["literal self-reliance stays unclear", "I'll do it myself.", "uncertain", []],
+  ["routine habitual action stays unclear", "I'll do it, like always.", "uncertain", []],
   ["fine alone stays unclear", "Fine.", "uncertain", []],
   ["friendly habitual phrase stays unclear", "Thanks for helping, like always.", "uncertain", []],
   ["routine statement stays unclear", "I'll cover your shift, like always.", "uncertain", []],
