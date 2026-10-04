@@ -645,7 +645,7 @@ test("22. selecting a supported language resolves a short ambiguous phrase", asy
 });
 
 
-test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page }) => {
+test("23. Spanish Pre-Send rewrite uses a grounded template and Spanish controls", async ({ page }) => {
   await skipToApp(page);
   await page.evaluate(() => localStorage.setItem("sr_pro", "1"));
   await page.click(".panic-btn");
@@ -655,7 +655,8 @@ test("23. Spanish Pre-Send rewrite and copy controls use Spanish", async ({ page
   await page.click('button[onclick="runPresend()"]');
   const output = page.locator("#receiptOutput");
   await expect(output).toContainText("Versión reescrita");
-  await expect(output).toContainText("Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.");
+  await expect(output).toContainText("Quiero hablar de [situación concreta]. Necesito [petición concreta].");
+  await expect(output).toContainText("Completa las partes entre corchetes");
   await expect(output).toContainText("Copiar versión");
   await expect(output).toContainText("Revisar de nuevo");
   await expect(output).not.toContainText("I want to address this directly");
@@ -725,4 +726,44 @@ test("pre-send catches repeated self-reliance and preserves a direct shift refus
   await page.click('button[onclick="runPresend()"]');
   await expect(output).toContainText("LOW");
   await expect(output).toContainText("Clear boundary or limit");
+});
+
+
+test("customer toolkit signup delivers clear success and stays usable on failure", async ({page}) => {
+  await page.goto("/scripts.html");
+  await expect(page.getByRole("heading",{level:1})).toContainText("3 Scripts");
+  await page.route("**/.netlify/functions/subscribe-email", route=>{
+    const body=route.request().postDataJSON();
+    expect(Object.keys(body)).toEqual(["email"]);
+    route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({ok:true})});
+  });
+  await page.fill("#gift-email","test@example.com");
+  await page.click("#submit");
+  await expect(page.locator("#status")).toContainText("You’re on the list");
+  await page.click("#language");
+  await expect(page.locator("#script-1")).toHaveText("No puedo cubrir este turno.");
+  await expect(page.locator("html")).toHaveAttribute("lang","es");
+  await page.unroute("**/.netlify/functions/subscribe-email");
+  await page.route("**/.netlify/functions/subscribe-email",route=>route.fulfill({status:502,contentType:"application/json",body:'{"ok":false}'}));
+  await page.fill("#gift-email","test@example.com");
+  await page.click("#submit");
+  await expect(page.locator("#status")).toContainText("No pudimos conectar");
+  await expect(page.locator("#script-3")).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+});
+
+test("verified marketing drafts in both languages keep their meaning", async ({page}) => {
+  await skipToApp(page);
+  await page.evaluate(()=>localStorage.setItem("sr_pro","1"));
+  await page.click(".panic-btn");
+  const drafts=require("./fixtures/marketing-scenarios.json");
+  for (const item of drafts) {
+    await page.fill("#presendText",item.draft);
+    await page.click('button[onclick="runPresend()"]');
+    const output=page.locator("#receiptOutput");
+    await expect(output).toContainText(item.language==="es"?"BAJO":"LOW");
+    await expect(output).toContainText(item.language==="es"?"No hace falta una reescritura":"No rewrite needed");
+    await expect(output.locator("#presendRewrite")).toHaveCount(0);
+    await output.getByRole("button",{name:"Check Another Message"}).click();
+  }
 });

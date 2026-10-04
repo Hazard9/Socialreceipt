@@ -126,6 +126,37 @@ else fail("context changed repeated self-reliance level");
 if (!analyze('He wrote, "'+coverageDraft+'"', {quoted:true, language:"en"}).signals.some(item => item.id === "resigned-self-reliance")) pass("quoted repeated self-reliance is excluded");
 else fail("quoted repeated self-reliance was counted");
 
+/* Synthetic marketing drafts must retain meaning and work without a forced rewrite. */
+JSON.parse(read("tests/fixtures/marketing-scenarios.json")).forEach(item => {
+  const result = analyze(item.draft, {language:item.language});
+  if (result.level === item.level && result.signals.some(signal=>signal.id===item.signal)) pass("marketing draft: "+item.id);
+  else fail("marketing draft missed: "+item.id);
+  const automatic = analyze(item.draft);
+  if (automatic.language === item.language && automatic.level === item.level) pass("automatic language for marketing draft: "+item.id);
+  else fail("automatic marketing language/read missed: "+item.id);
+});
+const rewriteHtml = read("index.html");
+const rewriteSource = rewriteHtml.slice(rewriteHtml.indexOf("function rewriteMessage("), rewriteHtml.indexOf("/* ── SAVE / LOAD"));
+const rewriteScope = {}; require("vm").runInNewContext(rewriteSource,rewriteScope);
+JSON.parse(read("tests/fixtures/marketing-scenarios.json")).forEach(item => {
+  if (rewriteScope.rewriteMessage(item.draft,null,analyze(item.draft,{language:item.language}),{}) === "") pass("clean marketing draft does not get an invented rewrite: "+item.id);
+  else fail("clean marketing draft rewritten unnecessarily: "+item.id);
+});
+const anxiousDraft = "Is something wrong? I'm worried I did something.";
+if (rewriteScope.rewriteMessage(anxiousDraft,null,analyze(anxiousDraft),{goal:"clarify"}).includes("clarify")) pass("clarifying goal offers a question without inventing intent");
+else fail("clarifying rewrite missing");
+if (rewriteScope.rewriteMessage("I'm sorry you feel that way.",null,analyze("I'm sorry you feel that way."),{}).includes("[name what you did]")) pass("deflective apology rewrite asks for real details");
+else fail("deflective apology rewrite invented an action");
+const reassuranceFollowup = analyze("Just checking in. Do you still care about me?");
+if (!reassuranceFollowup.signals.some(signal=>signal.id==="specific-follow-up")) pass("reassurance is not mislabeled as a concrete-plan follow-up");
+else fail("reassurance mislabeled as a concrete-plan follow-up");
+const mixedFollowup = analyze("Just checking in. Do you still want to meet Saturday? You never help me.");
+if (mixedFollowup.level==="medium") pass("specific follow-up does not hide blame");
+else fail("specific follow-up hides blame");
+const quotedFollowup = analyze('They said, "Just checking in. Do you still want to meet Saturday?"',{quoted:true,language:"en"});
+if (!quotedFollowup.signals.some(signal=>signal.id==="specific-follow-up")) pass("quoted follow-up is excluded");
+else fail("quoted follow-up was counted");
+
 /* Context adds an explanation locally. Goal and situation must not alter the signal level. */
 const boundaryDraft = "I can't make it Saturday. I can do Sunday afternoon if that works.";
 const boundaryBase = analyze(boundaryDraft);

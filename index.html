@@ -726,6 +726,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     </div>
     <div class="landing-cta-eyebrow">3 free receipts. No account required.</div>
     <button class="primary-btn" data-sr-cta="landing_free_check" onclick="startFree()">Start Free. Try Now.</button>
+    <p style="margin:14px 0;text-align:center"><a href="/scripts.html" data-sr-cta="landing_scripts" style="color:var(--gold)">Free: 3 scripts for difficult messages</a></p>
     <div class="landing-free-note">Takes 30 seconds. No sign-up. No data stored.</div>
     <a href="/confidence-profile.html" class="secondary-btn" data-sr-event="confidence_profile_quiz_opened" data-feature="communication_profile_quiz" style="display:block;width:100%;margin-top:12px;padding:15px;text-align:center;border-color:var(--border-warm);border-radius:var(--radius-md);text-decoration:none;font-size:13px">Take the 7-question communication profile quiz</a>
     <div class="landing-divider"></div>
@@ -743,7 +744,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="paywall-overlay hidden" id="paywallOverlay">
   <div class="paywall-sheet">
     <div class="paywall-handle"></div>
-    <div class="paywall-spike" id="paywallSpike">You are about to guess.</div>
+    <div class="paywall-spike" id="paywallSpike">Before you send.</div>
     <div class="paywall-eyebrow">Your next move is locked</div>
     <h2 class="paywall-headline">If you don't unlock this, you are guessing.</h2>
     <p class="paywall-sub">The exact move. The message that keeps your position. The timing window. Lifetime Beta keeps the full decision layer available for one payment.</p>
@@ -966,16 +967,16 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="modal-overlay hidden" id="emailModal">
   <div class="modal-sheet">
     <div style="text-align:center;margin-bottom:6px">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">You are about to guess</div>
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Before you send</div>
     </div>
-    <h2 class="modal-title" id="emailModalTitle">Want the exact move?</h2>
-    <p class="modal-sub" id="emailModalSub">This is the moment people lose the interaction. Enter your email to see what the signals actually say.</p>
+    <h2 class="modal-title" id="emailModalTitle">Get 3 scripts for difficult messages</h2>
+    <p class="modal-sub" id="emailModalSub">Get scripts for saying no, asking for clarity, and apologizing, plus occasional Social Receipt tips. No private message text required.</p>
     <input class="modal-input" type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"/>
     <div class="modal-actions">
-      <button class="primary-btn" id="emailModalSubmitBtn" onclick="saveEmailProfile()">Show me the move</button>
+      <button class="primary-btn" id="emailModalSubmitBtn" onclick="saveEmailProfile()">Send me the 3 scripts</button>
       <button class="ghost-btn" onclick="closeEmailModal()">Not now</button>
     </div>
-    <div class="modal-note" id="emailModalNote">Saved on this device to keep your access linked. No spam.</div>
+    <div class="modal-note" id="emailModalNote">By signing up, you agree to receive the scripts and occasional Social Receipt tips. Unsubscribe anytime.</div><p style="text-align:center;margin:14px 0 0"><a href="/scripts.html" style="color:var(--gold)">Read the scripts now</a></p>
   </div>
 </div>
 
@@ -1619,7 +1620,7 @@ function renderPresendOutput(raw, context) {
   var diagnosis = analysis.summary;
 
   var noSpecificRewrite = analysis.supported && analysis.level === "uncertain" && analysis.signals.length === 0;
-  var rewritten = pro && analysis.supported && !noSpecificRewrite ? rewriteMessage(raw, null, analysis) : null;
+  var rewritten = pro && analysis.supported && !noSpecificRewrite ? rewriteMessage(raw, null, analysis, context) : null;
   var rewriteLabels = presendRewriteLabels(analysis.language);
 
   var html = "<div class=\"presend-card reveal-step shown\">";
@@ -1651,9 +1652,10 @@ function renderPresendOutput(raw, context) {
   if (pro && rewritten) {
     html += "<div class=\"receipt-divider\"><span>"+escapeHtml(rewriteLabels.title)+"</span></div>";
     html += "<div class=\"presend-rewrite-box\" id=\"presendRewrite\" data-language=\""+escapeHtml(analysis.language)+"\">"+escapeHtml(rewritten)+"</div>";
+    if (/\[[^\]]+\]/.test(rewritten)) html += "<p class=\"presend-context-note\">" + (analysis.language === "es" ? "Completa las partes entre corchetes con hechos reales antes de usar esta opción." : "Fill in the bracketed parts with real details before using this option.") + "</p>";
     html += "<div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copyPresendRewrite()\">"+escapeHtml(rewriteLabels.copy)+"</button><button class=\"mini-btn\" onclick=\"runPresend()\">"+escapeHtml(rewriteLabels.again)+"</button></div>";
   } else if (pro) {
-    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(noSpecificRewrite ? rewriteLabels.noPattern : rewriteLabels.unavailable)+"</strong></div>";
+    html += "<div class=\"presend-locked\"><strong>"+escapeHtml(analysis.level === "low" ? rewriteLabels.clean : (noSpecificRewrite ? rewriteLabels.noPattern : rewriteLabels.unavailable))+"</strong></div>";
   } else {
     html += "<div class=\"presend-locked\">";
     html += "<strong>Compare another wording option.</strong>";
@@ -2251,7 +2253,8 @@ function presendRewriteLabels(language) {
     title: "Versión reescrita",
     copy: "Copiar versión",
     again: "Revisar de nuevo",
-    unavailable: "No hay una reescritura disponible para este idioma",
+    unavailable: "No se generó una reescritura fundamentada para este borrador. Conserva tu intención y revisa las señales.",
+    clean: "No hace falta una reescritura según las señales detectadas. Comprueba que las palabras reflejen lo que quieres decir.",
     noPattern: "No se generó una reescritura específica porque no se detectó un patrón claro."
   };
   if (language === "fr") return {
@@ -2259,18 +2262,20 @@ function presendRewriteLabels(language) {
     copy: "Copier la reformulation",
     again: "Vérifier à nouveau",
     unavailable: "Aucune reformulation n’est disponible pour cette langue",
+    clean: "Les signaux détectés ne nécessitent pas de reformulation. Vérifiez que le message reflète votre intention.",
     noPattern: "Aucune reformulation précise n’a été générée, car aucun schéma clair n’a été détecté."
   };
   return {
     title: "Rewritten Version",
     copy: "Copy Rewrite",
     again: "Check Again",
-    unavailable: "A rewrite is not available for this language",
+    unavailable: "No grounded rewrite was generated for this draft. Keep your meaning and review the wording cues.",
+    clean: "No rewrite needed based on the detected cues. Check that the wording keeps your meaning.",
     noPattern: "No draft-specific rewrite was generated because no clear wording pattern was detected."
   };
 }
 
-function rewriteMessage(raw, receipt, analysis) {
+function rewriteMessage(raw, receipt, analysis, context) {
   var original = raw.trim();
   var lower = original.toLowerCase();
   var language = analysis && analysis.language ? analysis.language : "en";
@@ -2284,6 +2289,22 @@ function rewriteMessage(raw, receipt, analysis) {
       return directAction.charAt(0).toUpperCase() + directAction.slice(1) + ".";
     }
   }
+
+  if (analysis && analysis.level === "low") return "";
+  if (analysis && analysis.language === "es" && analysis.signals.some(function(signal) { return signal.id === "resigned-self-reliance"; })) {
+    var repeatedSpanish = original.match(/^(?:bueno[.!?,]\s*)?((?:lo har[eé]|lo hago|me encargar[eé] de esto) yo(?: mismo| misma)?)[, ]+como siempre[.!?]?$/i);
+    if (repeatedSpanish) return repeatedSpanish[1].charAt(0).toUpperCase() + repeatedSpanish[1].slice(1) + ".";
+  }
+  if (analysis && context && context.goal === "clarify" && analysis.signals.some(function(signal) { return signal.id === "reassurance-seeking"; })) {
+    return language === "es" ? "¿Puedes aclarar de qué quieres hablar para poder prepararme?" : "Could you clarify what you'd like to discuss so I can come prepared?";
+  }
+  if (analysis && analysis.signals.some(function(signal) { return signal.id === "deflective-apology"; })) {
+    return language === "es" ? "Perdón por [nombra lo que hiciste]. [Añade una reparación que puedas cumplir]." : "I'm sorry I [name what you did]. [Add a repair you can actually keep].";
+  }
+  if (analysis && language === "es" && analysis.signals.some(function(signal) { return signal.id === "absolute-blame"; })) {
+    return "Quiero hablar de [situación concreta]. Necesito [petición concreta].";
+  }
+  if (analysis && language === "es") return "";
 
   /* Handle mixed signals: frustration softened by minimizing language. */
   var mixedSignal = /\b(honestly|so tired of this|tired of|this is getting old|i am done|i'm done)\b/i.test(lower)
@@ -2336,8 +2357,8 @@ function saveCurrentReceipt() {
     setTimeout(function() {
       var modal = document.getElementById("emailModal");
       if (modal) {
-        document.getElementById("emailModalTitle").textContent = "Want the exact move?";
-        document.getElementById("emailModalSub").textContent = "This is the moment people lose the interaction. Enter your email to unlock the full analysis.";
+        document.getElementById("emailModalTitle").textContent = "Get 3 scripts for difficult messages";
+        document.getElementById("emailModalSub").textContent = "Get scripts for saying no, asking for clarity, and apologizing, plus occasional Social Receipt tips. Your analysis stays available without an email.";
         modal.classList.remove("hidden");
         trackEvent("email_capture_viewed");
       }
@@ -2750,7 +2771,7 @@ function ensureEmailCaptureCard() {
   card.id = "homeEmailCaptureCard";
   card.className = "detail-card";
   card.style.cssText = "margin:0 0 12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.02))";
-  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Keep your progress</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Save your receipts and get your next read.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Add your email to keep your profile linked on this device and receive Social Receipt updates. Your message text stays private.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Add my email</button>";
+  card.innerHTML = "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Before you send</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>Know what you mean. Find the words.</h3><p style='margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5'>Get 3 scripts for saying no, asking for clarity, and apologizing. No private message text required.</p><button class='secondary-btn' data-sr-event='email_capture_viewed' data-feature='home_email_capture' onclick='openLoginModal()'>Send me the 3 scripts</button><p style='margin:10px 0 0'><a href='/scripts.html' style='color:var(--gold)'>Read the scripts now</a></p>";
   if (recent) recent.parentNode.insertBefore(card, recent);
   else home.appendChild(card);
 }
@@ -2913,12 +2934,12 @@ function saveEmailProfile() {
   })
     .then(function(resp) { return resp.json().catch(function(){ return {ok:false}; }); })
     .then(function(data) {
-      if (btn) { btn.disabled = false; btn.textContent = "Show me the move"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Send me the 3 scripts"; }
       closeEmailModal();
       renderProfilePanel();
       renderAll();
       if (data && data.ok) {
-        toast("You are in. Your receipts are linked and you are subscribed.");
+        toast("You are subscribed. Look for the scripts in your inbox if this is your first signup.");
         trackEvent("email_capture_succeeded", { via: "kit" });
       } else if (data && data.error === "not_configured") {
         toast("Saved on this device. Email list signup is not connected yet.");
@@ -2930,7 +2951,7 @@ function saveEmailProfile() {
       haptic([15, 30, 20]);
     })
     .catch(function() {
-      if (btn) { btn.disabled = false; btn.textContent = "Show me the move"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Send me the 3 scripts"; }
       closeEmailModal();
       renderProfilePanel();
       renderAll();
@@ -2998,7 +3019,7 @@ function handlePaymentSuccess() {
         var modal = document.getElementById("emailModal");
         if (modal) {
           document.getElementById("emailModalTitle").textContent = "One more thing";
-          document.getElementById("emailModalSub").textContent = "Save your email to keep Pro access if you switch devices.";
+          document.getElementById("emailModalSub").textContent = "Get 3 scripts and occasional Social Receipt tips. Your paid access remains on this device.";
           modal.classList.remove("hidden");
           trackEvent("email_capture_viewed");
         }

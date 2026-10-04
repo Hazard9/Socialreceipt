@@ -7,7 +7,7 @@
 
   // Local phrase profiles describe wording in one draft, never a person's fixed identity.
   var EN = new Set("i me my you your we us our they them this that it is are was were be been have has had do does did can could would should will not no yes and or but to of for in on with if so just maybe please sorry the a an what why how when where who".split(" "));
-  var ES = new Set("yo me mi tu te usted ustedes nosotros nos ellos ellas esto eso lo la los las es son era fue ser estar estoy estas esta estamos estan tener tengo tiene hay no si y o pero de del al para por en con que como cuando donde quien cual muy ya pues siempre haces mismo soy supongo sientas siento puede quieres nos vemos todo bien voy vas hacer dano arrepentir".split(" "));
+  var ES = new Set("yo me mi tu te usted ustedes nosotros nos ellos ellas esto eso lo la los las es son era fue ser estar estoy estas esta estamos estan tener tengo tiene hay no si y o pero de del al para por en con que como cuando donde quien cual muy ya pues siempre haces mismo soy supongo sientas siento puede quieres nos vemos todo bien voy vas hacer dano arrepentir puedo cubrir turno encargarme asumir perdon haberte hablado queria saber todavia vernos hablar prepararme".split(" "));
 
   function normalize(value) {
     return String(value || "").toLowerCase().normalize("NFKC")
@@ -192,6 +192,7 @@
 
     var en = lang.code === "en";
     var P = en ? {
+      followup: [/\b(?:just )?checking in[.!?, ]{0,8}(?:are we still (?:meeting|on for)|do you still want to (?:meet|talk|catch up)|does .{1,25} still work)\b/],
       deflective: [/\bi'?m sorry (?:that )?you (?:feel|think|believe)\b/, /\bsorry (?:that )?you (?:feel|think|believe)\b/, /\bi apologize that you\b/],
       selfBlame: [/\bi guess i'?m (?:always )?(?:the problem|the bad guy|wrong)\b/, /\bi'?m always the problem\b/, /\bi guess i'?m just a terrible person\b/],
       reluctant: [/\bwhatever you want\b/, /\bif that'?s what you want\b/, /\bfine[,! ]+whatever\b/, /\bsure[,! ]+i guess\b/, /\bi guess that'?s fine\b/, /\bdo whatever you want\b/],
@@ -207,16 +208,17 @@
       repetition: [/\bhow many times\b/, /\bfor the (?:second|third|fourth) time\b/, /\bagain\b/],
       intentAttribution: [/\byou'?re trying to\b/, /\byou are trying to\b/, /\byou just want to\b/, /\byou want me to\b/],
       blame: [/\byou always\b/, /\byou never\b/, /\byou made me\b/, /\byou don'?t care\b/],
-      reassurance: [/\bare we okay\b/, /\bdo you still care\b/, /\bare you mad at me\b/, /\bplease tell me (?:we'?re|you'?re)\b/, /\bdid i do something wrong\b/],
+      reassurance: [/\bis something wrong\b/, /\bi'?m worried i did something\b/, /\bare we okay\b/, /\bdo you still care\b/, /\bare you mad at me\b/, /\bplease tell me (?:we'?re|you'?re)\b/, /\bdid i do something wrong\b/],
       boundary: [/\bi (?:can't|cannot) cover (?:this one|your shift|the shift|another shift)\b/, /\bi can'?t make it\b/, /\bi cannot make it\b/, /\bi can'?t take this on\b/, /\bi cannot take this on\b/, /\bi'?m not available\b/, /\bthat doesn'?t work for me\b/, /\bplease don'?t\b/, /\bplease stop\b/, /\bi need some space\b/],
       apology: [/\bi'?m sorry i\b/, /\bi apologize for\b/, /\bthat was my fault\b/, /\bi was wrong to\b/],
-      clarifier: [/\bto be clear\b/, /\bfor context\b/, /\bwhat i mean is\b/, /\bcan you clarify\b/],
+      clarifier: [/\bwhat (?:would you like|do you want) to discuss\b/, /\bto be clear\b/, /\bfor context\b/, /\bwhat i mean is\b/, /\bcan you clarify\b/],
       repair: [/\bi want to fix this\b/, /\bcan we talk this through\b/, /\bcan we figure this out\b/],
       threat: [/\byou'?ll regret it\b/, /\bi'?ll make you pay\b/, /\bi will hurt you\b/, /\bi'?m going to hurt you\b/, /\bi'?ll hurt you\b/, /\bif you don'?t .{0,35} i'?ll\b/],
       insult: [/\byou are (?:a )?(?:worthless|stupid|an idiot)\b/, /\bshut up\b/, /\bi hate you\b/],
       warmth: [/\bi love you\b/, /\blove you\b/, /\bglad you'?re (?:on your way )?home\b/, /\bxoxo\b/, /\bmiss you\b/],
       careOffer: [/\byou can have\b/, /\bhelp yourself\b/, /\bi saved some for you\b/, /\bthere'?s some for you\b/, /\bi made you\b/, /\bwant some\b/]
     } : {
+      followup: [/\bqueria saber si (?:todavia|aun) quieres (?:vernos|reunirnos)\b/, /\bseguimos (?:con el plan|quedando)\b/],
       deflective: [/\blo siento (?:que )?te sientas asi\b/, /\bsiento que te sientas asi\b/],
       selfBlame: [/\bsupongo que yo soy (?:siempre )?el problema\b/, /\bsupongo que yo siempre soy el problema\b/, /\bsupongo que siempre soy el problema\b/],
       reluctant: [/\blo que tu quieras\b/, /\bsi eso es lo que quieres\b/, /\besta bien[,! ]+lo que quieras\b/, /\bcomo quieras\b/],
@@ -225,17 +227,17 @@
       withdrawal: [/\bya no quiero hablar\b/, /\bno me hables\b/, /\bolvidalo\b/, /\bno importa\b/, /\bse acabo\b/],
       minimizing: [/\bno pasa nada\b/, /\bno hay problema\b/, /\besta bien\b/, /\bno importa\b/, /\bno te preocupes\b/],
       resentment: [/\bcomo siempre\b/, /\bsi tu lo dices\b/, /\bya me lo imaginaba\b/, /\bno me sorprende\b/],
-      resignation: [/\bme las arreglo solo\b/, /\bme las arreglo sola\b/, /\bsupongo que tendre que (?:resolverlo|hacerlo) yo\b/],
+      resignation: [/(?:^|[.!?]\s*)(?:bueno[.!?,]\s*)?(?:lo hare|lo hago|me encargare de esto) yo(?: mismo| misma)?[, ]+como siempre\b/, /\bme las arreglo solo\b/, /\bme las arreglo sola\b/, /\bsupongo que tendre que (?:resolverlo|hacerlo) yo\b/],
       frustration: [/\bestoy harto de\b/, /\bestoy harta de\b/, /\bestoy cansado de\b/, /\bestoy cansada de\b/, /\bme canse de\b/, /\besto es injusto\b/, /\besto ya cansa\b/],
       deferential: [/\bcuando puedas\b/, /\bcuando tengas tiempo\b/, /\bse que estas ocupado\b/, /\bse que estas ocupada\b/],
       defensiveProof: [/\bya te dije\b/, /\bya te explique\b/, /\bte lo dije antes\b/],
       repetition: [/\bcuantas veces\b/, /\bpor tercera vez\b/, /\botra vez\b/],
       intentAttribution: [/\bestas tratando de\b/, /\bquieres que yo\b/, /\bsolo quieres\b/],
       blame: [/\bsiempre haces\b/, /\bnunca haces\b/, /\btu me hiciste\b/, /\bno te importa\b/],
-      reassurance: [/\bestamos bien\b/, /\btodavia te importo\b/, /\bestas enojado conmigo\b/, /\bhice algo mal\b/],
-      boundary: [/\bno puedo ir\b/, /\bno puedo asistir\b/, /\bno estoy disponible\b/, /\bno me funciona\b/, /\bpor favor no\b/, /\bnecesito espacio\b/, /\b(?:ya )?no quiero hablar ahora\b/],
-      apology: [/\bperdon por lo que hice\b/, /\blo siento por\b/, /\bfue mi culpa\b/],
-      clarifier: [/\bpara ser claro\b/, /\bpara dar contexto\b/, /\blo que quiero decir es\b/, /\bpuedes aclarar\b/],
+      reassurance: [/\b(?:paso|pasa) algo\b/, /\bme preocupa haber hecho algo\b/, /\bestamos bien\b/, /\btodavia te importo\b/, /\bestas enojado conmigo\b/, /\bhice algo mal\b/],
+      boundary: [/\bno puedo cubrir (?:este|otro|tu|el) turno\b/, /\bno puedo encargarme de (?:esto|eso)\b/, /\bno puedo asumir (?:esto|eso)\b/, /\bno puedo ir\b/, /\bno puedo asistir\b/, /\bno estoy disponible\b/, /\bno me funciona\b/, /\bpor favor no\b/, /\bnecesito espacio\b/, /\b(?:ya )?no quiero hablar ahora\b/],
+      apology: [/\bperdon por (?:haberte|haber) (?:hablado|gritado|dicho)\b/, /\blo siento por (?:haberte|haber)\b/, /\bperdon por lo que hice\b/, /\blo siento por\b/, /\bfue mi culpa\b/],
+      clarifier: [/\bde que (?:quieres|te gustaria) hablar\b/, /\bpara ser claro\b/, /\bpara dar contexto\b/, /\blo que quiero decir es\b/, /\bpuedes aclarar\b/],
       repair: [/\bquiero arreglar esto\b/, /\bpodemos hablarlo\b/, /\bpodemos resolverlo\b/],
       threat: [/\bte vas a arrepentir\b/, /\bte voy a hacer pagar\b/, /\bte voy a hacer dano\b/],
       insult: [/\beres un idiota\b/, /\beres estupido\b/, /\bcallate\b/, /\bte odio\b/],
@@ -268,7 +270,7 @@
         "conversation-close": ["withdrawal"], "absolute-blame": ["blame"],
         "reassurance-seeking": ["reassurance"], "boundary-setting": ["boundary"],
         "accountability-apology": ["apology"], "clarifier": ["clarifier"],
-        "repair-attempt": ["repair"], "threat": ["threat"], "insult": ["insult"],
+        "repair-attempt": ["repair"], "specific-follow-up": ["followup"], "threat": ["threat"], "insult": ["insult"],
         "resigned-self-reliance": ["resignation"], "warmth-care": ["warmth", "careOffer"]
       };
       var evidence = (evidenceMap[id] || []).map(function (key) { return matches[key]; }).filter(Boolean).slice(0, 3);
@@ -293,6 +295,7 @@
     if (found.boundary) add("boundary-setting", en ? "Clear boundary or limit" : "Límite claro", en ? "A limit is not automatically hostile or high-risk." : "Un límite no es automáticamente hostil ni de alto riesgo.", "positive", "Boundary Protector-style limit");
     if (found.apology) add("accountability-apology", en ? "Accountability cue" : "Señal de responsabilidad", en ? "Names the sender's own action. A specific repair can make the apology clearer." : "Nombra una acción propia. Una reparación concreta puede aclarar la disculpa.", "positive", "Conflict Resolver-style repair");
     if (found.clarifier) add("clarifier", en ? "Clarifying or context-setting cue" : "Señal para aclarar o dar contexto", en ? "Appears aimed at making meaning or context clearer." : "Parece buscar claridad en el significado o el contexto.", "positive", "Clarifier-style explanation");
+    if (found.followup) add("specific-follow-up", en ? "Follow-up about a specific plan" : "Seguimiento de un plan concreto", en ? "Asks about a concrete plan rather than demanding reassurance. Frequency, timing, and other wording can change how it lands." : "Pregunta por un plan concreto sin exigir tranquilidad. La frecuencia, el momento y otras palabras pueden cambiar cómo se recibe.", "positive");
     if (found.repair) add("repair-attempt", en ? "Repair-oriented cue" : "Señal de intención reparadora", en ? "Expresses interest in understanding or resolving the issue." : "Expresa interés en entender o resolver el problema.", "positive", "Conflict Resolver-style repair");
     if (found.warmth || found.careOffer) add("warmth-care", en ? "Warmth or care cue" : "Señal de afecto o atención", en ? "Affection, a welcome, or an offer of care appears in the draft. That can support a warm reading, but it cannot guarantee how the whole message will land." : "El borrador expresa afecto, bienvenida o una oferta de atención. Esto puede apoyar una lectura cálida, pero no garantiza cómo se recibirá el mensaje completo.", "positive");
     if (found.threat) add("threat", en ? "Threat or coercion cue" : "Señal de amenaza o coacción", en ? "Contains direct threat or coercive wording." : "Contiene lenguaje de amenaza directa o coacción.", "high");
@@ -311,7 +314,7 @@
       summary = en ? "A wording pattern may land as defensive, dismissive, blaming, or pressuring. Context can change that reading." : "Un patrón puede sonar defensivo, despectivo, acusatorio o insistente. El contexto puede cambiar esa lectura.";
     } else if (hasPositive) {
       level = "low"; label = en ? "LOW. No common pressure cue detected." : "BAJO. No se detectó una señal común de presión.";
-      summary = en ? "The wording includes warmth, care, a boundary, accountability, repair, or clarification. This is not a guarantee about how it will land." : "La frase expresa afecto, atención, un límite, responsabilidad, reparación o aclaración. Esto no garantiza cómo se recibirá.";
+      summary = en ? "The wording includes warmth, care, a boundary, accountability, repair, clarification, or a specific follow-up. This is not a guarantee about how it will land." : "La frase expresa afecto, atención, un límite, responsabilidad, reparación, aclaración o un seguimiento concreto. Esto no garantiza cómo se recibirá.";
     } else {
       level = "uncertain"; label = en ? "UNCLEAR. No clear wording pattern detected." : "NO ESTÁ CLARO. No se detectó un patrón claro.";
       summary = en ? "No strong pattern from this local phrase library was detected. That does not prove the message is neutral or low-pressure." : "La biblioteca local no detectó un patrón claro. Eso no demuestra que el mensaje sea neutral o sin presión.";

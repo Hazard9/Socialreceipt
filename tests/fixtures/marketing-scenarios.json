@@ -1,0 +1,12 @@
+[
+ {"id":"shift-en","language":"en","draft":"I can't cover this one.","level":"low","signal":"boundary-setting"},
+ {"id":"shift-es","language":"es","draft":"No puedo cubrir este turno.","level":"low","signal":"boundary-setting"},
+ {"id":"apology-en","language":"en","draft":"I'm sorry I snapped at you. That wasn't fair.","level":"low","signal":"accountability-apology"},
+ {"id":"apology-es","language":"es","draft":"Perdón por haberte hablado así. No estuvo bien.","level":"low","signal":"accountability-apology"},
+ {"id":"followup-en","language":"en","draft":"Just checking in. Do you still want to meet Saturday?","level":"low","signal":"specific-follow-up"},
+ {"id":"followup-es","language":"es","draft":"Quería saber si todavía quieres vernos el sábado.","level":"low","signal":"specific-follow-up"},
+ {"id":"clarity-en","language":"en","draft":"Sure. What would you like to discuss so I can come prepared?","level":"low","signal":"clarifier"},
+ {"id":"clarity-es","language":"es","draft":"Claro. ¿De qué quieres hablar para poder prepararme?","level":"low","signal":"clarifier"},
+ {"id":"boundary-en","language":"en","draft":"I can't take this on.","level":"low","signal":"boundary-setting"},
+ {"id":"boundary-es","language":"es","draft":"No puedo encargarme de esto.","level":"low","signal":"boundary-setting"}
+]
