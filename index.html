@@ -980,6 +980,26 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   </div>
 </div>
 
+<!-- LIMIT WALL — shown when a free user hits the monthly read cap.
+  Email capture first (the trade: one bonus read), paywall second.
+  Added 2026-10-10. Copy is draft pending owner approval. -->
+<div class="modal-overlay hidden" id="limitWallModal">
+  <div class="modal-sheet">
+    <div style="text-align:center;margin-bottom:6px">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Free reads used</div>
+    </div>
+    <h2 class="modal-title">You've used your 3 free reads.</h2>
+    <p class="modal-sub">The next one that matters should not be a guess. Save your reads and keep going.</p>
+    <input class="modal-input" type="email" id="wallEmailInput" placeholder="your@email.com" autocomplete="email"/>
+    <div class="modal-actions">
+      <button class="primary-btn" id="wallEmailSubmitBtn" onclick="saveWallEmail()">Save my reads</button>
+      <button class="ghost-btn" onclick="closeLimitWall();openPaywall();">Continue</button>
+    </div>
+    <div class="modal-note">Your reads, saved. Occasional tips. Unsubscribe anytime.</div>
+    <p style="text-align:center;margin:14px 0 0;font-size:12px;color:var(--muted)">Or unlock unlimited now: <a href="#" onclick="closeLimitWall();openPaywall();return false;" style="color:var(--gold)">$9/mo or $39 once</a></p>
+  </div>
+</div>
+
 <!-- SCREENSHOT UPLOAD OVERLAY — no automatic text extraction. See handleScreenshotUpload(). -->
 <div class="modal-overlay hidden" id="screenshotModal">
   <div class="modal-sheet" style="max-width:460px;max-height:90vh;overflow-y:auto">
@@ -1150,12 +1170,37 @@ function setReceipts(r) { localStorage.setItem("socialReceipts",JSON.stringify(r
 /* ── PRO ── */
 var FREE_LIMIT = 3;
 function isPro() { return localStorage.getItem("sr_pro")==="1"; }
+/* Free-read accounting: counts GENERATIONS (receipts + pre-send checks),
+   not saves. The old implementation counted saved receipts, but generation
+   never auto-saved, so the counter sat at 0 forever and the limit never
+   fired. Fixed 2026-10-10: every generation bumps the monthly counter. */
+function freeMonthKey() { var n=new Date(); return n.getFullYear()+"-"+n.getMonth(); }
 function getFreeUsed() {
-  var now = new Date(); var mo = now.getFullYear()+"-"+now.getMonth();
-  return getReceipts().filter(function(r){var d=new Date(r.createdAt);return (d.getFullYear()+"-"+d.getMonth())===mo;}).length;
+  var n = parseInt(localStorage.getItem("sr_free_used_"+freeMonthKey())||"0", 10);
+  return isNaN(n) ? 0 : n;
 }
+function bumpFreeUsed() {
+  var n = getFreeUsed()+1;
+  try { localStorage.setItem("sr_free_used_"+freeMonthKey(), String(n)); } catch(e){}
+  return n;
+}
+function getBonusReads() {
+  var n = parseInt(localStorage.getItem("sr_bonus_reads")||"0", 10);
+  return isNaN(n) ? 0 : n;
+}
+function grantBonusRead() {
+  try { localStorage.setItem("sr_bonus_reads", String(getBonusReads()+1)); } catch(e){}
+}
+function hasGivenWallEmail() {
+  try {
+    if (localStorage.getItem("sr_wall_email_given")==="1") return true;
+    // Anyone who gave their email through the older capture modal should
+    // not be asked again at the wall; they go straight to the paywall.
+    return !!localStorage.getItem("sr_user_email");
+  } catch(e){ return false; }
+}
+function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT + getReferralCredits() + getBonusReads(); }
 function getReferralCredits() { return parseInt(localStorage.getItem("sr_referral_credits") || "0", 10); }
-function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT + getReferralCredits(); }
 
 /* ── LANDING ── */
 function startFree() {
@@ -1197,6 +1242,47 @@ function openPaywall(spikeMsg) {
   trackEvent("ownership_proof_viewed");
 }
 function dismissPaywall() { document.getElementById("paywallOverlay").classList.add("hidden"); }
+
+/* ── LIMIT WALL ──
+   Shown when a free user exhausts monthly reads. Email capture is the
+   primary action (one bonus read in exchange); the paywall is secondary.
+   Added 2026-10-10. */
+function openLimitWall() {
+  if (hasGivenWallEmail()) { openPaywall(); return; }
+  document.getElementById("limitWallModal").classList.remove("hidden");
+  trackEvent("limit_wall_viewed");
+  haptic([10,20]);
+}
+function closeLimitWall() { document.getElementById("limitWallModal").classList.add("hidden"); }
+function saveWallEmail() {
+  var input = document.getElementById("wallEmailInput");
+  if (!input) return;
+  var email = input.value.trim();
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast("Enter a valid email address."); return; }
+  var btn = document.getElementById("wallEmailSubmitBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
+  trackEvent("limit_wall_email_started");
+  try { localStorage.setItem("sr_user_email", email); } catch(e){}
+  function done(ok) {
+    try { localStorage.setItem("sr_wall_email_given", "1"); } catch(e){}
+    grantBonusRead();
+    if (btn) { btn.disabled = false; btn.textContent = "Save my reads"; }
+    closeLimitWall();
+    renderAll();
+    toast(ok ? "One more read unlocked. Your reads are saved."
+             : "One more read unlocked. We will sync your email shortly.");
+    trackEvent(ok ? "limit_wall_email_succeeded" : "limit_wall_email_deferred");
+    haptic([15,30,20]);
+  }
+  fetch("/.netlify/functions/subscribe-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email })
+  })
+    .then(function(resp){ return resp.json().catch(function(){ return {ok:false}; }); })
+    .then(function(data){ done(!!(data && data.ok)); })
+    .catch(function(){ done(false); });
+}
 /*
 ════════════════════════════════════════════
 STRIPE PAYMENT LINKS
@@ -1558,7 +1644,7 @@ function recordReferralActivation(receipt) {
 }
 
 function generateReceipt() {
-  if (!canCreate()) { openPaywall("You are about to send this without seeing the outcome pattern."); return; }
+  if (!canCreate()) { openLimitWall(); return; }
   var raw = document.getElementById("interactionText") ? document.getElementById("interactionText").value.trim() : "";
   if (!raw) { toast("Add the interaction first. Even a short summary works."); return; }
   haptic([10,50,10]);
@@ -1574,6 +1660,7 @@ function generateReceipt() {
     clearInterval(lInterval);
     var receipt = buildReceipt(raw);
     state.currentReceipt = receipt;
+    bumpFreeUsed();
     document.getElementById("loadingPanel").classList.remove("active");
     renderReceiptOutput(receipt, false);
     haptic([15,30,60]);
@@ -1598,6 +1685,7 @@ function onPresendContextChange() {
 }
 
 function runPresend() {
+  if (!canCreate()) { openLimitWall(); return; }
   var raw = document.getElementById("presendText") ? document.getElementById("presendText").value.trim() : "";
   if (!raw) { toast("Paste the message you are about to send."); return; }
   var context = readPresendContext();
@@ -1607,6 +1695,7 @@ function runPresend() {
   document.getElementById("loadingLabel").textContent = "Checking your message\u2026";
   setTimeout(function() {
     document.getElementById("loadingPanel").classList.remove("active");
+    bumpFreeUsed();
     renderPresendOutput(raw, context);
     haptic([15,50]);
   }, 900);
