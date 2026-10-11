@@ -2,12 +2,20 @@
   Social Receipt — Kit email capture
   ==================================
   Keeps the Kit API key server-side. The frontend POSTs { email } here;
-  this function creates/updates the subscriber in Kit, then adds that
-  subscriber to the configured Social Receipt form.
+  this function creates/updates the subscriber in Kit, adds that
+  subscriber to the configured Social Receipt form, and enrolls them
+  directly in the welcome sequence.
 
   Required Netlify environment variables:
     KIT_API_KEY   — Kit API key from the developer settings page
     KIT_FORM_ID   — numeric ID of the Social Receipt Kit form
+
+  Optional Netlify environment variables:
+    KIT_SEQUENCE_ID — numeric ID of the welcome email sequence.
+                      Defaults to 2915826 ("Social Receipt: The Clear
+                      Message Map"). The Kit v4 API has no automation
+                      endpoints, so the sequence enrollment happens here
+                      instead of via a form -> sequence automation.
 
   Kit API v4 is used intentionally. The older v3 form-subscribe endpoint
   is deprecated and accepted tag names inconsistently. Tags can be added
@@ -16,6 +24,7 @@
 
 const KIT_API_BASE = "https://api.kit.com/v4";
 const APP_REFERRER = "https://socialreceipt.netlify.app/";
+const DEFAULT_SEQUENCE_ID = "2915826"; // Social Receipt: The Clear Message Map
 
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
@@ -104,6 +113,28 @@ exports.handler = async function (event) {
       status: formResponse.status,
     });
     return json(502, { ok: false, error: "kit_form_error" });
+  }
+
+  // Enroll directly in the welcome sequence. The Kit v4 API exposes no
+  // automation endpoints, so this replaces the form -> sequence automation
+  // for app captures. A sequence failure must not lose the capture: the
+  // subscriber is already saved on the form above.
+  const sequenceId = String(process.env.KIT_SEQUENCE_ID || DEFAULT_SEQUENCE_ID).trim();
+  if (sequenceId) {
+    try {
+      const seqResponse = await kitRequest(
+        "/sequences/" + encodeURIComponent(sequenceId) + "/subscribers/" + encodeURIComponent(subscriberId),
+        apiKey,
+        { method: "POST", body: { referrer: APP_REFERRER } }
+      );
+      if (!seqResponse.ok) {
+        console.error("subscribe-email_sequence_error", { status: seqResponse.status, sequenceId });
+      }
+    } catch (err) {
+      console.error("subscribe-email_sequence_request_failed", {
+        name: err && err.name ? err.name : "Error",
+      });
+    }
   }
 
   return json(200, { ok: true });
