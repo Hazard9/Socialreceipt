@@ -42,6 +42,26 @@ to = "/?utm_source=instagram&utm_medium=organic_social&utm_campaign=communicatio
 status = 302
 
 [[redirects]]
+from = "/go/tt-cr"
+to = "/?utm_source=tiktok&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=conflict_resolver_20261013&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=conflict_resolver_v1"
+status = 302
+
+[[redirects]]
+from = "/go/ig-cr"
+to = "/?utm_source=instagram&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=conflict_resolver_20261013&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=conflict_resolver_v1"
+status = 302
+
+[[redirects]]
+from = "/go/tt-bp"
+to = "/?utm_source=tiktok&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=boundary_protector_20261015&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=boundary_protector_v1"
+status = 302
+
+[[redirects]]
+from = "/go/ig-bp"
+to = "/?utm_source=instagram&utm_medium=organic_social&utm_campaign=communication_pattern_profiles&utm_content=boundary_protector_20261015&content_series=communication_pattern_profiles&utm_term=hook_a&utm_experiment=boundary_protector_v1"
+status = 302
+
+[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
