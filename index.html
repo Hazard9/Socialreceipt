@@ -2130,6 +2130,8 @@ function renderReceiptOutput(receipt, savedView) {
 
 /* ── LOCKED SECTION — with regret simulation ── */
 function lockedSection(receipt) {
+  if (receipt.guidance) return '<div class="locked-section"><div class="locked-gate"><div class="locked-gate-icon">&#128274;</div><h3 class="locked-gate-headline">Keep comparing your wording.</h3><p class="locked-gate-sub">Pro adds unlimited checks and saved patterns. A wording check cannot predict another person’s response.</p><button class="locked-gate-btn" onclick="openPaywall(&quot;Compare wording options with your goal.&quot;)">Explore Pro &#8594;</button><div class="locked-gate-price">$9/mo &middot; $39 lifetime &middot; cancel anytime</div><div class="locked-gate-dismiss" onclick="dismissLocked(this)">Continue on Free</div></div></div>';
+
   var ghostNext = receipt.next || "Wait. Then send exactly one sentence.";
   var ghostMsg  = receipt.message || "Hey. Just checking in.";
   var ghostTime = receipt.timing || "Tomorrow morning";
@@ -3737,6 +3739,7 @@ function positionMeterHtml(receipt) {
 
 
 function oneLineFixHtml(receipt) {
+  if (receipt.guidance) return "";
   var msg   = receipt.message || "";
   var words = msg.split(/\s+/);
   if (words.length <= 8) return ""; /* Already short — no fix needed */

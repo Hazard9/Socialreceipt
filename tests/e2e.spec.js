@@ -165,6 +165,8 @@ test("3. creating a normal receipt shows a verdict and a Pro upsell for free use
   await expect(page.locator("#receiptOutput")).toContainText("Save for later");
   // Free users hit the gate with an honest explanation of what Pro adds, not a fake result
   await expect(page.locator("#receiptOutput")).toContainText("Continue on Free");
+  await expect(page.locator("#receiptOutput")).not.toContainText("Their reply is shorter than yours");
+  await expect(page.locator("#receiptOutput")).not.toContainText("before getting ghosted");
 });
 
 test("3a. clipboard sharing preserves referral attribution without private text", async ({ page }) => {
