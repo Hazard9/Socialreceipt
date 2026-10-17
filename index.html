@@ -438,7 +438,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .presend-context summary::-webkit-details-marker{display:none;}
 .presend-context summary:after{content:"＋";float:right;color:var(--muted);}
 .presend-context[open] summary:after{content:"−";}
-.goal-context{margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);}.goal-context summary{cursor:pointer;color:var(--gold-2);font-size:12px;}.goal-context select{width:100%;padding:9px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);}.presend-context-fields{display:grid;gap:9px;padding-top:11px;}
+.presend-context-fields{display:grid;gap:9px;padding-top:11px;}
 .presend-context-field{display:grid;gap:5px;}
 .presend-context-field label{font-size:11px;color:var(--muted);}
 .presend-context select{width:100%;padding:9px 10px;border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text);border:1px solid var(--border);font-size:12px;}
@@ -1024,7 +1024,6 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 </main>
 
 <script src="/presend-analysis.js"></script>
-<script src="/draft-guidance.js"></script>
 <script>
 "use strict";
 
@@ -1360,31 +1359,18 @@ function renderFormArea() {
   }
 }
 
-function draftContextHtml(prefix, outgoing) {
-  return '<details class="goal-context"><summary>Goal and message context</summary><div class="presend-context-fields">' +
-    '<div class="presend-context-field"><label for="'+prefix+'Perspective">Whose words are these?</label><select id="'+prefix+'Perspective"><option value="'+(outgoing ? 'outgoing' : '')+'">'+(outgoing ? 'My outgoing draft' : 'Choose to get a relevant suggestion')+'</option><option value="outgoing">My outgoing draft</option><option value="received">A message I received</option><option value="exchange">An exchange or summary</option></select></div>' +
-    (outgoing ? '' : '<div class="presend-context-field"><label for="'+prefix+'SpecificGoal">What should your message do?</label><select id="'+prefix+'SpecificGoal"><option value="">Choose a goal</option><option value="confirm">Confirm a plan</option><option value="decline">Decline optional work or an invitation</option><option value="boundary">State a limit</option><option value="help">Ask for help</option><option value="request">Make a specific request</option><option value="repair">Apologize or repair</option><option value="input">Ask for a say in a decision</option><option value="feedback">Clarify feedback</option><option value="connection">Ask for time together</option><option value="alternative">Offer another available time</option><option value="pause">Pause, then return to the conversation</option><option value="end">End something</option><option value="clarify">Clarify meaning</option></select></div>') +
-    '<div class="presend-context-field"><label for="'+prefix+'Urgency">Does this need urgent action?</label><select id="'+prefix+'Urgency"><option value="">Not specified</option><option value="nonurgent">Nonurgent</option><option value="urgent">Urgent or a deadline is due</option></select></div>' +
-    (outgoing ? '' : '<label class="presend-context-quote"><input type="checkbox" id="'+prefix+'Quoted"> Exclude wording inside quotation marks</label>') + '</div></details>';
-}
-function readDraftContext(prefix) {
-  function val(suffix) { var el = document.getElementById(prefix + suffix); return el ? el.value : ''; }
-  var quoted = document.getElementById(prefix + 'Quoted');
-  return {perspective:val('Perspective'), goal:val('SpecificGoal'), urgency:val('Urgency'), quoted:!!(quoted && quoted.checked)};
-}
-
 function afterFormHtml() {
   return '<div class="form-card card"><div class="step-label"><div class="step-count">1</div><h2>What was this?</h2></div><div class="pill-grid" id="scenarioPills"></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">2</div><h2>How did it happen?</h2></div><div class="pill-grid" id="formatPills"></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">3</div><h2>What happened?</h2></div><div class="input-with-voice"><textarea id="interactionText" placeholder="Paste the exchange, describe the moment, or summarize. The more specific, the sharper the read." oninput="onTextInput(this)"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;interactionText&quot;,&quot;voiceStatus&quot;)" aria-label="Talk to text for your interaction">&#127908; Talk to text</button></div><div class="voice-status" id="voiceStatus" aria-live="polite"></div><div class="micro-feedback" id="microFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="microFeedbackText"></span></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">4</div><h2>How do you feel?</h2></div><div class="pill-grid" id="feelingPills"></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">5</div><h2>What do you want?</h2></div><div class="pill-grid" id="outcomePills"></div></div>' +
-    draftContextHtml('receipt', false) + '<div class="form-actions"><button class="primary-btn" onclick="generateReceipt()">Generate Receipt</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
+    '<div class="form-actions"><button class="primary-btn" onclick="generateReceipt()">Generate Receipt</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
 function presendFormHtml() {
-  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation (clarify which)</option><option value="confirm">Confirm a plan</option><option value="help">Ask for help</option><option value="input">Ask for a say in a decision</option><option value="feedback">Clarify feedback</option><option value="connection">Ask for time together</option><option value="alternative">Offer another available time</option><option value="pause">Pause, then return</option><option value="end">End something</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><div class="presend-context-field"><label for="presendLanguage">Language of this draft</label><select id="presendLanguage" onchange="onPresendContextChange()"><option value="">Auto-detect</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
-    draftContextHtml('draft', true) + '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
+  return '<div class="form-card card"><div class="step-label"><div class="step-count">!</div><h2>Paste the message you are about to send</h2></div><div class="input-with-voice"><textarea id="presendText" placeholder="Paste exactly what you were going to send. Do not clean it up. The read is more accurate on the raw version." oninput="onPresendInput(this)" rows="6"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;presendText&quot;,&quot;presendVoiceStatus&quot;)" aria-label="Talk to text for your message">&#127908; Talk to text</button></div><div class="voice-status" id="presendVoiceStatus" aria-live="polite"></div><details class="presend-context"><summary>Add optional context</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="presendGoal">What are you trying to do?</label><select id="presendGoal" onchange="onPresendContextChange()"><option value="">Choose a goal (optional)</option><option value="boundary">Set a boundary</option><option value="repair">Repair after a disagreement</option><option value="clarify">Clarify something</option><option value="request">Make a request</option><option value="decline">Decline</option><option value="close">Pause or close the conversation</option></select></div><div class="presend-context-field"><label for="presendSituation">What is the situation?</label><select id="presendSituation" onchange="onPresendContextChange()"><option value="">Not sure / skip</option><option value="after_conflict">This follows a disagreement</option><option value="routine">Routine conversation</option></select></div><div class="presend-context-field"><label for="presendLanguage">Language of this draft</label><select id="presendLanguage" onchange="onPresendContextChange()"><option value="">Auto-detect</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option></select></div><label class="presend-context-quote"><input type="checkbox" id="presendQuoted" onchange="onPresendContextChange()"> Some wording is quoted from someone else</label><span class="presend-context-hint">English, Spanish, and French phrase packs are available; other languages stay unclear. Your goal and situation shape the explanation. Marked quoted text is excluded from phrase matching when inside quotation marks. None of this proves intent.</span></div></details><div class="micro-feedback" id="presendFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="presendFeedbackText"></span></div></div>' +
+    '<div class="form-actions"><button class="primary-btn" onclick="runPresend()">Check This Message</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
 function coldReadFormHtml() {
@@ -1588,28 +1574,33 @@ function getVerdict(a, feeling, scenario) {
 }
 
 /* ── BUILD RECEIPT ── */
-function buildReceipt(rawText, suppliedContext) {
-  var context = suppliedContext || readDraftContext('receipt');
-  var analysis = window.SocialReceiptAnalysis.analyze(rawText, context);
-  var guidance = window.SocialReceiptGuidance.guide(rawText, context, analysis);
-  var a = analyzeText(rawText);
-  var primary = guidance.primary;
-  var why = analysis.signals.map(function(signal) {
-    return escapeHtml(signal.label + ': ' + signal.detail + (signal.evidence.length ? ' Matched wording: ' + signal.evidence.join(' + ') : ''));
-  });
-  if (!why.length) why.push(escapeHtml(analysis.summary));
-  var receipt = makeReceipt(rawText,state.scenario,state.feeling,state.desiredOutcome,a,0,why,
-    primary ? primary.label : analysis.label,
-    'Unknown', context.perspective === 'outgoing' ? 'Your outgoing wording' : 'Perspective needs context',
-    {high:'High',medium:'Medium',low:'Low',uncertain:'Unclear'}[analysis.level], 'Unknown',
-    guidance.question ? 'Clarify the goal' : 'Review the wording',
-    primary ? primary.detail : analysis.summary,
-    'Do not treat wording cues as proof of someone’s intentions or promise an outcome.',
-    guidance.next, guidance.suggestion, context.urgency === 'urgent' ? 'Follow the relevant urgent procedure' : 'Depends on urgency and the actual decision due');
-  receipt.summary = 'This checks wording and your selected goal. It cannot measure another person’s interest.';
-  receipt.guidance = guidance;
-  receipt.analysisContext = context;
-  return receipt;
+function buildReceipt(rawText) {
+  var scenario=state.scenario,feeling=state.feeling,desired=state.desiredOutcome;
+  var a=analyzeText(rawText);
+  var confidence=computeConfidence(a,feeling);
+  var whySignals=buildWhySignals(a,feeling);
+  var verdict=getVerdict(a,feeling,scenario);
+  var interest="Medium",energy="Balanced",risk="Medium",momentum="Neutral";
+  var bestMove="Wait before replying";
+  var hidden="The pressure you feel is coming from inside the read, not the interaction.";
+  var dont="Do not try to resolve this tonight.";
+  var next="Step back. Let the situation breathe before you decide on a move.";
+  var message="Hey. I am around whenever you want to pick this back up.";
+  var timing="Tomorrow morning";
+
+  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="They read the message and chose not to respond yet. More from you does not change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);}
+  if(scenario==="Work"||a.professional){interest="Professional";energy="Work dynamic";risk="Low";momentum="Stable";bestMove="Follow up clearly";hidden="Workplace tension resolves faster when you stay neutral and document clearly.";dont="Do not make this personal in writing. Tone in email is permanent.";next="Send one short, professional follow-up. Move the action forward without emotional weight.";message="Hi. Just wanted to follow up. Happy to connect briefly.";timing="Within business hours";}
+  if(scenario==="Sales / Client"||a.sales){interest="Evaluating";energy="Client-paced";risk="Medium";momentum="Pending";bestMove="Soft close";hidden="Silence from a client usually means they are deciding, not decided against.";dont="Do not send a second follow-up before the first one has had time to land.";next="One short message. Clear and easy next step. Then hold.";message="Hey. Just checking in. Happy to answer questions or jump on a quick call.";timing="24-48 hours";}
+  if(scenario==="Conflict"||a.conflict){interest="Unclear";energy="Tense";risk="High";momentum="Stalled";bestMove="Create space";hidden="In conflict, they need to feel heard before they can respond calmly.";dont="Do not try to win this over text. The channel is too low for this conversation.";next="Give this 24 hours. Then one sentence acknowledging their position, not defending yours.";message="I hear you. I do not want to make this worse over text. Let's come back to it calmly.";timing="24 hours minimum";}
+  if(scenario==="Date"||a.romantic){interest="Reading signals";energy="Balanced";risk="Low";momentum="Open";bestMove="Reply warmly, briefly";hidden="Most post-date anxiety is about your own uncertainty, not a signal from them.";dont="Do not over-analyse time between replies. Timing is rarely the signal.";next="Send one short, warm message. Leave a thread open for them to follow.";message="Had a really good time. We should do it again soon.";timing="Tonight or tomorrow";}
+  if(a.positive&&!a.conflict){interest="High";energy="Mutual";risk="Low";momentum="Moving";bestMove="Reply and move forward";hidden="When energy is mutual, the only risk is over-managing it.";dont="Do not add complexity to something that is already working.";next="Keep momentum going. One easy, forward-moving message.";timing="Now or tonight";}
+  if(a.delay){risk="Medium-High";momentum="Slowing";energy="You chasing";hidden="Delayed responses usually mean distraction or decision. Give it time.";dont="Do not send another message before they respond to the last one.";next="Wait. If no response in 48 hours, send one short, low-pressure check-in.";bestMove="Wait";timing="48 hours";}
+  if(a.apology){risk="Medium";hidden="An apology not followed by changed behaviour often reopens the wound.";dont="Do not accept the apology and immediately return to the original issue.";next="Acknowledge briefly. Give it space to settle before the next conversation.";timing="24 hours";}
+  if(a.oneWord&&!a.positive){interest="Low";energy="You chasing";risk="Medium-High";momentum="Slowing";bestMove="Reply short or wait";hidden="When someone gives one-word replies, adding more words rarely helps.";dont="Do not send a paragraph when they gave you one line.";next="If you reply at all, keep it to one sentence. Let them re-engage on their own.";timing="Later today";}
+  if(feeling==="Anxious"){risk="Medium-High";bestMove="Wait";timing="Tomorrow morning";hidden="Anxious reads are almost always more negative than the actual situation.";dont="Do not send a message to manage your own anxiety. That rarely ends well.";next="Wait until you feel calmer. The same message reads differently from a settled place.";}
+  if(feeling==="Rejected"){risk="Medium-High";bestMove="Create space";timing="Do not follow up yet";if(!a.positive){dont="Do not ask for reassurance while you feel rejected.";next="Step back. Let the situation show you more before you force clarity.";}}
+  if(a.overExplain){risk="High";energy="You over-explaining";momentum="At risk";dont="Do not send the full paragraph. Cut it to one clean sentence.";next="Reduce the message to the main point. Stop there.";}
+  return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);
 }
 
 function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing) {
@@ -1697,9 +1688,7 @@ function runPresend() {
   if (!canCreate()) { openLimitWall(); return; }
   var raw = document.getElementById("presendText") ? document.getElementById("presendText").value.trim() : "";
   if (!raw) { toast("Paste the message you are about to send."); return; }
-  var context = Object.assign({}, readPresendContext(), readDraftContext("draft"));
-  if (!context.goal) context.goal = readPresendContext().goal;
-  context.quoted = context.quoted || readPresendContext().quoted;
+  var context = readPresendContext();
   haptic([10,40]);
   document.getElementById("formArea").style.display = "none";
   document.getElementById("loadingPanel").classList.add("active");
@@ -1713,15 +1702,13 @@ function runPresend() {
 }
 
 function renderPresendOutput(raw, context) {
-  context = Object.assign({perspective:"outgoing"}, context || {});
   var pro = isPro();
   var analysis = window.SocialReceiptAnalysis.analyze(raw, context);
   var riskLevel = analysis.level;
   var riskLabel = analysis.label;
-  var guidance = window.SocialReceiptGuidance.guide(raw, context, analysis);
   var diagnosis = analysis.summary;
 
-  var noSpecificRewrite = !guidance.suggestion && analysis.supported && analysis.level === "uncertain" && analysis.signals.length === 0;
+  var noSpecificRewrite = analysis.supported && analysis.level === "uncertain" && analysis.signals.length === 0;
   var rewritten = pro && analysis.supported && !noSpecificRewrite ? rewriteMessage(raw, null, analysis, context) : null;
   var rewriteLabels = presendRewriteLabels(analysis.language);
 
@@ -1751,8 +1738,6 @@ function renderPresendOutput(raw, context) {
   }
   html += "<p class=\"presend-context-note\">"+analysis.note+"</p>";
 
-  if (guidance.question) html += "<p class=\"presend-context-note\">" + escapeHtml(guidance.question) + "</p><button class=\"secondary-btn\" onclick=\"editDraftContext()\">Review goal and draft</button>";
-  if (context.urgency === "urgent") html += "<p class=\"presend-context-note\">" + escapeHtml(guidance.next) + "</p>";
   if (pro && rewritten) {
     html += "<div class=\"receipt-divider\"><span>"+escapeHtml(rewriteLabels.title)+"</span></div>";
     html += "<div class=\"presend-rewrite-box\" id=\"presendRewrite\" data-language=\""+escapeHtml(analysis.language)+"\">"+escapeHtml(rewritten)+"</div>";
@@ -1776,12 +1761,6 @@ function renderPresendOutput(raw, context) {
   output.innerHTML = html;
   output.classList.add("active");
   document.getElementById("formArea").style.display = "none";
-}
-
-function editDraftContext() {
-  document.getElementById("receiptOutput").classList.remove("active");
-  document.getElementById("formArea").style.display = "";
-  document.getElementById("formArea").scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function copyPresendRewrite() {
@@ -1873,14 +1852,14 @@ function renderColdReadOutput(raw) {
 /* ── RENDER RECEIPT (after mode) ── */
 function decisionBridgeHtml(receipt, pro) {
   var original = receipt.rawText || receipt.message || "";
-  var suggested = receipt.message || (receipt.guidance ? receipt.guidance.question || receipt.next : receipt.next) || "";
+  var suggested = receipt.message || receipt.next || "";
   var html = "<div class='decision-bridge detail-card' style='border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,0.09),rgba(255,245,220,0.02))'>";
   html += "<div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px'>The move from here</div>";
   html += "<h3 style='margin:0 0 6px;font-family:var(--font-serif);font-size:20px;font-weight:400'>"+receipt.bestMove+" is the move.</h3>";
   html += "<p style='margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.5'>"+receipt.timing+". Read the signal, compare the message, then choose deliberately.</p>";
   html += "<div class='decision-compare' style='display:grid;gap:8px;margin:12px 0'>";
-  html += "<div style='padding:10px;border:1px solid var(--border);border-radius:10px'><span style='display:block;color:var(--muted-2);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Your draft</span><span style='font-size:12px;color:var(--muted)'>"+escapeHtml(original)+"</span></div>";
-  html += "<div style='padding:10px;border:1px solid rgba(61,184,112,.28);border-radius:10px'><span style='display:block;color:var(--green);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Cleaner move</span><span style='font-size:12px;color:var(--text)'>"+escapeHtml(suggested)+"</span></div>";
+  html += "<div style='padding:10px;border:1px solid var(--border);border-radius:10px'><span style='display:block;color:var(--muted-2);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Your draft</span><span style='font-size:12px;color:var(--muted)'>"+original+"</span></div>";
+  html += "<div style='padding:10px;border:1px solid rgba(61,184,112,.28);border-radius:10px'><span style='display:block;color:var(--green);font:10px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px'>Cleaner move</span><span style='font-size:12px;color:var(--text)'>"+suggested+"</span></div>";
   html += "</div>";
   html += "<div style='display:flex;gap:8px;flex-wrap:wrap'>";
   html += "<button class='secondary-btn' data-sr-event='message_comparison_viewed' onclick='trackEvent(&quot;message_comparison_viewed&quot;)'>Compare the two</button>";
@@ -1951,8 +1930,8 @@ function contentReportingHtml() {
 
 function threeWayComparisonHtml(receipt) {
   var original = receipt.rawText || "";
-  var suggested = receipt.message || (receipt.guidance ? receipt.guidance.question || receipt.next : receipt.next) || "";
-  return "<div class='three-way-card detail-card' style='border-color:var(--border-warm);margin-top:0'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Message version test</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>See the difference before you send</h3><p style='margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.5'>Compare your original, your own rewrite, and the Social Receipt version. Keep the one that holds your position.</p><div style='display:grid;gap:8px'><div class='metric-card'><span>Original draft</span><strong style='font-size:12px;font-weight:400;color:var(--muted)'>"+escapeHtml(original)+"</strong></div><label class='metric-card' style='display:block'><span>Your rewrite</span><textarea id='userRewriteInput' rows='3' placeholder='Try your own calmer version...'></textarea></label><div id='userRewritePreview' class='metric-card' style='display:none'><span>Your rewrite read</span><strong id='userRewritePreviewText' style='font-size:12px;font-weight:400'></strong></div><div class='metric-card' style='border-color:rgba(61,184,112,.28)'><span style='color:var(--green)'>"+(receipt.guidance && !receipt.message ? 'Clarification needed' : 'Social Receipt version')+"</span><strong style='font-size:12px;font-weight:400;color:var(--text)'>"+escapeHtml(suggested)+"</strong></div></div><button class='secondary-btn' style='margin-top:10px' data-sr-event='message_version_tested' data-feature='rewrite_comparison' onclick='updateUserRewriteComparison()'>Compare my rewrite</button></div>";
+  var suggested = receipt.message || receipt.next || "";
+  return "<div class='three-way-card detail-card' style='border-color:var(--border-warm);margin-top:0'><div style='font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px'>Message version test</div><h3 style='margin:0 0 5px;font-family:var(--font-serif);font-size:19px;font-weight:400'>See the difference before you send</h3><p style='margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.5'>Compare your original, your own rewrite, and the Social Receipt version. Keep the one that holds your position.</p><div style='display:grid;gap:8px'><div class='metric-card'><span>Original draft</span><strong style='font-size:12px;font-weight:400;color:var(--muted)'>"+escapeHtml(original)+"</strong></div><label class='metric-card' style='display:block'><span>Your rewrite</span><textarea id='userRewriteInput' rows='3' placeholder='Try your own calmer version...'></textarea></label><div id='userRewritePreview' class='metric-card' style='display:none'><span>Your rewrite read</span><strong id='userRewritePreviewText' style='font-size:12px;font-weight:400'></strong></div><div class='metric-card' style='border-color:rgba(61,184,112,.28)'><span style='color:var(--green)'>Social Receipt version</span><strong style='font-size:12px;font-weight:400;color:var(--text)'>"+escapeHtml(suggested)+"</strong></div></div><button class='secondary-btn' style='margin-top:10px' data-sr-event='message_version_tested' data-feature='rewrite_comparison' onclick='updateUserRewriteComparison()'>Compare my rewrite</button></div>";
 }
 
 function updateUserRewriteComparison() {
@@ -2002,7 +1981,7 @@ function renderReceiptOutput(receipt, savedView) {
   var pro      = isPro();
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
   var isSilence= receipt.verdict.indexOf("Silence") === 0;
-  var confNote = receipt.guidance ? "Wording cues are not a calibrated confidence score or a prediction of someone’s response." : getConfidenceNote(receipt.confidence);
+  var confNote = getConfidenceNote(receipt.confidence);
   var html = "";
   var step = 0;
 
@@ -2020,7 +1999,7 @@ function renderReceiptOutput(receipt, savedView) {
   if (isSilence) {
     html += rs("<div class=\"silence-card\"><div class=\"silence-eyebrow\">Silence Detected</div><h2>"+receipt.verdict+"</h2><p class=\"silence-body\">Silence after contact is the clearest signal the app can read. The move is restraint. Not volume.</p></div>");
   } else {
-    html += rs("<div class=\"verdict-card\"><div class=\"verdict-eyebrow\">Quick Verdict</div><h2>"+receipt.verdict+"</h2><p class=\"verdict-sub\">"+receipt.summary+"</p><div class=\"confidence-row\"><span class=\"confidence-label\">Wording coverage</span><div class=\"confidence-track\"><div class=\"confidence-fill\" id=\"confFill\" style=\"width:0%\"></div></div><span class=\"confidence-pct\">"+(receipt.guidance ? "Not scored" : receipt.confidence+"%")+"</span></div><div class=\"confidence-note\">"+confNote+"</div></div>");
+    html += rs("<div class=\"verdict-card\"><div class=\"verdict-eyebrow\">Quick Verdict</div><h2>"+receipt.verdict+"</h2><p class=\"verdict-sub\">"+receipt.summary+"</p><div class=\"confidence-row\"><span class=\"confidence-label\">Confidence</span><div class=\"confidence-track\"><div class=\"confidence-fill\" id=\"confFill\" style=\"width:0%\"></div></div><span class=\"confidence-pct\">"+receipt.confidence+"%</span></div><div class=\"confidence-note\">"+confNote+"</div></div>");
   }
 
   html += rs("<div class=\"score-grid\">"+scoreCard("Interest",receipt.interest,riskColor(receipt.interest))+scoreCard("Energy",receipt.energy,"var(--gold)")+scoreCard("Risk",receipt.risk,riskColor(receipt.risk))+scoreCard("Momentum",receipt.momentum,momentumColor(receipt.momentum))+"</div>");
@@ -2064,18 +2043,13 @@ function renderReceiptOutput(receipt, savedView) {
     } else {
       spikeMsg = "The message you send next locks in how this goes. There is no undo.";
     }
-    if (receipt.guidance) spikeMsg = "Compare the wording with your intention. A cue is not a prediction of the response.";
     html += rs("<div class=\"spike-line\">"+spikeMsg+"</div>");
     html += rs(lockedSection(receipt));
   } else {
     html += rs("<div class=\"detail-card move-card\"><h3>This keeps your position</h3><p>"+receipt.next+"</p></div>");
     html += rs("<div class=\"rerun-bar\"><span class=\"rerun-label\">Re-run as</span><select class=\"rerun-select\" id=\"rerunFeeling\">"+feelings.map(function(f){return "<option value=\""+f+"\""+(f===receipt.feeling?" selected":"")+">"+f+"</option>";}).join("")+"</select><button class=\"rerun-btn\" onclick=\"rerunWithTweak()\">Re-run</button></div>");
     html += rs("<div class=\"receipt-divider\"><span>Suggested Message</span></div>");
-    if (receipt.guidance && !receipt.message) {
-      html += rs('<div class="detail-card"><h3>Clarify before choosing wording</h3><p>'+escapeHtml(receipt.guidance.next)+'</p></div>');
-    } else {
-    html += rs("<div class=\"detail-card\"><h3>This keeps your position</h3><div class=\"message-box\" id=\"suggestedMessage\">"+escapeHtml(receipt.message)+"</div>"+oneLineFixHtml(receipt)+"<div class=\"one-tap-note\" style=\"margin-top:10px;margin-bottom:0\">This version keeps your position.</div><div class=\"one-tap-row\"><button class=\"one-tap-btn\" onclick=\"copySuggested()\">&#9998; Copy + Send this version</button></div><div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copySuggested()\">Copy</button><button class=\"mini-btn\" onclick=\"regenerateMessage()\">Rewrite</button><button class=\"mini-btn\" data-sr-event=\"result_share_started\" data-feature=\"receipt\" onclick=\"openShare()\">Share</button><button class=\"mini-btn\" onclick=\"openGhostMode()\">Ghost</button></div></div>");
-    }
+    html += rs("<div class=\"detail-card\"><h3>This keeps your position</h3><div class=\"message-box\" id=\"suggestedMessage\">"+receipt.message+"</div>"+oneLineFixHtml(receipt)+"<div class=\"one-tap-note\" style=\"margin-top:10px;margin-bottom:0\">This version keeps your position.</div><div class=\"one-tap-row\"><button class=\"one-tap-btn\" onclick=\"oneTapCopy('"+receipt.message.replace(/'/g,"&#39;")+"')\">&#9998; Copy + Send this version</button></div><div class=\"copy-row\"><button class=\"mini-btn\" onclick=\"copySuggested()\">Copy</button><button class=\"mini-btn\" onclick=\"regenerateMessage()\">Rewrite</button><button class=\"mini-btn\" data-sr-event=\"result_share_started\" data-feature=\"receipt\" onclick=\"openShare()\">Share</button><button class=\"mini-btn\" onclick=\"openGhostMode()\">Ghost</button></div></div>");
 
     /* SEND OR DON'T — intervention */
     html += rs(sendOrDontHtml(receipt));
@@ -2094,8 +2068,6 @@ function renderReceiptOutput(receipt, savedView) {
   }
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
-
-  if (receipt.guidance && !savedView) html += rs('<button class="secondary-btn" onclick="editDraftContext()">Review goal and draft</button>');
 
   /* Result value prompt: make saving and privacy-safe sharing the next obvious action. */
   if (!savedView && !pro) {
@@ -2138,8 +2110,6 @@ function renderReceiptOutput(receipt, savedView) {
 
 /* ── LOCKED SECTION — with regret simulation ── */
 function lockedSection(receipt) {
-  if (receipt.guidance) return '<div class="locked-section"><div class="locked-gate"><div class="locked-gate-icon">&#128274;</div><h3 class="locked-gate-headline">Keep comparing your wording.</h3><p class="locked-gate-sub">Pro adds unlimited checks and saved patterns. A wording check cannot predict another person’s response.</p><button class="locked-gate-btn" onclick="openPaywall(&quot;Compare wording options with your goal.&quot;)">Explore Pro &#8594;</button><div class="locked-gate-price">$9/mo &middot; $39 lifetime &middot; cancel anytime</div><div class="locked-gate-dismiss" onclick="dismissLocked(this)">Continue on Free</div></div></div>';
-
   var ghostNext = receipt.next || "Wait. Then send exactly one sentence.";
   var ghostMsg  = receipt.message || "Hey. Just checking in.";
   var ghostTime = receipt.timing || "Tomorrow morning";
@@ -2340,7 +2310,7 @@ function rerunWithTweak() {
   if(!state.currentReceipt)return;
   var sel=document.getElementById("rerunFeeling"); if(!sel)return;
   state.feeling=sel.value;
-  var u=buildReceipt(state.currentReceipt.rawText, state.currentReceipt.analysisContext); state.currentReceipt=u;
+  var u=buildReceipt(state.currentReceipt.rawText); state.currentReceipt=u;
   haptic([10,40]); renderReceiptOutput(u,false); toast("Re-run complete.");
 }
 
@@ -2400,10 +2370,6 @@ function rewriteMessage(raw, receipt, analysis, context) {
   var language = analysis && analysis.language ? analysis.language : "en";
   if (analysis && !analysis.supported) return "";
 
-  if (typeof window !== "undefined" && window.SocialReceiptGuidance && language === "en") {
-    return window.SocialReceiptGuidance.guide(raw, context || {}, analysis).suggestion;
-  }
-
   /* Preserve the stated action; removing a history cue must not invent a refusal. */
   if (language === "en" && analysis && analysis.signals.some(function(signal) { return signal.id === "resigned-self-reliance"; })) {
     var repeatedSelfReliance = original.match(/^(?:fine[.!?,]\s*)?(i(?:'ll|’ll| will) (?:do|handle|cover) (?:it|this) myself)[, ]+(?:like always|as usual)[.!?]?$/i);
@@ -2441,8 +2407,32 @@ function rewriteMessage(raw, receipt, analysis, context) {
   if (language === "es") return "Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.";
   if (language === "fr") return "Je veux aborder cela directement. Dis-moi quel moment te conviendrait.";
 
-  return "";
+  var cleaned = original;
+  var fillers = ["hey so ","hey, ","hi so ","okay so ","so i ","i just ","just wanted to ","i was thinking ","i feel like ","i don't know if ","sorry if ","sorry but ","i know this might be "];
+  fillers.forEach(function(f) {
+    var re = new RegExp("^" + f.replace(/[.*+?^()|[\]\\]/g,"\\$&"),"i");
+    cleaned = cleaned.replace(re,"");
+  });
+  cleaned = cleaned.replace(/\b(honestly,?\s*)/gi,"");
+  cleaned = cleaned.replace(/\b(i\s*)?just\s+(wanted|thought|hoped|was\s+wondering)\b/gi,"");
+  cleaned = cleaned.replace(/\bsorry\s+(for|if|to|about)\b[^.!?]*/gi,"");
+  cleaned = cleaned.replace(/\bdoes\s+that\s+make\s+sense\?/gi,"");
+  cleaned = cleaned.replace(/\bi\s+don.t\s+know\b/gi,"");
+  cleaned = cleaned.replace(/\bif\s+that(.s|\s+is)\s+(okay|cool|alright|fine)\b/gi,"");
+  cleaned = cleaned.replace(/\bjust\s+checking\s+in\b/gi,"checking in");
+  var sentences = cleaned.match(/[^.!?]+[.!?]*/g) || [cleaned];
+  if (sentences.length > 2) sentences = sentences.slice(0,2);
+  cleaned = sentences.join(" ").replace(/\s{2,}/g," ").trim();
+  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  if (cleaned && !/[.!?]$/.test(cleaned)) cleaned += ".";
 
+  /* Never present the original as a rewrite. */
+  if (!cleaned || cleaned.toLowerCase() === original.toLowerCase()) {
+    if (language === "es") return "Quiero hablar de esto directamente. Por favor, dime qué momento te viene bien.";
+    if (language === "fr") return "Je veux aborder cela directement. Dis-moi quel moment te conviendrait.";
+    return "I want to address this directly. Please let me know a specific time that works.";
+  }
+  return cleaned;
 }
 /* ── SAVE / LOAD ── */
 function saveCurrentReceipt() {
@@ -2483,13 +2473,6 @@ function updateOutcome(id,outcome) {
 function copySuggested() { var el=document.getElementById("suggestedMessage"); if(!el)return; if(navigator.clipboard)navigator.clipboard.writeText(el.innerText); haptic([10]); toast("Copied. Keep it short."); }
 function regenerateMessage() {
   if(!state.currentReceipt)return; var r=state.currentReceipt;
-  if (r.guidance) {
-    var g = window.SocialReceiptGuidance.guide(r.rawText, r.analysisContext || {});
-    r.message = g.suggestion; r.guidance = g; r.next = g.next;
-    renderReceiptOutput(r, false);
-    toast("Same evidence, same wording option. Change the draft or goal for a different read.");
-    return;
-  }
   var variants={"Text / DM":["No rush. Just wanted to leave this open.","That works. I will let you take it from here.","Sounds good. Keep me posted."],"Date":["That sounds good. Want to pick a day?","I am open to it. What works for you?","No pressure. Let me know what feels right."],"Work":["Thanks for clarifying. I will keep this focused and move forward.","Understood. Here is the clean next action from my side.","Got it. I will document and follow up."],"Sales / Client":["Quick follow up. Want me to send the next step?","Would a simple breakdown help?","No pressure. Want me to come back to this later this week?"],"Conflict":["I hear you. I do not want to make this worse over text.","I want to respond clearly, not emotionally. Let us come back to this calmly.","This needs a better conversation than a rushed message."],"Friend / Family":["I hear you. I do not want to force the conversation.","All good. I just wanted to check where things stand.","No pressure. I am here when you want to talk."]};
   var list=variants[r.scenario]||variants["Text / DM"];
   r.message=list[Math.floor(Math.random()*list.length)]; state.currentReceipt=r;
@@ -3663,7 +3646,6 @@ function analyzeScreenshot() {
 
 /* POSITION METER — visual anchor */
 function positionMeterHtml(receipt) {
-  if (receipt.guidance) return '<div class="position-meter"><span class="position-meter-label">Your next choice</span><p class="position-note">'+escapeHtml(receipt.guidance.next)+'</p></div>';
   var risk    = (receipt.risk || "").toLowerCase();
   var energy  = (receipt.energy || "").toLowerCase();
   var momentum= (receipt.momentum || "").toLowerCase();
@@ -3747,7 +3729,6 @@ function positionMeterHtml(receipt) {
 
 
 function oneLineFixHtml(receipt) {
-  if (receipt.guidance) return "";
   var msg   = receipt.message || "";
   var words = msg.split(/\s+/);
   if (words.length <= 8) return ""; /* Already short — no fix needed */
@@ -3774,7 +3755,6 @@ function oneLineFixHtml(receipt) {
 
 /* HARD INTERRUPT CARD — shown before full analysis */
 function interruptCardHtml(receipt) {
-  if (receipt.guidance) return "";
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
   var isSilence= receipt.verdict && receipt.verdict.indexOf("Silence") === 0;
   var chasing  = receipt.energy && receipt.energy.indexOf("chasing") !== -1;
