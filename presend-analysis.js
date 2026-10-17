@@ -306,6 +306,30 @@
     if (found.insult) add("insult", en ? "Direct insult" : "Insulto directo", en ? "Attacks the recipient rather than describing the issue." : "Ataca a la otra persona en vez de describir el problema.", "concern");
     if (words.length > 45) add("long-draft", en ? "Long draft" : "Borrador largo", en ? "Length alone is not a tone problem, but the main point may be hard to find." : "La longitud no es por sí sola un problema de tono, pero puede ocultar la idea principal.", "context", "Clarifier-style explanation");
 
+    // Contextual combinations, not isolated keywords or assumptions about the recipient.
+    if (en) {
+      function pattern(id, label, detail, regex, kind) {
+        var match = scanText.match(regex);
+        if (match) signals.push({id:id, label:label, detail:detail, kind:kind || "concern", evidence:[match[0]]});
+      }
+      pattern("intent-attribution", "An explanation is being assumed", "Asking whether someone is ignoring you introduces a possible motive. A delay alone does not establish that motive.", /\b(?:are you|you are|you're) (?:ignoring|avoiding) me\b/);
+      pattern("guilt-pressure", "Care framed as a test", "This wording ties caring to one action. A direct request can make the need easier to discuss.", /\bif you (?:actually|really|truly) cared\b/);
+      pattern("absolute-blame", "Broad claim about caring", "A claim about what someone only cares about can obscure the specific event you want to address.", /\byou only care\b/);
+      pattern("resigned-self-reliance", "Help may be requested indirectly", "The commitment to do everything is paired with a history cue. Clarify whether you want help or intend to take on the task.", /\bi(?:'ll| will) (?:do|handle) (?:everything|it all) myself (?:like always|as usual)\b/);
+      pattern("defensive-proof", "Defending compliance", "This emphasizes having followed instructions. If feedback is unclear, identify the requested change before defending the whole task.", /\bi did (?:exactly )?what you asked\b/);
+      pattern("ambiguous-finality", "The ending is ambiguous", "This could mean a pause, an ending, or completion. The intended scope needs clarification.", /\bi(?:'m| am) done(?:[.!?]+\s*i (?:can't|cannot) do this anymore\b|[.!?]*(?:$|\s*$))/, "context");
+      pattern("agreement-limit", "Agreement beside a stated difficulty", "The agreement is paired with having to figure it out somehow. Confirm whether you can actually agree or need to offer an alternative.", /\b(?:sure|whatever works for you)\b.{0,80}\bi(?:'ll| will) figure it out somehow\b/);
+      if (/\b(?:sorry|apologi[sz]e) again\b/.test(scanText) && found.reassurance)
+        pattern("repeated-apology", "Repeated apology seeking reassurance", "The apology asks the other person to settle the sender's worry. Separate accountability from a request for immediate reassurance.", /\b(?:sorry|apologi[sz]e) again\b/);
+      if (/\bi (?:can't|cannot) cover\b/.test(scanText) && /\bi know (?:that|this) (?:sounds|makes)|\balready changed my plans|\bi'?m exhausted\b/.test(scanText))
+        pattern("boundary-defense", "A refusal followed by a defense", "The answer is paired with justification. Keep relevant scheduling or responsibility details; you do not need to prove your character.", /\bi (?:can't|cannot) cover\b.{0,45}/);
+      if (context && context.situation === "routine" && /\b(?:both|either) (?:work|works|are fine)|\b(?:genuinely|honestly) (?:fine|happy) with (?:either|both)\b/.test(scanText)) {
+        signals = signals.filter(function(s) { return s.id !== "reluctant-agreement"; });
+      }
+      // Several detectors can contribute evidence to one pattern without duplicating the finding.
+      signals = signals.filter(function(s, i, all) { return all.findIndex(function(x) { return x.id === s.id; }) === i; });
+    }
+
     var concerns = signals.filter(function (s) { return s.kind === "concern"; }).length;
     var hasPositive = signals.some(function (s) { return s.kind === "positive"; });
     var isHigh = signals.some(function (s) { return s.kind === "high"; });

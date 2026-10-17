@@ -767,3 +767,33 @@ test("verified marketing drafts in both languages keep their meaning", async ({p
     await output.getByRole("button",{name:"Check Another Message"}).click();
   }
 });
+
+test('draft guidance uses the selected goal in the actual pre-send flow', async ({ page }) => {
+  await skipToApp(page);
+  await page.evaluate(() => localStorage.setItem('sr_pro', '1'));
+  await page.click('.panic-btn');
+  await page.fill('#presendText', 'Did I do something wrong, or are you ignoring me?');
+  await page.locator('.presend-context summary').click();
+  await page.selectOption('#presendGoal', 'confirm');
+  await page.click('button[onclick="runPresend()"]');
+  await expect(page.locator('#receiptOutput')).toContainText('An explanation is being assumed');
+  await expect(page.locator('#presendRewrite')).toHaveText('Are we still on for [the plan and time]?');
+  await expect(page.locator('#receiptOutput')).not.toContainText('Had a really good time');
+});
+
+test('main receipts distinguish outgoing drafts from received words', async ({ page }) => {
+  const result = await page.evaluate(() => {
+    const raw = "It's fine. I'll do everything myself like always.";
+    const outgoing = buildReceipt(raw, { perspective:'outgoing', goal:'help', language:'en' });
+    const received = buildReceipt(raw, { perspective:'received', goal:'help', language:'en' });
+    const ambiguous = buildReceipt("I'm done. I can't do this anymore.", { perspective:'outgoing', language:'en' });
+    return { outgoing, received, ambiguous };
+  });
+  expect(result.outgoing.verdict).toBe('Help may be requested indirectly');
+  expect(result.outgoing.message).toContain('I need help with [the task]');
+  expect(result.outgoing.interest).toBe('Unknown');
+  expect(result.received.message).toBe('');
+  expect(result.received.next).toContain('reply');
+  expect(result.ambiguous.message).toBe('');
+  expect(result.ambiguous.next).toContain('pause');
+});

@@ -24,6 +24,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { analyze } = require("../presend-analysis.js");
+require("./draft-guidance.test.js");
 
 const ROOT = path.join(__dirname, "..");
 let failures = 0;
