@@ -1025,6 +1025,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 
 <script src="/presend-analysis.js"></script>
 <script src="/draft-guidance.js"></script>
+<script src="/deep-layers.js"></script>
 <script>
 "use strict";
 
@@ -1628,6 +1629,198 @@ function addReceiptPattern(receipt, rawText, context) {
   return receipt;
 }
 
+/* ── DEEP LAYERS (additive; layers 3-7 under the receipt) ── */
+function loadPatternHistory() {
+  if (!window.SocialReceiptDeep) return [];
+  try {
+    var raw = localStorage.getItem(window.SocialReceiptDeep.HISTORY_KEY);
+    var list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+
+function savePatternHistory(list) {
+  if (!window.SocialReceiptDeep) return;
+  try { localStorage.setItem(window.SocialReceiptDeep.HISTORY_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function attachDeepLayers(receipt, record) {
+  var deep = window.SocialReceiptDeep;
+  if (!deep || !receipt) return receipt;
+  var a = analyzeText(receipt.rawText || "");
+  var patternLabel = receipt.pattern ? receipt.pattern.label : null;
+  var st = deep.stateFor(receipt.feeling, a, patternLabel);
+  var keyInfo = deep.patternKeyFor(a, patternLabel);
+  var history = loadPatternHistory();
+  if (record) {
+    var now = Date.now();
+    history = deep.recordPattern(history, { pattern: keyInfo.key, label: keyInfo.label, scenario: receipt.scenario, draft: receipt.rawText || "", ts: now }, now);
+    savePatternHistory(history);
+  }
+  var summary = deep.patternSummary(history, keyInfo.key, Date.now());
+  var category = deep.categoryFor(a, patternLabel);
+  receipt.deep = {
+    v: 1,
+    stateLabel: st.label,
+    stateLine: st.line,
+    honesty: deep.HONESTY_LINE,
+    patternKey: keyInfo.key,
+    patternDisplay: keyInfo.display,
+    step: 1,
+    fear: null,
+    stance: null,
+    rewrite: null,
+    patternCount30: summary.count30,
+    patternLateNight: summary.lateNight,
+    patternLateCount7: summary.lateCount7,
+    reads: deep.dynamicReadsFor(category, deep.becauseFor(a, receipt.pattern))
+  };
+  return receipt;
+}
+
+function deepStateCardHtml(receipt) {
+  var d = receipt.deep;
+  if (!d) return "";
+  return "<div class=\"detail-card deep-state-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">The state that wrote this</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">" + escapeHtml(d.stateLabel) + "</h3><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\">" + escapeHtml(d.stateLine) + "</p><p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:10px 0 0\">" + escapeHtml(d.honesty) + "</p></div>";
+}
+
+function deepSectionInner(receipt) {
+  var deep = window.SocialReceiptDeep;
+  var d = receipt.deep;
+  if (!deep || !d) return "";
+  var html = "<div class=\"detail-card deep-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Peel a layer</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">Go deeper than the receipt</h3>";
+  if (!isPro()) {
+    var steps = [
+      ["Layer 4 · The fear", "Name what you are actually afraid happens if this just sits."],
+      ["Layer 5 · Your pattern", "See how often this exact pattern shows up in your drafts, counted on this device."],
+      ["Layer 6 · How it could land", "Three ways this draft might read on the other side, tied to your wording."],
+      ["Layer 7 · Your choice", "Pick a stance and get a rewrite built from your own words."]
+    ];
+    html += "<p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 12px\">Four more layers sit under this read. Each one opens the next.</p>";
+    steps.forEach(function (s) {
+      html += "<div style=\"padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px\"><span style=\"display:block;color:var(--text);font-size:12px;margin-bottom:3px\">&#128274; " + s[0] + "</span><span style=\"font-size:12px;color:var(--muted);line-height:1.45\">" + s[1] + "</span></div>";
+    });
+    html += "<button class=\"secondary-btn\" style=\"margin-top:4px\" onclick=\"openPaywall()\">Unlock the deep layers with Pro</button></div>";
+    return html;
+  }
+  /* Layer 4 — the fear */
+  var chips = deep.fearChipsFor(receipt.scenario);
+  html += "<div style=\"margin-top:6px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px\">Layer 4 · The fear</div><p style=\"font-size:13px;line-height:1.5;color:var(--text);margin:0 0 10px\">" + escapeHtml(deep.FEAR_QUESTION) + "</p><div class=\"outcome-row\">";
+  chips.forEach(function (chip, i) {
+    var chosen = d.fear && d.fear.label === chip.label;
+    html += "<button class=\"outcome-btn\" style=\"" + (chosen ? "border-color:var(--gold);color:var(--gold-2)" : "") + "\" onclick=\"deepChooseFear(" + i + ")\">" + escapeHtml(chip.label) + "</button>";
+  });
+  html += "</div>";
+  if (d.fear) html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:10px 0 0\">" + escapeHtml(d.fear.sentence) + "</p>";
+  html += "</div>";
+  /* Layer 5 — pattern memory */
+  html += "<div style=\"margin-top:16px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px\">Layer 5 · Your pattern</div>";
+  if (d.step >= 2) {
+    if (d.patternCount30 > 0) {
+      html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0\">This is the " + deep.ordinal(d.patternCount30) + " draft this month carrying the " + escapeHtml(d.patternDisplay) + " pattern.</p>";
+    } else {
+      html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0\">No earlier drafts carrying this pattern on this device yet. This read starts the count.</p>";
+    }
+    if (d.patternLateNight) html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:8px 0 0\">" + d.patternLateCount7 + " of your drafts in the last 7 days were written between 11pm and 5am.</p>";
+    html += "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:8px 0 0\">Counted on this device only.</p>";
+    if (d.step === 2) html += "<button class=\"secondary-btn\" style=\"margin-top:10px\" onclick=\"deepAdvance(3)\">See how this could land</button>";
+  } else {
+    html += "<p style=\"font-size:12px;line-height:1.5;color:var(--muted-2);margin:0\">Answer the fear above to open this layer.</p>";
+  }
+  html += "</div>";
+  /* Layer 6 — how it could land */
+  html += "<div style=\"margin-top:16px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px\">Layer 6 · How it could land</div>";
+  if (d.step >= 3) {
+    html += "<h3 style=\"font-family:var(--font-serif);font-size:17px;font-weight:400;color:var(--text);margin:0 0 8px\">Three ways this could land</h3>";
+    d.reads.forEach(function (r) {
+      html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 8px\">" + escapeHtml(r.text) + "</p>";
+    });
+    if (d.step === 3) html += "<button class=\"secondary-btn\" style=\"margin-top:2px\" onclick=\"deepAdvance(4)\">Build my version</button>";
+  } else {
+    html += "<p style=\"font-size:12px;line-height:1.5;color:var(--muted-2);margin:0\">Open the pattern layer to reach this one.</p>";
+  }
+  html += "</div>";
+  /* Layer 7 — choice + rewrite from their words */
+  html += "<div style=\"margin-top:16px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px\">Layer 7 · Your choice</div>";
+  if (d.step >= 4) {
+    html += "<p style=\"font-size:13px;line-height:1.5;color:var(--text);margin:0 0 10px\">Pick the stance this message should hold.</p><div class=\"outcome-row\">";
+    deep.STANCES.forEach(function (stance, i) {
+      var chosen = d.stance === stance;
+      html += "<button class=\"outcome-btn\" style=\"" + (chosen ? "border-color:var(--gold);color:var(--gold-2)" : "") + "\" onclick=\"deepChooseStance(" + i + ")\">" + escapeHtml(stance) + "</button>";
+    });
+    html += "</div>";
+    if (d.stance && d.rewrite) {
+      html += "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:12px 0 6px\">" + escapeHtml(deep.REWRITE_LABEL) + "</p><div class=\"message-box\">" + escapeHtml(d.rewrite) + "</div><div class=\"one-tap-row\"><button class=\"one-tap-btn\" onclick=\"oneTapCopy('" + d.rewrite.replace(/'/g, "&#39;") + "')\">&#9998; Copy this version</button></div><p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:10px 0 0\">The suggested message in your receipt above still stands. This is a second version, built from your exact words.</p>";
+    }
+  } else {
+    html += "<p style=\"font-size:12px;line-height:1.5;color:var(--muted-2);margin:0\">Open the layer above to reach your rewrite.</p>";
+  }
+  html += "</div></div>";
+  return html;
+}
+
+function deepLayersHtml(receipt) {
+  return "<div id=\"deepLayersSection\">" + deepSectionInner(receipt) + "</div>";
+}
+
+function findDeepReceipt() {
+  var id = window._deepReceiptId;
+  if (id) {
+    if (state.currentReceipt && state.currentReceipt.id === id) return state.currentReceipt;
+    var list = getReceipts();
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) return list[i]; }
+  }
+  return state.currentReceipt || null;
+}
+
+function persistDeepReceipt(receipt) {
+  if (!receipt) return;
+  if (state.currentReceipt && state.currentReceipt.id === receipt.id) state.currentReceipt = receipt;
+  var list = getReceipts(), found = false;
+  for (var i = 0; i < list.length; i++) { if (list[i].id === receipt.id) { list[i] = receipt; found = true; } }
+  if (found) { try { localStorage.setItem("socialReceipts", JSON.stringify(list)); } catch (e) {} }
+}
+
+function refreshDeepSection() {
+  var r = findDeepReceipt();
+  if (!r || !r.deep) return;
+  var el = document.getElementById("deepLayersSection");
+  if (el) el.innerHTML = deepSectionInner(r);
+}
+
+function deepChooseFear(i) {
+  var r = findDeepReceipt();
+  if (!r || !r.deep || !window.SocialReceiptDeep) return;
+  var chip = window.SocialReceiptDeep.fearChipsFor(r.scenario)[i];
+  if (!chip) return;
+  r.deep.fear = { label: chip.label, question: chip.question, sentence: window.SocialReceiptDeep.fearSentence(chip) };
+  if (r.deep.step < 2) r.deep.step = 2;
+  persistDeepReceipt(r);
+  refreshDeepSection();
+  trackEvent("deep_fear_chosen", { scenario: r.scenario });
+}
+
+function deepAdvance(step) {
+  var r = findDeepReceipt();
+  if (!r || !r.deep) return;
+  if (step > r.deep.step) r.deep.step = step;
+  persistDeepReceipt(r);
+  refreshDeepSection();
+  trackEvent("deep_layer_opened", { step: step });
+}
+
+function deepChooseStance(i) {
+  var r = findDeepReceipt();
+  if (!r || !r.deep || !window.SocialReceiptDeep) return;
+  var stance = window.SocialReceiptDeep.STANCES[i];
+  if (!stance) return;
+  r.deep.stance = stance;
+  r.deep.rewrite = window.SocialReceiptDeep.composeRewrite(r.rawText || "", stance);
+  persistDeepReceipt(r);
+  refreshDeepSection();
+  trackEvent("deep_rewrite_built", { stance: stance });
+}
+
 function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing) {
   /* RECEIPT TRACKING */
   var user = getCurrentUser();
@@ -1684,6 +1877,7 @@ function generateReceipt() {
   setTimeout(function() {
     clearInterval(lInterval);
     var receipt = buildReceipt(raw);
+    attachDeepLayers(receipt, true);
     state.currentReceipt = receipt;
     bumpFreeUsed();
     document.getElementById("loadingPanel").classList.remove("active");
@@ -2094,6 +2288,12 @@ function renderReceiptOutput(receipt, savedView) {
 
   if (receipt.goalSuggestion) html += rs('<div class="detail-card goal-suggestion"><h3>Suggested wording for your goal</h3><div class="message-box">'+escapeHtml(receipt.goalSuggestion)+'</div></div>');
 
+  /* DEEP LAYERS — additive cards under the receipt (layer 3 free, layers 4-7 Pro) */
+  if (!receipt.deep) attachDeepLayers(receipt, false);
+  window._deepReceiptId = receipt.id;
+  html += rs(deepStateCardHtml(receipt));
+  html += rs(deepLayersHtml(receipt));
+
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
 
   /* Result value prompt: make saving and privacy-safe sharing the next obvious action. */
@@ -2337,7 +2537,7 @@ function rerunWithTweak() {
   if(!state.currentReceipt)return;
   var sel=document.getElementById("rerunFeeling"); if(!sel)return;
   state.feeling=sel.value;
-  var u=buildReceipt(state.currentReceipt.rawText); state.currentReceipt=u;
+  var u=buildReceipt(state.currentReceipt.rawText); attachDeepLayers(u, false); state.currentReceipt=u;
   haptic([10,40]); renderReceiptOutput(u,false); toast("Re-run complete.");
 }
 
