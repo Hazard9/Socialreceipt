@@ -63,7 +63,7 @@
       var literal = String(raw).match(/^(?:fine[.!?,]\s*)?(i(?:'ll|’ll| will) (?:do|handle|cover) (?:it|this) myself)[, ]+(?:like always|as usual)[.!?]?$/i);
       if (literal) offer('literal-action', literal[1].charAt(0).toUpperCase() + literal[1].slice(1) + '.');
       else result.question = 'Do you want help, or do you intend to take on this task? Choose your goal before rewriting.';
-    } else if (has('reassurance-seeking') && goal === 'clarify') {
+    } else if (has('reassurance-seeking') && goal === 'clarify' && /\b(?:talk|discuss|prepared)\b/.test(n)) {
       offer('clarify', "Could you clarify what you'd like to discuss so I can come prepared?");
     } else if (primary && primary.kind !== 'positive') {
       result.question = 'What do you want this message to do? Select a goal so an alternative can keep your meaning.';

@@ -53,3 +53,5 @@ console.log(`ok: ${count} scenario/control/paraphrase cases plus perspective, qu
 const ownership = analyze("I'll do everything myself.", {language:'en'});
 assert(ownership.signals.some(s=>s.id==='self-reliance' && s.kind==='context'));
 assert.equal(guide("I'll do everything myself.", {perspective:'outgoing',goal:'help',language:'en'}, ownership).templateId,'help-request');
+
+assert.equal(guide("Did I do something wrong?", {perspective:'outgoing',goal:'clarify',language:'en'}).suggestion,'');

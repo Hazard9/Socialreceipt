@@ -777,6 +777,10 @@ test('draft guidance uses the selected goal in the actual pre-send flow', async 
   await page.evaluate(() => localStorage.setItem('sr_pro', '1'));
   await page.click('.panic-btn');
   await page.fill('#presendText', 'Did I do something wrong, or are you ignoring me?');
+  await page.click('button[onclick="runPresend()"]');
+  await expect(page.locator('#receiptOutput')).toContainText('Select a goal');
+  await page.getByRole('button', {name:'Review goal and draft', exact:true}).click();
+  await expect(page.locator('#presendText')).toHaveValue('Did I do something wrong, or are you ignoring me?');
   await page.locator('.presend-context summary').click();
   await page.selectOption('#presendGoal', 'confirm');
   await page.click('button[onclick="runPresend()"]');

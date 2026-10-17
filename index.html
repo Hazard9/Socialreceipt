@@ -1751,7 +1751,7 @@ function renderPresendOutput(raw, context) {
   }
   html += "<p class=\"presend-context-note\">"+analysis.note+"</p>";
 
-  if (guidance.question) html += "<p class=\"presend-context-note\">" + escapeHtml(guidance.question) + "</p>";
+  if (guidance.question) html += "<p class=\"presend-context-note\">" + escapeHtml(guidance.question) + "</p><button class=\"secondary-btn\" onclick=\"editDraftContext()\">Review goal and draft</button>";
   if (context.urgency === "urgent") html += "<p class=\"presend-context-note\">" + escapeHtml(guidance.next) + "</p>";
   if (pro && rewritten) {
     html += "<div class=\"receipt-divider\"><span>"+escapeHtml(rewriteLabels.title)+"</span></div>";
@@ -1776,6 +1776,12 @@ function renderPresendOutput(raw, context) {
   output.innerHTML = html;
   output.classList.add("active");
   document.getElementById("formArea").style.display = "none";
+}
+
+function editDraftContext() {
+  document.getElementById("receiptOutput").classList.remove("active");
+  document.getElementById("formArea").style.display = "";
+  document.getElementById("formArea").scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function copyPresendRewrite() {
@@ -2088,6 +2094,8 @@ function renderReceiptOutput(receipt, savedView) {
   }
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
+
+  if (receipt.guidance && !savedView) html += rs('<button class="secondary-btn" onclick="editDraftContext()">Review goal and draft</button>');
 
   /* Result value prompt: make saving and privacy-safe sharing the next obvious action. */
   if (!savedView && !pro) {
