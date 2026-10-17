@@ -49,3 +49,7 @@ assert.equal(guide('You will regret it.',{perspective:'outgoing',goal:'request',
 // Actual refusal subject is retained, with no invented alternative availability.
 assert.match(guide(examples[1][0],{perspective:'outgoing',goal:'decline',language:'en'}).suggestion,/can't cover Saturday/);
 console.log(`ok: ${count} scenario/control/paraphrase cases plus perspective, quote, urgency and relevance assertions`);
+
+const ownership = analyze("I'll do everything myself.", {language:'en'});
+assert(ownership.signals.some(s=>s.id==='self-reliance' && s.kind==='context'));
+assert.equal(guide("I'll do everything myself.", {perspective:'outgoing',goal:'help',language:'en'}, ownership).templateId,'help-request');

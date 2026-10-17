@@ -4,7 +4,7 @@
   if (root) root.SocialReceiptGuidance = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function(engine) {
   'use strict';
-  var priorities = ['threat','insult','intent-attribution','guilt-pressure','absolute-blame','ambiguous-finality','repeated-apology','agreement-limit','boundary-defense','defensive-proof','resigned-self-reliance','reluctant-agreement','reassurance-pressure','reassurance-seeking'];
+  var priorities = ['threat','insult','intent-attribution','guilt-pressure','absolute-blame','ambiguous-finality','repeated-apology','agreement-limit','boundary-defense','defensive-proof','resigned-self-reliance','self-reliance','reluctant-agreement','reassurance-pressure','reassurance-seeking'];
   function guide(raw, context, analysis) {
     context = context || {};
     analysis = analysis || engine.analyze(raw, context);
@@ -47,7 +47,7 @@
       }
     } else if (goal === 'repair' && (has('repeated-apology') || has('reassurance-seeking') || has('accountability-apology'))) {
       offer('repair', "I'm sorry for [the specific action]. [Name a repair you can keep]. You do not need to reassure me right now.");
-    } else if (goal === 'help' && has('resigned-self-reliance')) {
+    } else if (goal === 'help' && (has('resigned-self-reliance') || has('self-reliance'))) {
       offer('help-request', 'I need help with [the task]. Can you [the specific help you need]?');
     } else if (goal === 'input' && has('reluctant-agreement')) {
       offer('shared-decision', 'Before we decide, I want to explain what matters to me about [the plan].');
