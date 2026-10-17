@@ -3,7 +3,7 @@
   Network-first for the app shell so deployed fixes reach phones reliably.
 */
 
-var CACHE_NAME = "social-receipt-v24-deep-layers";
+var CACHE_NAME = "social-receipt-v25-both-sides";
 var OFFLINE_URL = "/index.html";
 var PRECACHE_URLS = [
   "/",
@@ -11,6 +11,7 @@ var PRECACHE_URLS = [
   "/presend-analysis.js",
   "/draft-guidance.js",
   "/deep-layers.js",
+  "/both-sides.js",
   "/app-language.js",
   "/manifest.json",
   "/icon-192.png",

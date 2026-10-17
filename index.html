@@ -854,6 +854,11 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">Find your communication pattern <span aria-hidden="true" style="color:var(--gold)">→</span></strong>
       <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">Get your first read and one practical move.</span>
     </a>
+    <div class="detail-card" onclick="openBothSides()" data-sr-event="both_sides_opened" data-feature="both_sides" style="display:block;margin-top:12px;cursor:pointer;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">After you sent it</div>
+      <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">Read both sides of the exchange <span aria-hidden="true" style="color:var(--gold)">&#8594;</span></strong>
+      <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">Paste what you sent and what they replied. See what the reply actually did, in words.</span>
+    </div>
     <div class="section-title" style="margin-top:14px"><h2>Choose the moment</h2><span>Fast path</span></div>
     <div class="quick-grid">
       <button class="option-card" onclick="startEmergencyMode('send')"><div class="option-icon">&#8593;</div><strong>About to send</strong><small>Check the draft before it leaves.</small></button>
@@ -921,6 +926,22 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     </div>
     <div id="loadingPanel" class="loading-panel"><div class="scan-bars"><i></i><i></i><i></i><i></i><i></i></div><p class="loading-label" id="loadingLabel">Reading signals…</p></div>
     <div id="receiptOutput" class="receipt-output"></div>
+  </section>
+
+  <!-- BOTH SIDES — after you sent it -->
+  <section id="bothSidesScreen" class="screen">
+    <div class="topbar"><div class="brand-lockup"><h1>After you sent it</h1><p>Paste what you sent and what they replied. See what the reply actually did, in words.</p></div></div>
+    <div class="form-card card">
+      <div class="step-label"><div class="step-count">1</div><h2>What you sent</h2></div>
+      <textarea id="bsSentText" placeholder="Paste the message you actually sent, exactly as it went out."></textarea>
+      <div class="step-label" style="margin-top:16px"><div class="step-count">2</div><h2>What they replied</h2></div>
+      <textarea id="bsReplyText" placeholder="Paste their reply exactly as it arrived."></textarea>
+      <div class="step-label" style="margin-top:16px"><div class="step-count">3</div><h2>How long did the reply take?</h2></div>
+      <div class="outcome-row" id="bsTimeRow"></div>
+      <button class="primary-btn" style="margin-top:16px" data-sr-event="both_sides_read_started" data-feature="both_sides" onclick="runBothSides()">Read both sides</button>
+      <p style="font-size:11px;line-height:1.5;color:var(--muted-2);margin:12px 0 0">Both texts stay on this device. Nothing is uploaded or saved.</p>
+    </div>
+    <div id="bothSidesOutput" style="margin-top:12px"></div>
   </section>
 
   <!-- HISTORY -->
@@ -1026,6 +1047,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <script src="/presend-analysis.js"></script>
 <script src="/draft-guidance.js"></script>
 <script src="/deep-layers.js"></script>
+<script src="/both-sides.js"></script>
 <script>
 "use strict";
 
@@ -1821,6 +1843,126 @@ function deepChooseStance(i) {
   trackEvent("deep_rewrite_built", { stance: stance });
 }
 
+/* ── BOTH SIDES — "After you sent it" ───────────────────────────────
+   Reads the exchange after the send: what the user sent, what the
+   other person replied, how long the reply took. Facts are free;
+   the dynamic read, the state check, and the next move are Pro.
+   Both texts stay in page memory only: nothing is saved or sent. */
+var _bothSides = { time: "hours", stance: null, sent: "", reply: "", result: null };
+
+function openBothSides(prefill) {
+  showScreen("bothSidesScreen");
+  if (typeof prefill === "string" && prefill) {
+    var ta = document.getElementById("bsSentText");
+    if (ta && !ta.value) ta.value = prefill;
+  }
+  bsRenderTimeChips();
+}
+
+function openBothSidesFromReceipt() {
+  var r = state.currentReceipt;
+  openBothSides(r ? (r.rawText || "") : "");
+}
+
+function bsRenderTimeChips() {
+  var row = document.getElementById("bsTimeRow");
+  if (!row || !window.SocialReceiptBothSides) return;
+  row.innerHTML = window.SocialReceiptBothSides.TIME_CHIPS.map(function (chip) {
+    var chosen = _bothSides.time === chip.key;
+    return "<button class=\"outcome-btn\" style=\"" + (chosen ? "border-color:var(--gold);color:var(--gold-2)" : "") + "\" onclick=\"bsSelectTime('" + chip.key + "')\">" + escapeHtml(chip.label) + "</button>";
+  }).join("");
+}
+
+function bsSelectTime(key) {
+  if (!window.SocialReceiptBothSides || !window.SocialReceiptBothSides.parseReplyTime(key)) return;
+  _bothSides.time = key;
+  bsRenderTimeChips();
+}
+
+function runBothSides() {
+  if (!window.SocialReceiptBothSides) return;
+  var sent = document.getElementById("bsSentText") ? document.getElementById("bsSentText").value : "";
+  var reply = document.getElementById("bsReplyText") ? document.getElementById("bsReplyText").value : "";
+  if (!sent.trim() || !reply.trim()) { toast("Paste both sides first: what you sent and what they replied."); return; }
+  _bothSides.sent = sent;
+  _bothSides.reply = reply;
+  _bothSides.stance = null;
+  _bothSides.result = window.SocialReceiptBothSides.analyzeExchange(sent, reply, _bothSides.time, analyzeText, window.SocialReceiptDeep);
+  document.getElementById("bothSidesOutput").innerHTML = bothSidesOutputHtml(_bothSides.result);
+  trackEvent("both_sides_read", { rule: _bothSides.result.rule.id, pro: isPro() });
+}
+
+function bothSidesFactsHtml(f) {
+  var rows = [
+    ["The lengths", f.wordsLine + " " + f.ratioLine],
+    ["Questions", f.questionsLine],
+    ["Wording signals", f.signalsLine],
+    ["The wait", "The reply came back " + f.time.phrase + "."]
+  ];
+  var html = "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">The facts, in words</div>";
+  rows.forEach(function (row) {
+    html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 8px\"><strong style=\"color:var(--text)\">" + row[0] + ".</strong> " + escapeHtml(row[1]) + "</p>";
+  });
+  html += "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:2px 0 0\">Counts and detected wording only. Nothing here claims to know what they are thinking.</p></div>";
+  return html;
+}
+
+function bothSidesComposeHtml() {
+  var bs = window.SocialReceiptBothSides, deep = window.SocialReceiptDeep;
+  if (!bs || !deep) return "";
+  var html = "<div style=\"margin-top:10px\"><p style=\"font-size:12px;line-height:1.5;color:var(--text);margin:0 0 8px\">Pick the stance the reply should hold.</p><div class=\"outcome-row\">";
+  deep.STANCES.forEach(function (stance) {
+    var chosen = _bothSides.stance === stance;
+    html += "<button class=\"outcome-btn\" style=\"" + (chosen ? "border-color:var(--gold);color:var(--gold-2)" : "") + "\" onclick=\"bsChooseStance('" + stance.replace(/'/g, "&#39;") + "')\">" + escapeHtml(stance) + "</button>";
+  });
+  html += "</div>";
+  if (_bothSides.stance) {
+    var out = bs.composeNextReply(_bothSides.sent, _bothSides.reply, _bothSides.stance, deep);
+    if (out) {
+      html += "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:12px 0 6px\">" + escapeHtml(bs.REWRITE_LABEL) + "</p><div class=\"message-box\">" + escapeHtml(out) + "</div><div class=\"one-tap-row\"><button class=\"one-tap-btn\" onclick=\"oneTapCopy('" + out.replace(/'/g, "&#39;") + "')\">&#9998; Copy this reply</button></div>";
+    }
+  }
+  html += "</div>";
+  return html;
+}
+
+function bothSidesOutputHtml(res) {
+  if (!res) return "";
+  var html = bothSidesFactsHtml(res.facts);
+  if (!isPro()) {
+    var locked = [
+      ["The dynamic read", "A named pattern for this exchange, with the reason tied to the facts above."],
+      ["Your state check", "How this reply is likely landing on you, named the same way the deep layers name a draft."],
+      ["The next move", "Wait, one clean close, or a reply built from your own words, with the recommended one marked."]
+    ];
+    html += "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Both Sides, in full</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">The facts are free. The read is Pro.</h3>";
+    locked.forEach(function (s) {
+      html += "<div style=\"padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px\"><span style=\"display:block;color:var(--text);font-size:12px;margin-bottom:3px\">&#128274; " + s[0] + "</span><span style=\"font-size:12px;color:var(--muted);line-height:1.45\">" + s[1] + "</span></div>";
+    });
+    html += "<button class=\"secondary-btn\" style=\"margin-top:4px\" onclick=\"openPaywall()\">Unlock Both Sides with Pro</button></div>";
+    return html;
+  }
+  html += "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">The dynamic read</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">" + escapeHtml(res.rule.name) + "</h3><p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0\">Named that way " + escapeHtml(res.rule.because) + "</p></div>";
+  if (res.state) {
+    html += "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Your state check</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">" + escapeHtml(res.state.label) + "</h3><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\">" + escapeHtml(res.state.line) + "</p><p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:10px 0 0\">This names your state only. It says nothing about theirs.</p></div>";
+  }
+  html += "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">The next move</div>";
+  res.moves.forEach(function (m) {
+    html += "<div style=\"padding:9px 10px;border:1px solid " + (m.recommended ? "var(--gold)" : "var(--border)") + ";border-radius:10px;margin-bottom:8px\"><span style=\"display:block;color:var(--text);font-size:13px;margin-bottom:3px\">" + escapeHtml(m.title) + (m.recommended ? " <span style=\"color:var(--gold-2);font-size:11px\">· Recommended</span>" : "") + "</span><span style=\"font-size:12px;color:var(--muted);line-height:1.45\">" + escapeHtml(m.line) + "</span>";
+    if (m.key === "reply") html += bothSidesComposeHtml();
+    html += "</div>";
+  });
+  html += "</div>";
+  return html;
+}
+
+function bsChooseStance(stance) {
+  if (!window.SocialReceiptDeep || window.SocialReceiptDeep.STANCES.indexOf(stance) === -1) return;
+  _bothSides.stance = stance;
+  if (_bothSides.result) document.getElementById("bothSidesOutput").innerHTML = bothSidesOutputHtml(_bothSides.result);
+  trackEvent("both_sides_reply_built", { stance: stance });
+}
+
 function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing) {
   /* RECEIPT TRACKING */
   var user = getCurrentUser();
@@ -2293,6 +2435,11 @@ function renderReceiptOutput(receipt, savedView) {
   window._deepReceiptId = receipt.id;
   html += rs(deepStateCardHtml(receipt));
   html += rs(deepLayersHtml(receipt));
+
+  /* BOTH SIDES — the exchange continues after the send */
+  if (!savedView) {
+    html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">After you sent it</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Already sent it and got a reply? Read what the reply actually did, in words.</p><button class=\"secondary-btn\" data-sr-event=\"both_sides_opened_from_receipt\" data-feature=\"both_sides\" onclick=\"openBothSidesFromReceipt()\">Read both sides &#8594;</button></div>");
+  }
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
 
