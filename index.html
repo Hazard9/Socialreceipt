@@ -1549,13 +1549,37 @@ function analyzeText(raw) {
 }
 
 function computeConfidence(a, feeling) {
-  var signals=0,total=13;
-  var checks=[a.conflict,a.delay,a.apology,a.positive,a.professional,a.romantic,a.sales,a.overExplain,a.oneWord,a.highIntent,a.qMarks>0,a.exclaims>0,a.length>20];
-  for (var i=0;i<checks.length;i++){if(checks[i])signals++;}
-  if(a.length>40){signals++;total++;}if(a.length>80){signals++;total++;}
-  var boost={Anxious:8,Confused:6,Rejected:7,Interested:5,Annoyed:7,Good:4,Unsure:3};
-  var base=Math.round((signals/total)*100)+(boost[feeling]||4);
-  return Math.max(38,Math.min(94,base));
+  // Honest Read gauge: wording only. The feeling the user picked is
+  // self-reported state, not evidence in the draft, so it never
+  // inflates the score (the feeling argument is kept for call-site
+  // compatibility and deliberately unused). Weights: strong signals
+  // 3 (conflict, silence, overExplain, highIntent), mid signals 2
+  // (delay, apology, oneWord, positive), light signals 1
+  // (professional, romantic, sales, question marks, exclaims), plus
+  // 1 per length tier crossed (>20, >40, >80 words). weightedPossible
+  // is the weight of a complete read, three strong signals; past
+  // that, the wording has given a wording-only read everything it
+  // can use. No artificial floor beyond the [3, 95] clamp.
+  var weightedMatched=0;
+  if(a.conflict)weightedMatched+=3;
+  if(a.silence)weightedMatched+=3;
+  if(a.overExplain)weightedMatched+=3;
+  if(a.highIntent)weightedMatched+=3;
+  if(a.delay)weightedMatched+=2;
+  if(a.apology)weightedMatched+=2;
+  if(a.oneWord)weightedMatched+=2;
+  if(a.positive)weightedMatched+=2;
+  if(a.professional)weightedMatched+=1;
+  if(a.romantic)weightedMatched+=1;
+  if(a.sales)weightedMatched+=1;
+  if(a.qMarks>0)weightedMatched+=1;
+  if(a.exclaims>0)weightedMatched+=1;
+  if(a.length>20)weightedMatched+=1;
+  if(a.length>40)weightedMatched+=1;
+  if(a.length>80)weightedMatched+=1;
+  var weightedPossible=9;
+  var score=Math.round((weightedMatched/weightedPossible)*100);
+  return Math.max(3,Math.min(95,score));
 }
 
 function buildWhySignals(a, feeling) {
@@ -1614,14 +1638,14 @@ function buildReceipt(rawText, suppliedContext) {
   var message="Hey. I am around whenever you want to pick this back up.";
   var timing="Tomorrow morning";
 
-  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="They read the message and chose not to respond yet. More from you does not change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return addReceiptPattern(makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing), rawText, context);}
+  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="The thread shows your message with no reply yet. Nothing in the words explains the silence, and more messages rarely change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return addReceiptPattern(makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing), rawText, context);}
   if(scenario==="Work"||a.professional){interest="Professional";energy="Work dynamic";risk="Low";momentum="Stable";bestMove="Follow up clearly";hidden="Workplace tension resolves faster when you stay neutral and document clearly.";dont="Do not make this personal in writing. Tone in email is permanent.";next="Send one short, professional follow-up. Move the action forward without emotional weight.";message="Hi. Just wanted to follow up. Happy to connect briefly.";timing="Within business hours";}
-  if(scenario==="Sales / Client"||a.sales){interest="Evaluating";energy="Client-paced";risk="Medium";momentum="Pending";bestMove="Soft close";hidden="Silence from a client usually means they are deciding, not decided against.";dont="Do not send a second follow-up before the first one has had time to land.";next="One short message. Clear and easy next step. Then hold.";message="Hey. Just checking in. Happy to answer questions or jump on a quick call.";timing="24-48 hours";}
-  if(scenario==="Conflict"||a.conflict){interest="Unclear";energy="Tense";risk="High";momentum="Stalled";bestMove="Create space";hidden="In conflict, they need to feel heard before they can respond calmly.";dont="Do not try to win this over text. The channel is too low for this conversation.";next="Give this 24 hours. Then one sentence acknowledging their position, not defending yours.";message="I hear you. I do not want to make this worse over text. Let's come back to it calmly.";timing="24 hours minimum";}
+  if(scenario==="Sales / Client"||a.sales){interest="Evaluating";energy="Client-paced";risk="Medium";momentum="Pending";bestMove="Soft close";hidden="Nothing in the thread says the decision has gone against you. An unanswered proposal is still an open one, not a no.";dont="Do not send a second follow-up before the first one has had time to land.";next="One short message. Clear and easy next step. Then hold.";message="Hey. Just checking in. Happy to answer questions or jump on a quick call.";timing="24-48 hours";}
+  if(scenario==="Conflict"||a.conflict){interest="Unclear";energy="Tense";risk="High";momentum="Stalled";bestMove="Create space";hidden="These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.";dont="Do not try to win this over text. The channel is too low for this conversation.";next="Give this 24 hours. Then one sentence acknowledging their position, not defending yours.";message="I hear you. I do not want to make this worse over text. Let's come back to it calmly.";timing="24 hours minimum";}
   if(scenario==="Date"||a.romantic){interest="Reading signals";energy="Balanced";risk="Low";momentum="Open";bestMove="Reply warmly, briefly";hidden="Most post-date anxiety is about your own uncertainty, not a signal from them.";dont="Do not over-analyse time between replies. Timing is rarely the signal.";next="Send one short, warm message. Leave a thread open for them to follow.";message="Had a really good time. We should do it again soon.";timing="Tonight or tomorrow";}
-  if(a.positive&&!a.conflict){interest="High";energy="Mutual";risk="Low";momentum="Moving";bestMove="Reply and move forward";hidden="When energy is mutual, the only risk is over-managing it.";dont="Do not add complexity to something that is already working.";next="Keep momentum going. One easy, forward-moving message.";timing="Now or tonight";}
-  if(a.delay){risk="Medium-High";momentum="Slowing";energy="You chasing";hidden="Delayed responses usually mean distraction or decision. Give it time.";dont="Do not send another message before they respond to the last one.";next="Wait. If no response in 48 hours, send one short, low-pressure check-in.";bestMove="Wait";timing="48 hours";}
-  if(a.apology){risk="Medium";hidden="An apology not followed by changed behaviour often reopens the wound.";dont="Do not accept the apology and immediately return to the original issue.";next="Acknowledge briefly. Give it space to settle before the next conversation.";timing="24 hours";}
+  if(a.positive&&!a.conflict){interest="High";energy="Mutual";risk="Low";momentum="Moving";bestMove="Reply and move forward";hidden="The wording is warm on its face. The only risk here is over-managing a message that already works.";dont="Do not add complexity to something that is already working.";next="Keep momentum going. One easy, forward-moving message.";timing="Now or tonight";}
+  if(a.delay){risk="Medium-High";momentum="Slowing";energy="You chasing";hidden="The gap is real, but the reason for it is not in the words. A delay on its own does not carry a verdict.";dont="Do not send another message before they respond to the last one.";next="Wait. If no response in 48 hours, send one short, low-pressure check-in.";bestMove="Wait";timing="48 hours";}
+  if(a.apology){risk="Medium";hidden="An apology lands on its follow-through. The words alone rarely settle the original issue.";dont="Do not accept the apology and immediately return to the original issue.";next="Acknowledge briefly. Give it space to settle before the next conversation.";timing="24 hours";}
   if(a.oneWord&&!a.positive){interest="Low";energy="You chasing";risk="Medium-High";momentum="Slowing";bestMove="Reply short or wait";hidden="When someone gives one-word replies, adding more words rarely helps.";dont="Do not send a paragraph when they gave you one line.";next="If you reply at all, keep it to one sentence. Let them re-engage on their own.";timing="Later today";}
   if(feeling==="Anxious"){risk="Medium-High";bestMove="Wait";timing="Tomorrow morning";hidden="Anxious reads are almost always more negative than the actual situation.";dont="Do not send a message to manage your own anxiety. That rarely ends well.";next="Wait until you feel calmer. The same message reads differently from a settled place.";}
   if(feeling==="Rejected"){risk="Medium-High";bestMove="Create space";timing="Do not follow up yet";if(!a.positive){dont="Do not ask for reassurance while you feel rejected.";next="Step back. Let the situation show you more before you force clarity.";}}
@@ -2660,10 +2684,10 @@ function getPatternCallout(receipts) {
 
 /* ── CONFIDENCE DOUBT ── */
 function getConfidenceNote(confidence) {
-  if (confidence >= 78) return "Strong signal. This read is likely accurate.";
-  if (confidence >= 60) return "Moderate confidence\u2026 but one wrong move flips this.";
-  if (confidence >= 45) return "Low confidence. Acting without clarity increases risk here.";
-  return "Very low signal. More context would sharpen this read significantly.";
+  if (confidence >= 70) return "Strong wording match. Based on how much of your wording this read could match.";
+  if (confidence >= 45) return "Moderate wording match. Based on how much of your wording this read could match.";
+  if (confidence >= 25) return "Thin wording match. Based on how much of your wording this read could match.";
+  return "Very thin wording match. Based on how much of your wording this read could match. More detail in the draft would sharpen it.";
 }
 
 /* ── ONE TAP SEND ── */

@@ -30,7 +30,7 @@
       },
       "expected": {
         "verdict": "You're explaining. They stopped listening.",
-        "confidence": 38,
+        "confidence": 56,
         "interest": "Medium",
         "energy": "You over-explaining",
         "risk": "High",
@@ -58,7 +58,7 @@
       },
       "expected": {
         "verdict": "The delay feels like rejection. It likely is not. Yet.",
-        "confidence": 38,
+        "confidence": 22,
         "interest": "Reading signals",
         "energy": "You chasing",
         "risk": "Medium-High",
@@ -88,7 +88,7 @@
       },
       "expected": {
         "verdict": "You're over-investing. They're not matching you.",
-        "confidence": 38,
+        "confidence": 33,
         "interest": "Medium",
         "energy": "Balanced",
         "risk": "Medium",
@@ -117,7 +117,7 @@
       },
       "expected": {
         "verdict": "Your read is anxious, not accurate. Wait 12 hours.",
-        "confidence": 38,
+        "confidence": 3,
         "interest": "Medium",
         "energy": "Balanced",
         "risk": "Medium-High",
@@ -145,13 +145,13 @@
       },
       "expected": {
         "verdict": "Silence is the signal. Don't overwrite it.",
-        "confidence": 38,
+        "confidence": 67,
         "interest": "Unclear",
         "energy": "You waiting",
         "risk": "Medium",
         "momentum": "Stalled",
         "bestMove": "Do nothing",
-        "hidden": "They read the message and chose not to respond yet. More from you does not change that.",
+        "hidden": "The thread shows your message with no reply yet. Nothing in the words explains the silence, and more messages rarely change that.",
         "dont": "Do not send another message. Silence after silence only reduces your position.",
         "next": "Set a 48-hour window. If nothing, send one clean, low-pressure close.",
         "message": "Hey. No rush. Just making sure this did not get lost.",
@@ -176,7 +176,7 @@
       },
       "expected": {
         "verdict": "Acting from rejection makes the read self-fulfilling.",
-        "confidence": 38,
+        "confidence": 3,
         "interest": "Reading signals",
         "energy": "Balanced",
         "risk": "Medium-High",
@@ -205,7 +205,7 @@
       },
       "expected": {
         "verdict": "Keep this professional. Emotion doesn't live here.",
-        "confidence": 38,
+        "confidence": 22,
         "interest": "Professional",
         "energy": "Work dynamic",
         "risk": "Medium-High",
