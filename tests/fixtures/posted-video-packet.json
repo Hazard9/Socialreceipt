@@ -1,0 +1,228 @@
+{
+  "source": "Matthew supplied exact drafts/settings and verdicts on 2026-10-17; remaining expected fields captured from current main 271cab5. Intro all 14 fields also checked against Matthew’s supplied receipt.",
+  "baselineCommit": "271cab541113f8e194fc039989bacce8027c9eef",
+  "defaults": "Cases 1–6 use the app default desiredOutcome Get clarity and format Text / DM; intro uses supplied Maintain professionalism.",
+  "fields": [
+    "verdict",
+    "confidence",
+    "interest",
+    "energy",
+    "risk",
+    "momentum",
+    "bestMove",
+    "hidden",
+    "dont",
+    "next",
+    "message",
+    "timing",
+    "whySignals",
+    "summary"
+  ],
+  "cases": [
+    {
+      "id": "draft-6",
+      "draft": "I just wanted to explain what happened last night because I know this is a lot but I kept thinking about how you seemed distant and I do not want there to be weirdness between us so let me lay it all out clearly.",
+      "settings": {
+        "scenario": "Text / DM",
+        "format": "Text / DM",
+        "feeling": "Unsure",
+        "desiredOutcome": "Get clarity"
+      },
+      "expected": {
+        "verdict": "You're explaining. They stopped listening.",
+        "confidence": 38,
+        "interest": "Medium",
+        "energy": "You over-explaining",
+        "risk": "High",
+        "momentum": "At risk",
+        "bestMove": "Wait before replying",
+        "hidden": "The pressure you feel is coming from inside the read, not the interaction.",
+        "dont": "Do not send the full paragraph. Cut it to one clean sentence.",
+        "next": "Reduce the message to the main point. Stop there.",
+        "message": "Hey. I am around whenever you want to pick this back up.",
+        "timing": "Tomorrow morning",
+        "whySignals": [
+          "Over-explanation detected. Creates pressure before the content lands."
+        ],
+        "summary": "Scenario: Text / DM. Feeling: Unsure. Desired: Get clarity."
+      }
+    },
+    {
+      "id": "4-hours",
+      "draft": "It has been 4 hours since my text and he has not responded.",
+      "settings": {
+        "scenario": "Date",
+        "format": "Text / DM",
+        "feeling": "Anxious",
+        "desiredOutcome": "Get clarity"
+      },
+      "expected": {
+        "verdict": "The delay feels like rejection. It likely is not. Yet.",
+        "confidence": 38,
+        "interest": "Reading signals",
+        "energy": "You chasing",
+        "risk": "Medium-High",
+        "momentum": "Slowing",
+        "bestMove": "Wait",
+        "hidden": "Anxious reads are almost always more negative than the actual situation.",
+        "dont": "Do not send a message to manage your own anxiety. That rarely ends well.",
+        "next": "Wait until you feel calmer. The same message reads differently from a settled place.",
+        "message": "Had a really good time. We should do it again soon.",
+        "timing": "Tomorrow morning",
+        "whySignals": [
+          "Delay or silence mentioned. Changes the energy read significantly.",
+          "Very short input. Read confidence is lower.",
+          "Anxious state detected. Reads skew more negative than reality."
+        ],
+        "summary": "Scenario: Date. Feeling: Anxious. Desired: Get clarity."
+      }
+    },
+    {
+      "id": "3-paragraphs",
+      "draft": "I miss talking to you. I need to know where we stand, please respond.",
+      "settings": {
+        "scenario": "Text / DM",
+        "format": "Text / DM",
+        "feeling": "Unsure",
+        "desiredOutcome": "Get clarity"
+      },
+      "expected": {
+        "verdict": "You're over-investing. They're not matching you.",
+        "confidence": 38,
+        "interest": "Medium",
+        "energy": "Balanced",
+        "risk": "Medium",
+        "momentum": "Neutral",
+        "bestMove": "Wait before replying",
+        "hidden": "The pressure you feel is coming from inside the read, not the interaction.",
+        "dont": "Do not try to resolve this tonight.",
+        "next": "Step back. Let the situation breathe before you decide on a move.",
+        "message": "Hey. I am around whenever you want to pick this back up.",
+        "timing": "Tomorrow morning",
+        "whySignals": [
+          "Your message carries more intent than their response",
+          "Very short input. Read confidence is lower."
+        ],
+        "summary": "Scenario: Text / DM. Feeling: Unsure. Desired: Get clarity."
+      }
+    },
+    {
+      "id": "1am",
+      "draft": "It is 1am and my thumb is hovering over send. I keep rereading his last message.",
+      "settings": {
+        "scenario": "Text / DM",
+        "format": "Text / DM",
+        "feeling": "Anxious",
+        "desiredOutcome": "Get clarity"
+      },
+      "expected": {
+        "verdict": "Your read is anxious, not accurate. Wait 12 hours.",
+        "confidence": 38,
+        "interest": "Medium",
+        "energy": "Balanced",
+        "risk": "Medium-High",
+        "momentum": "Neutral",
+        "bestMove": "Wait",
+        "hidden": "Anxious reads are almost always more negative than the actual situation.",
+        "dont": "Do not send a message to manage your own anxiety. That rarely ends well.",
+        "next": "Wait until you feel calmer. The same message reads differently from a settled place.",
+        "message": "Hey. I am around whenever you want to pick this back up.",
+        "timing": "Tomorrow morning",
+        "whySignals": [
+          "Anxious state detected. Reads skew more negative than reality."
+        ],
+        "summary": "Scenario: Text / DM. Feeling: Anxious. Desired: Get clarity."
+      }
+    },
+    {
+      "id": "left-on-read",
+      "draft": "Left on read for two days. I am drafting a long follow up.",
+      "settings": {
+        "scenario": "Date",
+        "format": "Text / DM",
+        "feeling": "Anxious",
+        "desiredOutcome": "Get clarity"
+      },
+      "expected": {
+        "verdict": "Silence is the signal. Don't overwrite it.",
+        "confidence": 38,
+        "interest": "Unclear",
+        "energy": "You waiting",
+        "risk": "Medium",
+        "momentum": "Stalled",
+        "bestMove": "Do nothing",
+        "hidden": "They read the message and chose not to respond yet. More from you does not change that.",
+        "dont": "Do not send another message. Silence after silence only reduces your position.",
+        "next": "Set a 48-hour window. If nothing, send one clean, low-pressure close.",
+        "message": "Hey. No rush. Just making sure this did not get lost.",
+        "timing": "48 hours",
+        "whySignals": [
+          "Delay or silence mentioned. Changes the energy read significantly.",
+          "No reply detected. Silence is the primary signal here.",
+          "Very short input. Read confidence is lower.",
+          "Anxious state detected. Reads skew more negative than reality."
+        ],
+        "summary": "Scenario: Date. Feeling: Anxious. Desired: Get clarity."
+      }
+    },
+    {
+      "id": "feel-rejected",
+      "draft": "I feel invisible to him tonight.",
+      "settings": {
+        "scenario": "Date",
+        "format": "Text / DM",
+        "feeling": "Rejected",
+        "desiredOutcome": "Get clarity"
+      },
+      "expected": {
+        "verdict": "Acting from rejection makes the read self-fulfilling.",
+        "confidence": 38,
+        "interest": "Reading signals",
+        "energy": "Balanced",
+        "risk": "Medium-High",
+        "momentum": "Open",
+        "bestMove": "Create space",
+        "hidden": "Most post-date anxiety is about your own uncertainty, not a signal from them.",
+        "dont": "Do not ask for reassurance while you feel rejected.",
+        "next": "Step back. Let the situation show you more before you force clarity.",
+        "message": "Had a really good time. We should do it again soon.",
+        "timing": "Do not follow up yet",
+        "whySignals": [
+          "Very short input. Read confidence is lower.",
+          "Rejected feeling logged. May be pre-interpreting the outcome."
+        ],
+        "summary": "Scenario: Date. Feeling: Rejected. Desired: Get clarity."
+      }
+    },
+    {
+      "id": "intro",
+      "draft": "Hey, I can't make it in tomorrow. Something came up. Sorry.",
+      "settings": {
+        "scenario": "Work",
+        "format": "Text / DM",
+        "feeling": "Anxious",
+        "desiredOutcome": "Maintain professionalism"
+      },
+      "expected": {
+        "verdict": "Keep this professional. Emotion doesn't live here.",
+        "confidence": 38,
+        "interest": "Professional",
+        "energy": "Work dynamic",
+        "risk": "Medium-High",
+        "momentum": "Stable",
+        "bestMove": "Wait",
+        "hidden": "Anxious reads are almost always more negative than the actual situation.",
+        "dont": "Do not send a message to manage your own anxiety. That rarely ends well.",
+        "next": "Wait until you feel calmer. The same message reads differently from a settled place.",
+        "message": "Hi. Just wanted to follow up. Happy to connect briefly.",
+        "timing": "Tomorrow morning",
+        "whySignals": [
+          "Apology present. Watch what follows it.",
+          "Very short input. Read confidence is lower.",
+          "Anxious state detected. Reads skew more negative than reality."
+        ],
+        "summary": "Scenario: Work. Feeling: Anxious. Desired: Maintain professionalism."
+      }
+    }
+  ]
+}

@@ -21,6 +21,8 @@
    - required meta tags and local asset links resolve
 */
 const fs = require("fs");
+require("./legacy-receipt.test.js");
+if (require("./verify-video-packet.js").verifyPacket(require("node:path").join(__dirname,"fixtures/posted-video-packet.json"))) process.exit(1);
 const path = require("path");
 
 const { analyze } = require("../presend-analysis.js");
