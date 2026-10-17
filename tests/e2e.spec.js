@@ -236,9 +236,9 @@ test("3c. sharing registers attribution and claiming a verified referral adds on
   await expect.poll(async () => page.evaluate(() => localStorage.getItem("sr_referral_credits"))).toBe("1");
 });
 
-test("4. reaching the monthly free limit opens the paywall on the 4th receipt", async ({ page }) => {
-  // The free limit (FREE_LIMIT=3) counts SAVED receipts per calendar month,
-  // so each of the first 3 must be saved to actually consume the quota.
+test("4. reaching the monthly free limit offers the limit wall and paywall on the 4th receipt", async ({ page }) => {
+  // Each generation consumes a read. A user without an email first sees
+  // the existing bonus-read wall, then can continue to the paywall.
   await skipToApp(page);
   for (let i = 0; i < 3; i++) {
     await createReceipt(page, "Test message number " + i);
@@ -255,6 +255,8 @@ test("4. reaching the monthly free limit opens the paywall on the 4th receipt", 
   }
   await page.fill("#interactionText", "One more message");
   await page.click('button[onclick="generateReceipt()"]');
+  await expect(page.locator("#limitWallModal")).toBeVisible();
+  await page.locator("#limitWallModal").getByRole("button", {name:"Continue", exact:true}).click();
   await expect(page.locator("#paywallOverlay")).toBeVisible();
 });
 
