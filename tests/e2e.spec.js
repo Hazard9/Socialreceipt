@@ -791,16 +791,25 @@ test('goal wording is one extra card and never replaces the legacy receipt', asy
  await expect(page.locator('#receiptOutput')).toContainText('Matched wording');
 });
 
-test('receipts without an explicit goal keep the legacy renderer and message',async({page})=>{
- const result=await page.evaluate(()=>{
-  const r=buildReceipt('They left me on read.',{});
-  renderReceiptOutput(r,false);
-  return r;
- });
- expect(result.verdict).toBe("Silence is the signal. Don't overwrite it.");
- expect(result.message).toBe('Hey. No rush. Just making sure this did not get lost.');
- expect(result.guidance).toBeUndefined();
- expect(result.goalSuggestion).toBeUndefined();
+test('all seven posted receipts retain all 14 legacy fields in the browser',async({page})=>{
+ await skipToApp(page);
+ await page.click('.nav-btn[data-screen="createScreen"]');
+ const packet=require('./fixtures/posted-video-packet.json');
+ const results=await page.evaluate(cases=>{
+  const receipts=cases.map(item=>{
+   Object.assign(state,item.settings);
+   return buildReceipt(item.draft,{});
+  });
+  renderReceiptOutput(receipts[4],false);
+  return receipts;
+ },packet.cases);
+ for(let i=0;i<packet.cases.length;i++){
+  for(const [field,value] of Object.entries(packet.cases[i].expected)){
+   expect(results[i][field],packet.cases[i].id+' / '+field).toEqual(value);
+  }
+  expect(results[i].guidance).toBeUndefined();
+  expect(results[i].goalSuggestion).toBeUndefined();
+ }
  await expect(page.locator('.goal-suggestion')).toHaveCount(0);
  await expect(page.locator('#receiptOutput')).not.toContainText('UNCLEAR. No clear wording pattern detected.');
 });

@@ -68,5 +68,7 @@ The synthetic controls are additional coverage, not substitutes for the seven re
 
 - `tests/validate.js`: invokes the new compatibility modules. No existing assertion removed.
 - Existing browser quota test #4: corrects its outdated expectation to the already-shipped limit-wall-then-paywall flow. Users without an email first see `limitWallModal`, then Continue opens the paywall. No quota/email/payment behavior changed.
-- Two browser tests added: one optional goal card while preserving the legacy message/confidence; and a no-goal legacy silence receipt without a new card or UNCLEAR replacement.
+- Two browser tests added: one optional goal card while preserving the legacy message/confidence; and all seven supplied receipts × 14 fields in the real browser, with a no-goal silence result and no new card or UNCLEAR replacement.
 - New JSON fixtures/helper/gate test the actual main-page functions, not a reimplementation of the engine.
+
+The first browser attempt passed 50/51; the new synthetic no-goal test mistakenly used “left me on read” while asserting the legacy exact phrase “left on read.” That added test was replaced with the supplied seven-case packet and all 98 browser comparisons. No runtime engine code was changed for this correction.
