@@ -234,9 +234,9 @@ test("3c. sharing registers attribution and claiming a verified referral adds on
   await expect.poll(async () => page.evaluate(() => localStorage.getItem("sr_referral_credits"))).toBe("1");
 });
 
-test("4. reaching the monthly free limit opens the paywall on the 4th receipt", async ({ page }) => {
-  // The free limit (FREE_LIMIT=3) counts SAVED receipts per calendar month,
-  // so each of the first 3 must be saved to actually consume the quota.
+test("4. reaching the monthly free limit offers the limit wall and paywall on the 4th receipt", async ({ page }) => {
+  // Generations consume reads. Users without an email see the existing
+  // limit wall first, then can continue to the paywall.
   await skipToApp(page);
   for (let i = 0; i < 3; i++) {
     await createReceipt(page, "Test message number " + i);
@@ -253,6 +253,8 @@ test("4. reaching the monthly free limit opens the paywall on the 4th receipt", 
   }
   await page.fill("#interactionText", "One more message");
   await page.click('button[onclick="generateReceipt()"]');
+  await expect(page.locator("#limitWallModal")).toBeVisible();
+  await page.locator("#limitWallModal").getByRole("button", {name:"Continue", exact:true}).click();
   await expect(page.locator("#paywallOverlay")).toBeVisible();
 });
 
@@ -766,4 +768,48 @@ test("verified marketing drafts in both languages keep their meaning", async ({p
     await expect(output.locator("#presendRewrite")).toHaveCount(0);
     await output.getByRole("button",{name:"Check Another Message"}).click();
   }
+});
+
+test('goal wording is one extra card and never replaces the legacy receipt', async ({page})=>{
+ await skipToApp(page);
+ await page.evaluate(()=>localStorage.setItem('sr_pro','1'));
+ await page.click('.nav-btn[data-screen="createScreen"]');
+ await page.fill('#interactionText', "It's fine. I'll do everything myself like always.");
+ await page.locator('.presend-context summary').click();
+ await page.selectOption('#receiptPerspective','outgoing');
+ await page.selectOption('#receiptGoal','help');
+ await page.click('button[onclick="generateReceipt()"]');
+ await expect(page.locator('#receiptOutput')).toHaveClass(/active/);
+ await expect(page.locator('.goal-suggestion')).toHaveCount(1);
+ await expect(page.locator('.goal-suggestion')).toContainText('Suggested wording for your goal');
+ await expect(page.locator('.goal-suggestion')).toContainText('I need help with [the task]');
+ const r=await page.evaluate(()=>state.currentReceipt);
+ expect(r.guidance).toBeUndefined();
+ expect(r.message).not.toBe(r.goalSuggestion);
+ await expect(page.locator('#suggestedMessage')).toHaveText(r.message);
+ await expect(page.locator('#receiptOutput')).toContainText(r.confidence+'%');
+ await expect(page.locator('#receiptOutput')).toContainText('Matched wording');
+});
+
+test('all seven posted receipts retain all 14 legacy fields in the browser',async({page})=>{
+ await skipToApp(page);
+ await page.click('.nav-btn[data-screen="createScreen"]');
+ const packet=require('./fixtures/posted-video-packet.json');
+ const results=await page.evaluate(cases=>{
+  const receipts=cases.map(item=>{
+   Object.assign(state,item.settings);
+   return buildReceipt(item.draft,{});
+  });
+  renderReceiptOutput(receipts[4],false);
+  return receipts;
+ },packet.cases);
+ for(let i=0;i<packet.cases.length;i++){
+  for(const [field,value] of Object.entries(packet.cases[i].expected)){
+   expect(results[i][field],packet.cases[i].id+' / '+field).toEqual(value);
+  }
+  expect(results[i].guidance).toBeUndefined();
+  expect(results[i].goalSuggestion).toBeUndefined();
+ }
+ await expect(page.locator('.goal-suggestion')).toHaveCount(0);
+ await expect(page.locator('#receiptOutput')).not.toContainText('UNCLEAR. No clear wording pattern detected.');
 });

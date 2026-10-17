@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "draft": "Did I do something wrong, or are you ignoring me?",
+    "goal": "confirm",
+    "pattern": {
+      "label": "An explanation is being assumed",
+      "detail": "Asking whether someone is ignoring you introduces a possible motive. A delay alone does not establish that motive.",
+      "evidence": [
+        "are you ignoring me"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "draft": "I'm so sorry, I can't cover Saturday. I know that makes things harder, but I'm exhausted and I already changed my plans last time.",
+    "goal": "decline",
+    "pattern": {
+      "label": "A refusal followed by a defense",
+      "detail": "The answer is paired with justification. Keep relevant scheduling or responsibility details; you do not need to prove your character.",
+      "evidence": [
+        "i can't cover saturday. i know that makes things harder, b"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "draft": "It's fine. I'll do everything myself like always.",
+    "goal": "help",
+    "pattern": {
+      "label": "Help may be requested indirectly",
+      "detail": "The commitment to do everything is paired with a history cue. Clarify whether you want help or intend to take on the task.",
+      "evidence": [
+        "i'll do everything myself like always"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "draft": "You never listen. You only care when something affects you.",
+    "goal": "request",
+    "pattern": {
+      "label": "Absolute or blaming wording",
+      "detail": "Words like 'always' or 'never' can turn a specific concern into a character judgment.",
+      "evidence": [
+        "you never"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "draft": "I'm sorry again. I feel awful. Please tell me you're not still mad at me.",
+    "goal": "repair",
+    "pattern": {
+      "label": "Repeated apology seeking reassurance",
+      "detail": "The apology asks the other person to settle the sender's worry. Separate accountability from a request for immediate reassurance.",
+      "evidence": [
+        "sorry again"
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "draft": "Do whatever you want. It's not like my opinion matters.",
+    "goal": "input",
+    "pattern": {
+      "label": "Reluctant agreement",
+      "detail": "May read as concealed disagreement, especially beside an abrupt ending.",
+      "evidence": [
+        "whatever you want"
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "draft": "I did exactly what you asked, so I don't understand why this is suddenly a problem.",
+    "goal": "feedback",
+    "pattern": {
+      "label": "Defending compliance",
+      "detail": "This emphasizes having followed instructions. If feedback is unclear, identify the requested change before defending the whole task.",
+      "evidence": [
+        "i did exactly what you asked"
+      ]
+    }
+  },
+  {
+    "id": 8,
+    "draft": "If you actually cared about me, you would make time.",
+    "goal": "connection",
+    "pattern": {
+      "label": "Care framed as a test",
+      "detail": "This wording ties caring to one action. A direct request can make the need easier to discuss.",
+      "evidence": [
+        "if you actually cared"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "draft": "I'm done. I can't do this anymore.",
+    "goal": "pause",
+    "pattern": {
+      "label": "The ending is ambiguous",
+      "detail": "This could mean a pause, an ending, or completion. The intended scope needs clarification.",
+      "evidence": [
+        "i'm done. i can't do this anymore"
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "draft": "Sure, whatever works for you. I'll figure it out somehow.",
+    "goal": "alternative",
+    "pattern": {
+      "label": "Agreement beside a stated difficulty",
+      "detail": "The agreement is paired with having to figure it out somehow. Confirm whether you can actually agree or need to offer an alternative.",
+      "evidence": [
+        "sure, whatever works for you. i'll figure it out somehow"
+      ]
+    }
+  }
+]

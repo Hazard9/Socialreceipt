@@ -1024,6 +1024,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 </main>
 
 <script src="/presend-analysis.js"></script>
+<script src="/draft-guidance.js"></script>
 <script>
 "use strict";
 
@@ -1365,6 +1366,7 @@ function afterFormHtml() {
     '<div class="form-card card"><div class="step-label"><div class="step-count">3</div><h2>What happened?</h2></div><div class="input-with-voice"><textarea id="interactionText" placeholder="Paste the exchange, describe the moment, or summarize. The more specific, the sharper the read." oninput="onTextInput(this)"></textarea><button class="voice-input-btn" type="button" onclick="startVoiceInput(&quot;interactionText&quot;,&quot;voiceStatus&quot;)" aria-label="Talk to text for your interaction">&#127908; Talk to text</button></div><div class="voice-status" id="voiceStatus" aria-live="polite"></div><div class="micro-feedback" id="microFeedback"><div class="micro-feedback-dot"></div><span class="micro-feedback-text" id="microFeedbackText"></span></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">4</div><h2>How do you feel?</h2></div><div class="pill-grid" id="feelingPills"></div></div>' +
     '<div class="form-card card"><div class="step-label"><div class="step-count">5</div><h2>What do you want?</h2></div><div class="pill-grid" id="outcomePills"></div></div>' +
+    '<details class="presend-context"><summary>Add a goal for an optional wording suggestion</summary><div class="presend-context-fields"><div class="presend-context-field"><label for="receiptPerspective">Whose words are these?</label><select id="receiptPerspective"><option value="">Not specified</option><option value="outgoing">My outgoing draft</option><option value="received">A message I received</option><option value="exchange">An exchange or summary</option></select></div><div class="presend-context-field"><label for="receiptGoal">What should your message do?</label><select id="receiptGoal"><option value="">No additional suggestion</option><option value="confirm">Confirm a plan</option><option value="decline">Decline</option><option value="boundary">State a limit</option><option value="help">Ask for help</option><option value="request">Make a request</option><option value="repair">Apologize or repair</option><option value="input">Ask for a say</option><option value="feedback">Clarify feedback</option><option value="connection">Ask for time together</option><option value="alternative">Offer another time</option><option value="pause">Pause the conversation</option><option value="end">End something</option><option value="clarify">Clarify meaning</option></select></div></div></details>' +
     '<div class="form-actions"><button class="primary-btn" onclick="generateReceipt()">Generate Receipt</button><button class="ghost-btn" onclick="resetForm()">Clear</button></div>';
 }
 
@@ -1509,17 +1511,17 @@ function analyzeText(raw) {
   var words=text.trim().split(/\s+/).filter(function(w){return w.length>0;});
   var qMarks=(raw.match(/\?/g)||[]).length;
   var exclaims=(raw.match(/!/g)||[]).length;
-  var oneWord=/\b(ok|okay|k|sure|fine|cool|nice|lol|haha|yep|yeah|no|maybe)\b/i.test(raw.trim())&&words.length<=8;
-  var conflict=includesAny(text,["angry","mad","upset","argument","fight","annoyed","rude","ignored","hurt","tension","defensive"]);
+  var oneWord=/\b(ok|okay|k|sure|fine|cool|nice|lol|haha|yep|yeah|no|maybe|whatever)\b/i.test(raw.trim())&&words.length<=8;
+  var conflict=includesAny(text,["angry","mad","upset","argument","fight","annoyed","rude","ignored","hurt","tension","defensive","you never","never listen","you only care","if you actually cared","if you cared"]);
   var delay=includesAny(text,["left on read","no response","delayed","hours","days","ghost","ghosted","late reply","no reply","read receipt"]);
-  var silence=includesAny(text,["left on read","ghosted","no reply","no response","read receipt","never replied","still waiting"]);
-  var apology=includesAny(text,["sorry","apologize","my fault","i messed up","i overreacted"]);
+  var silence=includesAny(text,["left on read","ghosted","no reply","no response","read receipt","never replied","still waiting","ignore","ignored","ignores","ignoring"]);
+  var apology=includesAny(text,["sorry","apologize","my fault","i messed up","i overreacted","sorry, i"]);
   var positive=includesAny(text,["great","excited","love","glad","good","happy","yes","definitely","sounds good","looking forward"]);
   var professional=includesAny(text,["meeting","client","boss","manager","deadline","project","follow up","invoice","proposal","work","team"]);
   var romantic=includesAny(text,["date","hang out","dinner","drinks","cute","kiss","relationship","texted back"]);
   var sales=includesAny(text,["proposal","pricing","budget","call","demo","client","contract","interested","offer"]);
   var overExplain=words.length>85||includesAny(text,["i just wanted to explain","i know this is a lot","sorry for the long message"]);
-  var highIntent=includesAny(text,["i really like","i really want","i need","i miss","please respond"]);
+  var highIntent=includesAny(text,["i really like","i really want","i need","i miss","please respond","tell me we are okay","tell me we're okay","tell me we’re okay"]);
   return {words:words,qMarks:qMarks,exclaims:exclaims,oneWord:oneWord,conflict:conflict,delay:delay,silence:silence,apology:apology,positive:positive,professional:professional,romantic:romantic,sales:sales,overExplain:overExplain,highIntent:highIntent,length:words.length};
 }
 
@@ -1574,7 +1576,8 @@ function getVerdict(a, feeling, scenario) {
 }
 
 /* ── BUILD RECEIPT ── */
-function buildReceipt(rawText) {
+function buildReceipt(rawText, suppliedContext) {
+  var context = suppliedContext || readReceiptPatternContext();
   var scenario=state.scenario,feeling=state.feeling,desired=state.desiredOutcome;
   var a=analyzeText(rawText);
   var confidence=computeConfidence(a,feeling);
@@ -1588,7 +1591,7 @@ function buildReceipt(rawText) {
   var message="Hey. I am around whenever you want to pick this back up.";
   var timing="Tomorrow morning";
 
-  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="They read the message and chose not to respond yet. More from you does not change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);}
+  if(a.silence){interest="Unclear";energy="You waiting";risk="Medium";momentum="Stalled";bestMove="Do nothing";hidden="They read the message and chose not to respond yet. More from you does not change that.";dont="Do not send another message. Silence after silence only reduces your position.";next="Set a 48-hour window. If nothing, send one clean, low-pressure close.";message="Hey. No rush. Just making sure this did not get lost.";timing="48 hours";return addReceiptPattern(makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing), rawText, context);}
   if(scenario==="Work"||a.professional){interest="Professional";energy="Work dynamic";risk="Low";momentum="Stable";bestMove="Follow up clearly";hidden="Workplace tension resolves faster when you stay neutral and document clearly.";dont="Do not make this personal in writing. Tone in email is permanent.";next="Send one short, professional follow-up. Move the action forward without emotional weight.";message="Hi. Just wanted to follow up. Happy to connect briefly.";timing="Within business hours";}
   if(scenario==="Sales / Client"||a.sales){interest="Evaluating";energy="Client-paced";risk="Medium";momentum="Pending";bestMove="Soft close";hidden="Silence from a client usually means they are deciding, not decided against.";dont="Do not send a second follow-up before the first one has had time to land.";next="One short message. Clear and easy next step. Then hold.";message="Hey. Just checking in. Happy to answer questions or jump on a quick call.";timing="24-48 hours";}
   if(scenario==="Conflict"||a.conflict){interest="Unclear";energy="Tense";risk="High";momentum="Stalled";bestMove="Create space";hidden="In conflict, they need to feel heard before they can respond calmly.";dont="Do not try to win this over text. The channel is too low for this conversation.";next="Give this 24 hours. Then one sentence acknowledging their position, not defending yours.";message="I hear you. I do not want to make this worse over text. Let's come back to it calmly.";timing="24 hours minimum";}
@@ -1600,7 +1603,29 @@ function buildReceipt(rawText) {
   if(feeling==="Anxious"){risk="Medium-High";bestMove="Wait";timing="Tomorrow morning";hidden="Anxious reads are almost always more negative than the actual situation.";dont="Do not send a message to manage your own anxiety. That rarely ends well.";next="Wait until you feel calmer. The same message reads differently from a settled place.";}
   if(feeling==="Rejected"){risk="Medium-High";bestMove="Create space";timing="Do not follow up yet";if(!a.positive){dont="Do not ask for reassurance while you feel rejected.";next="Step back. Let the situation show you more before you force clarity.";}}
   if(a.overExplain){risk="High";energy="You over-explaining";momentum="At risk";dont="Do not send the full paragraph. Cut it to one clean sentence.";next="Reduce the message to the main point. Stop there.";}
-  return makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing);
+  return addReceiptPattern(makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing), rawText, context);
+}
+
+function readReceiptPatternContext() {
+  function value(id) { var el=document.getElementById(id); return el ? el.value : ''; }
+  return {goal:value('receiptGoal'), perspective:value('receiptPerspective')};
+}
+
+function addReceiptPattern(receipt, rawText, context) {
+  var analysis = window.SocialReceiptAnalysis.analyze(rawText, context);
+  var guidance = window.SocialReceiptGuidance.guide(rawText, context, analysis);
+  var signal = guidance.primary;
+  receipt.pattern = signal ? {label:signal.label, detail:signal.detail, evidence:signal.evidence.slice()} : null;
+  receipt.patternWhySignals = [];
+  analysis.signals.forEach(function(item) {
+    if (item.evidence && item.evidence.length) receipt.patternWhySignals.push(escapeHtml('Matched wording — '+item.label+': '+item.evidence.join(' + ')));
+  });
+  if (receipt.verdict === 'The next move matters more than the read. Make it count.') {
+    if (receipt.pattern) receipt.verdict = receipt.pattern.label;
+    if (guidance.question) receipt.bestMove = 'Clarify the goal';
+  }
+  if (context.goal && guidance.suggestion) receipt.goalSuggestion = guidance.suggestion;
+  return receipt;
 }
 
 function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing) {
@@ -2023,7 +2048,7 @@ function renderReceiptOutput(receipt, savedView) {
     html += rs(interruptCardHtml(receipt));
   }
 
-  html += rs("<div class=\"receipt-divider\"><span>Signal Breakdown</span></div><div class=\"why-toggle\" onclick=\"toggleWhy()\"><span class=\"why-label\">Why this read?</span><span class=\"why-icon\" id=\"whyIcon\">+</span></div><div class=\"why-body\" id=\"whyBody\">"+receipt.whySignals.map(function(s){return "<div class=\"why-signal\"><span class=\"why-arrow\">\u2192</span>"+s+"</div>";}).join("")+"</div>");
+  html += rs("<div class=\"receipt-divider\"><span>Signal Breakdown</span></div><div class=\"why-toggle\" onclick=\"toggleWhy()\"><span class=\"why-label\">Why this read?</span><span class=\"why-icon\" id=\"whyIcon\">+</span></div><div class=\"why-body\" id=\"whyBody\">"+receipt.whySignals.concat(receipt.patternWhySignals || []).map(function(s){return "<div class=\"why-signal\"><span class=\"why-arrow\">\u2192</span>"+s+"</div>";}).join("")+"</div>");
 
   html += rs("<div class=\"detail-card\"><h3>What you missed</h3><p>"+receipt.hidden+"</p></div>");
   html += rs("<div class=\"detail-card warning-card\"><h3>Do not do this</h3><p>"+receipt.dont+"</p></div>");
@@ -2066,6 +2091,8 @@ function renderReceiptOutput(receipt, savedView) {
     }
     if (savedView && receipt.outcome && receipt.outcome!=="Not tracked yet") { html += rs(replayCard(receipt)); }
   }
+
+  if (receipt.goalSuggestion) html += rs('<div class="detail-card goal-suggestion"><h3>Suggested wording for your goal</h3><div class="message-box">'+escapeHtml(receipt.goalSuggestion)+'</div></div>');
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
 
