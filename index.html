@@ -771,6 +771,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div class="paywall-perk"><div class="paywall-perk-icon">✉</div><div class="paywall-perk-text"><strong>The message you were going to send is risky</strong><span>The rewrite removes the phrases that make you look like you are chasing.</span></div></div>
       <div class="paywall-perk"><div class="paywall-perk-icon">⏱</div><div class="paywall-perk-text"><strong>Timing is the part most people get wrong</strong><span>The right message at the wrong moment still loses position. This shows you the window.</span></div></div>
     </div>
+    <div class="detail-card" id="paywallProList" style="margin:12px 0;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px"></div>
     <div class="detail-card" style="margin:12px 0;border-color:var(--border-warm);background:rgba(201,168,76,.06)"><div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">Lifetime Beta means ownership</div><p style="margin:0;color:var(--text);font-size:13px;line-height:1.5">Keep the full decision layer, your pattern history, and future pre-launch features for $39 once. No recurring charge.</p></div>
     <div id="paywallOwnershipProof" class="detail-card" style="margin:0 0 14px;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px"></div>
     <div class="detail-card" style="margin:0 0 14px;border-color:var(--border);background:rgba(255,245,220,.025);padding:13px 14px">
@@ -1284,6 +1285,66 @@ function hasGivenWallEmail() {
 function canCreate() { return isPro() || getFreeUsed() < FREE_LIMIT + getReferralCredits() + getBonusReads(); }
 function getReferralCredits() { return parseInt(localStorage.getItem("sr_referral_credits") || "0", 10); }
 
+/* ── FIRST PEEL FREE ──
+   One full look inside Pro per calendar month for free users, so the
+   paywall never asks for money on faith. The taste is recorded under
+   sr_free_peel_used_YYYY-M (same month style as the free-read counter)
+   and is consumed only when the reveal actually renders. Pro users
+   never see the offer or the marker; sample receipts never offer it
+   and never consume it. */
+function freePeelKey() { return "sr_free_peel_used_" + freeMonthKey(); }
+function freePeelUsed() {
+  try { return localStorage.getItem(freePeelKey()) === "1"; } catch (e) { return false; }
+}
+function consumeFreePeel() {
+  try { localStorage.setItem(freePeelKey(), "1"); } catch (e) {}
+}
+function canOfferFreePeel(receipt) {
+  if (isPro()) return false;
+  if (!receipt || receipt.sample) return false;
+  if (receipt.peelFreeReveal) return false;
+  if (window._deepFreshView === false) return false;
+  return !freePeelUsed();
+}
+function revealFreePeel() {
+  var r = findDeepReceipt();
+  if (!r || !r.deep) return;
+  if (!canOfferFreePeel(r)) return;
+  r.peelFreeReveal = true;
+  persistDeepReceipt(r);
+  refreshDeepSection();
+  /* Consume only once the open peel has actually rendered for this receipt. */
+  if (deepSectionInner(r).indexOf("This is this month's free look inside.") !== -1) {
+    consumeFreePeel();
+    trackEvent("free_peel_revealed", { scenario: r.scenario });
+  }
+}
+
+/* ── WHAT PRO OPENS ──
+   The plain list of what Pro actually contains, from one source of
+   truth, rendered in the locked peel section and in the paywall.
+   These are the five real capabilities: no outcome claims, no prices,
+   no urgency copy, nothing invented. */
+var PRO_CAPABILITY_LINES = [
+  "The question underneath your draft",
+  "Your patterns, remembered on your device",
+  "Three ways your message could land",
+  "A calmer version built from your own words",
+  "After you sent it: a read on their reply, and your next move"
+];
+function proCapabilityListHtml(heading) {
+  var html = "<div style=\"margin-top:12px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px\">" + heading + "</div>";
+  PRO_CAPABILITY_LINES.forEach(function (line) {
+    html += "<p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 4px\">&#10003; " + escapeHtml(line) + "</p>";
+  });
+  html += "</div>";
+  return html;
+}
+function renderPaywallProList() {
+  var el = document.getElementById("paywallProList");
+  if (el) el.innerHTML = proCapabilityListHtml("What Pro opens");
+}
+
 /* ── LANDING ── */
 function startFree() {
   localStorage.setItem("sr_seen_landing","1");
@@ -1318,6 +1379,7 @@ function openPaywall(spikeMsg) {
   if (spikeMsg && spike) { spike.textContent = spikeMsg; spike.style.display = "block"; }
   else if (spike) { spike.style.display = "none"; }
   renderPaywallOwnershipProof();
+  renderPaywallProList();
   document.getElementById("paywallOverlay").classList.remove("hidden");
   haptic([10,20]);
   trackEvent("paywall_viewed");
@@ -1793,7 +1855,8 @@ function deepSectionInner(receipt) {
   var d = receipt.deep;
   if (!deep || !d) return "";
   var html = "<div class=\"detail-card deep-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Peel a layer</div><h3 style=\"font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--text);margin:0 0 6px\">Go deeper than the receipt</h3>";
-  if (!isPro()) {
+  var peelRevealed = !isPro() && receipt.peelFreeReveal === true;
+  if (!isPro() && !peelRevealed) {
     var steps = [
       ["Layer 4 · The fear", "Name what you are actually afraid happens if this just sits."],
       ["Layer 5 · Your pattern", "See how often this exact pattern shows up in your drafts, counted on this device."],
@@ -1804,8 +1867,20 @@ function deepSectionInner(receipt) {
     steps.forEach(function (s) {
       html += "<div style=\"padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px\"><span style=\"display:block;color:var(--text);font-size:12px;margin-bottom:3px\">&#128274; " + s[0] + "</span><span style=\"font-size:12px;color:var(--muted);line-height:1.45\">" + s[1] + "</span></div>";
     });
+    /* First Peel Free additions: in the full page their helpers are
+       always present; a context without them gets the classic locked
+       section, unchanged. */
+    if (typeof proCapabilityListHtml === "function") html += proCapabilityListHtml("What Pro opens");
+    if (typeof canOfferFreePeel === "function" && canOfferFreePeel(receipt)) {
+      html += "<button class=\"secondary-btn\" style=\"margin-top:10px\" onclick=\"revealFreePeel()\">See inside once, free this month</button>";
+    } else if (!receipt.sample && typeof freePeelUsed === "function" && freePeelUsed()) {
+      html += "<p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0 0\">You used this month's free look inside.</p>";
+    }
     html += "<button class=\"secondary-btn\" style=\"margin-top:4px\" onclick=\"openPaywall()\">Unlock the deep layers with Pro</button></div>";
     return html;
+  }
+  if (peelRevealed) {
+    html += "<p style=\"font-size:12px;line-height:1.5;color:var(--gold-2);margin:0 0 4px\">This is this month's free look inside. Pro opens this on every receipt.</p>";
   }
   /* Layer 4 — the fear */
   var chips = deep.fearChipsFor(receipt.scenario);
@@ -2815,6 +2890,7 @@ function renderReceiptOutput(receipt, savedView) {
   /* DEEP LAYERS — additive cards under the receipt (layer 3 free, layers 4-7 Pro) */
   if (!receipt.deep) attachDeepLayers(receipt, false);
   window._deepReceiptId = receipt.id;
+  window._deepFreshView = !savedView;
   html += rs(deepStateCardHtml(receipt));
   html += rs(deepLayersHtml(receipt));
 
