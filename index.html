@@ -2780,7 +2780,7 @@ function renderReceiptOutput(receipt, savedView) {
   var isSilence= receipt.verdict.indexOf("Silence") === 0;
   var confNote = getConfidenceNote(receipt.confidence);
   var meterTicks = "";
-  for (var ti = 1; ti < 10; ti++) meterTicks += "<span class=\"confidence-tick\" style=\"left:"+(ti*10)+"%"></span>";
+  for (var ti = 1; ti < 10; ti++) meterTicks += "<span class=\"confidence-tick\" style=\"left:"+(ti*10)+"%\"></span>";
   var html = "";
   var step = 0;
 
