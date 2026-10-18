@@ -347,6 +347,15 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .sample-tag-note{font-size:11px;color:var(--muted);}
 .sharpen-line{font-family:var(--font-mono);font-size:10.5px;line-height:1.55;color:var(--muted);border:1px dashed rgba(201,168,76,0.35);border-radius:10px;padding:9px 11px;}
 .sharpen-line strong{color:var(--gold-2);font-weight:600;}
+.pattern-freq-line{font-family:var(--font-mono);font-size:10.5px;line-height:1.55;color:var(--gold-2);}
+.evidence-panel{border:1px solid var(--border);border-radius:10px;padding:9px 11px;}
+.evidence-panel summary{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-2);cursor:pointer;list-style:none;}
+.evidence-panel summary::-webkit-details-marker{display:none;}
+.evidence-body{margin-top:8px;}
+.evidence-item{font-size:12px;line-height:1.5;color:var(--text);padding:3px 0 3px 14px;position:relative;}
+.evidence-item:before{content:"\2192";position:absolute;left:0;color:var(--gold);}
+.evidence-pattern{font-size:12px;line-height:1.5;color:var(--muted);padding-top:6px;margin-top:4px;border-top:1px dashed rgba(201,168,76,0.25);}
+.evidence-none{font-size:12px;line-height:1.55;color:var(--muted);}
 
 /* Silence */
 .silence-card{padding:22px;margin-bottom:10px;background:linear-gradient(150deg,rgba(99,93,80,0.2),rgba(255,245,220,0.025));border:1px solid rgba(99,93,80,0.35);border-radius:var(--radius-xl);}
@@ -2801,6 +2810,16 @@ function renderReceiptOutput(receipt, savedView) {
     html += rs("<div class=\"sharpen-line\"><strong>What would sharpen this read:</strong> "+sharpenHints+"</div>");
   }
 
+  /* WHAT THIS READ MATCHED — evidence panel + pattern-frequency chip (fresh receipts only; samples excluded inside the helpers) */
+  if (!savedView) {
+    var freqText = patternFrequencyText(receipt);
+    if (freqText) {
+      html += rs("<div class=\"pattern-freq-line\">"+escapeHtml(freqText)+"</div>");
+    }
+    var evPanel = evidencePanelHtml(receipt);
+    if (evPanel) html += rs(evPanel);
+  }
+
   html += rs("<div class=\"score-grid\">"+scoreCard("Interest",receipt.interest,riskColor(receipt.interest))+scoreCard("Energy",receipt.energy,"var(--gold)")+scoreCard("Risk",receipt.risk,riskColor(receipt.risk))+scoreCard("Momentum",receipt.momentum,momentumColor(receipt.momentum))+"</div>");
 
   /* POSITION METER — visual anchor */
@@ -3131,6 +3150,71 @@ function sharpenReadHints(receipt) {
   if (a.length <= 20) hints.push("Only " + a.length + " words in this draft");
   if (!hints.length) return "";
   return hints.join(". ") + ".";
+}
+
+/* ── WHAT THIS READ MATCHED ──
+   The gauge says how much of the wording matched; this panel shows
+   WHAT matched, so the user can audit the read. Every item derives
+   from the engine's own analyzeText run over the receipt's rawText
+   (the same recomputation sharpenReadHints uses), mapped field by
+   field below. Context fields analyzeText also returns (professional,
+   romantic, sales, oneWord, exclaims) carry no panel label and are
+   never listed. Length items can only ever appear alongside a wording
+   item (a draft over 100 words always trips overExplain) or on their
+   own as a shape note for a draft of three words or fewer. When no
+   wording signal and no pattern matched at all, the panel says so
+   plainly instead of dressing up an empty list. Presentation only:
+   nothing here feeds back into the receipt. */
+function evidenceMatchedItems(receipt) {
+  if (!receipt || !receipt.rawText) return null;
+  var a = analyzeText(receipt.rawText);
+  var items = [];
+  if (a.conflict) items.push("Conflict or blaming wording");
+  if (a.silence) items.push("References to silence or no reply");
+  if (a.apology) items.push("Apology wording");
+  if (a.overExplain) items.push("Over-explaining cues");
+  if (a.delay) items.push("A wait or delay mentioned");
+  if (a.positive) items.push("Warm or positive wording");
+  if (a.qMarks > 0) items.push("A direct question");
+  if (a.highIntent) items.push("A stated need or high-intent wording");
+  if (a.length > 100) items.push("A long draft (over 100 words)");
+  if (a.length <= 3) items.push("A very short draft");
+  var patternLine = "";
+  if (receipt.pattern && receipt.pattern.evidence && receipt.pattern.evidence.length) {
+    patternLine = "Pattern evidence: " + (receipt.pattern.label ? escapeHtml(receipt.pattern.label) + ": " : "") + escapeHtml(receipt.pattern.evidence.join(" + "));
+  }
+  return { items: items, patternLine: patternLine };
+}
+
+function evidencePanelHtml(receipt) {
+  if (!receipt || receipt.sample || !receipt.rawText) return "";
+  var ev = evidenceMatchedItems(receipt);
+  if (!ev) return "";
+  var body;
+  if (!ev.items.length && !ev.patternLine) {
+    body = "<div class=\"evidence-none\">No wording patterns matched in this draft. This read rests on the draft's shape and the situation you picked.</div>";
+  } else {
+    body = ev.items.map(function (label) { return "<div class=\"evidence-item\">" + label + "</div>"; }).join("");
+    if (ev.patternLine) body += "<div class=\"evidence-pattern\">" + ev.patternLine + "</div>";
+  }
+  return "<details class=\"evidence-panel\"><summary>What this read matched</summary><div class=\"evidence-body\">" + body + "</div></details>";
+}
+
+/* ── PATTERN FREQUENCY CHIP ──
+   The pattern memory surfaces on the receipt itself: when this
+   receipt's deep-layers branch already appears in the on-device
+   pattern history (count30 >= 2, the current draft included, per the
+   established pattern-memory behavior), say so in one line. The
+   branchless "flag:general" key names no pattern and never chips.
+   Sample receipts never display the visitor's own pattern data. */
+function patternFrequencyText(receipt) {
+  if (!receipt || receipt.sample) return "";
+  var deep = window.SocialReceiptDeep;
+  if (!deep || !receipt.deep || !receipt.deep.patternKey) return "";
+  if (receipt.deep.patternKey === "flag:general") return "";
+  var summary = deep.patternSummary(loadPatternHistory(), receipt.deep.patternKey, Date.now());
+  if (!summary || summary.count30 < 2) return "";
+  return "This pattern appears in " + summary.count30 + " of your drafts from the last 30 days.";
 }
 
 /* ── ONE TAP SEND ── */
