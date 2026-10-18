@@ -1,0 +1,1084 @@
+{
+  "generatedFrom": "tests/challenge-set.json",
+  "engineBaseline": "main f4e6583 (plus any local challenge fixes when re-run)",
+  "counts": {
+    "fits": 9,
+    "borderline": 11,
+    "misfit": 3,
+    "unjudged": 0
+  },
+  "results": [
+    {
+      "id": "a1-boundary-money",
+      "family": "a-boundary-vs-aggression",
+      "draft": "I love you and I want to help, but I can't lend you money this month. I have to protect my own bills first. It's not personal.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Keep connection warm",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Healthy boundary: warm, firm, kind. Should NOT read as hostile or as a problem; 'this works' is an acceptable read.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": true,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "This is working. The risk is over-managing it.",
+      "confidence": 33,
+      "pattern": {
+        "label": "Warmth or care cue",
+        "evidence": [
+          "i love you"
+        ]
+      },
+      "bestMove": "Reply and move forward",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "High",
+      "energy": "Mutual",
+      "risk": "Low",
+      "momentum": "Moving",
+      "hidden": "The wording is warm on its face. The only risk here is over-managing a message that already works.",
+      "dont": "Do not add complexity to something that is already working.",
+      "next": "Keep momentum going. One easy, forward-moving message.",
+      "timing": "Now or tonight",
+      "whySignals": [
+        "Positive language present. Interest or warmth signal detected."
+      ],
+      "fit": "borderline",
+      "fitWhy": "The verdict is fair, the draft IS a good message, but bestMove 'Reply and move forward' and the stock suggested line ignore the boundary entirely; the receipt's advice surface never engages with what the draft says."
+    },
+    {
+      "id": "a2-boundary-calls",
+      "family": "a-boundary-vs-aggression",
+      "draft": "Please don't call after 10pm unless it's an emergency. I need my sleep before work and I'm not able to chat late anymore.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Move forward",
+        "feeling": "Unsure",
+        "scenario": "Text / DM"
+      },
+      "intent": "Healthy boundary: a sleep/phone limit stated plainly. Should NOT be read as over-investing in an unmatched relationship or as conflict.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": true,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": true,
+        "oneWord": false
+      },
+      "verdict": "You're over-investing. They're not matching you.",
+      "confidence": 56,
+      "pattern": {
+        "label": "Clear boundary or limit",
+        "evidence": [
+          "please don't"
+        ]
+      },
+      "bestMove": "Follow up clearly",
+      "suggestedMessage": "Hi. Just wanted to follow up. Happy to connect briefly.",
+      "interest": "Professional",
+      "energy": "Work dynamic",
+      "risk": "Low",
+      "momentum": "Stable",
+      "hidden": "Workplace tension resolves faster when you stay neutral and document clearly.",
+      "dont": "Do not make this personal in writing. Tone in email is permanent.",
+      "next": "Send one short, professional follow-up. Move the action forward without emotional weight.",
+      "timing": "Within business hours",
+      "whySignals": [
+        "Your message carries more intent than their response"
+      ],
+      "fit": "misfit",
+      "fitWhy": "PARTIALLY FIXED: the sales hijack is gone (bare 'call' no longer marks a draft as a sales motion), so the receipt is no longer a sales close. The headline still misfits: 'You're over-investing. They're not matching you.' for a sleep boundary, because 'i need' in the highIntent lexicon cannot distinguish needing sleep from needing reassurance. No gate-safe fix: the difference is the object of the need, which substring matching cannot see; it needs object-aware parsing (need + reassurance object vs need + concrete object)."
+    },
+    {
+      "id": "a3-boundary-shift",
+      "family": "a-boundary-vs-aggression",
+      "draft": "I'm not able to cover your shift on Saturday. I hope you find someone who can.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Maintain professionalism",
+        "feeling": "Unsure",
+        "scenario": "Work"
+      },
+      "intent": "Healthy boundary at work: a clean decline. A professional, neutral read fits.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "Keep this professional. Emotion doesn't live here.",
+      "confidence": 3,
+      "pattern": null,
+      "bestMove": "Follow up clearly",
+      "suggestedMessage": "Hi. Just wanted to follow up. Happy to connect briefly.",
+      "interest": "Professional",
+      "energy": "Work dynamic",
+      "risk": "Low",
+      "momentum": "Stable",
+      "hidden": "Workplace tension resolves faster when you stay neutral and document clearly.",
+      "dont": "Do not make this personal in writing. Tone in email is permanent.",
+      "next": "Send one short, professional follow-up. Move the action forward without emotional weight.",
+      "timing": "Within business hours",
+      "whySignals": [
+        "General pattern analysis. Based on scenario and feeling combination."
+      ],
+      "fit": "fits",
+      "fitWhy": "Professional read, sensible move and timing. Confidence 3 is the gauge honestly reporting almost no matched signals, and its basis is disclosed in the app."
+    },
+    {
+      "id": "a4-aggression-jerk",
+      "family": "a-boundary-vs-aggression",
+      "draft": "You're a selfish jerk and I'm sick of your crap. Don't ever text me again.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Disengage",
+        "feeling": "Annoyed",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Genuine aggression: name-calling and a cutoff. Should read as hostile/high-risk, NOT as a neutral 'next move matters' shrug.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "You're still activated. Don't send anything yet.",
+      "confidence": 33,
+      "pattern": {
+        "label": "Repeated-explanation cue",
+        "evidence": [
+          "again"
+        ]
+      },
+      "bestMove": "Create space",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "High",
+      "momentum": "Stalled",
+      "hidden": "These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.",
+      "dont": "Do not try to win this over text. The channel is too low for this conversation.",
+      "next": "Give this 24 hours. Then one sentence acknowledging their position, not defending yours.",
+      "timing": "24 hours minimum",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active."
+      ],
+      "fit": "fits",
+      "fitWhy": "FIXED: 'jerk' now trips the conflict flag, so the receipt is coherent: activated verdict, Create space, High risk, calm suggested line."
+    },
+    {
+      "id": "a5-aggression-shutup",
+      "family": "a-boundary-vs-aggression",
+      "draft": "Shut up. You always ruin everything and nobody actually likes you, we just tolerate you.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Disengage",
+        "feeling": "Annoyed",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Genuine aggression: contempt and social exclusion. Should read as hostile, NOT neutral.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "You're still activated. Don't send anything yet.",
+      "confidence": 33,
+      "pattern": {
+        "label": "Direct insult",
+        "evidence": [
+          "shut up"
+        ]
+      },
+      "bestMove": "Create space",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "High",
+      "momentum": "Stalled",
+      "hidden": "These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.",
+      "dont": "Do not try to win this over text. The channel is too low for this conversation.",
+      "next": "Give this 24 hours. Then one sentence acknowledging their position, not defending yours.",
+      "timing": "24 hours minimum",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active."
+      ],
+      "fit": "fits",
+      "fitWhy": "FIXED: 'shut up' now trips the conflict flag; the spine itself produces the activated verdict with Create space and High risk instead of borrowing a pattern label with generic fields."
+    },
+    {
+      "id": "a6-aggression-control",
+      "family": "a-boundary-vs-aggression",
+      "draft": "You never listen to a single word I say and you only care about yourself.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Annoyed",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Control: aggression phrased with the engine's known trigger wording. An activated/conflict read fits.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "You're still activated. Don't send anything yet.",
+      "confidence": 33,
+      "pattern": {
+        "label": "Absolute or blaming wording",
+        "evidence": [
+          "you never"
+        ]
+      },
+      "bestMove": "Create space",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "High",
+      "momentum": "Stalled",
+      "hidden": "These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.",
+      "dont": "Do not try to win this over text. The channel is too low for this conversation.",
+      "next": "Give this 24 hours. Then one sentence acknowledging their position, not defending yours.",
+      "timing": "24 hours minimum",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active."
+      ],
+      "fit": "fits",
+      "fitWhy": "Activated verdict, Create space, High risk, calm suggested line: verdict, move and suggestion all agree with the draft's meaning."
+    },
+    {
+      "id": "b1-apology-reassurance-known",
+      "family": "b-accountability-vs-reassurance",
+      "draft": "Sorry. Sorry, sorry. I know I keep saying it but I feel awful and I need you to tell me we are good because I cannot stop thinking about it. Please forgive me.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Anxious",
+        "scenario": "Friend / Family"
+      },
+      "intent": "THE known audit case, verbatim: a distressed, reassurance-seeking apology. It must NOT be read as 'This is working'; the user is spiraling and asking the other person to soothe them.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": true,
+        "positive": true,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": true,
+        "oneWord": false
+      },
+      "verdict": "One apology lands. The rest is asking for reassurance.",
+      "confidence": 89,
+      "pattern": null,
+      "bestMove": "Wait",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "High",
+      "energy": "Mutual",
+      "risk": "Medium-High",
+      "momentum": "Moving",
+      "hidden": "Anxious reads are almost always more negative than the actual situation.",
+      "dont": "Do not send a message to manage your own anxiety. That rarely ends well.",
+      "next": "Wait until you feel calmer. The same message reads differently from a settled place.",
+      "timing": "Tomorrow morning",
+      "whySignals": [
+        "Your message carries more intent than their response",
+        "Positive language present. Interest or warmth signal detected.",
+        "Apology present. Watch what follows it.",
+        "Anxious state detected. Reads skew more negative than reality."
+      ],
+      "fit": "fits",
+      "fitWhy": "FIXED: new verdict branch (apology + highIntent, ahead of the positive branch) returns 'One apology lands. The rest is asking for reassurance.', which finally agrees with the same receipt's bestMove ('Wait') and risk (Medium-High). The scripts page's embedded copy of this receipt was updated in the same change, so the public page no longer teaches with the misfit read."
+    },
+    {
+      "id": "b2-apology-accountability",
+      "family": "b-accountability-vs-reassurance",
+      "draft": "I was wrong to raise my voice at dinner last night. That was on me, no excuses. I'm sorry.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Clean accountability: owns a specific act, no excuses, no ask. A calm, lands-well read fits.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": true,
+        "positive": false,
+        "professional": false,
+        "romantic": true,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "Accountability cue",
+      "confidence": 33,
+      "pattern": {
+        "label": "Accountability cue",
+        "evidence": [
+          "i was wrong to"
+        ]
+      },
+      "bestMove": "Clarify the goal",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Medium",
+      "energy": "Balanced",
+      "risk": "Medium",
+      "momentum": "Neutral",
+      "hidden": "An apology lands on its follow-through. The words alone rarely settle the original issue.",
+      "dont": "Do not accept the apology and immediately return to the original issue.",
+      "next": "Acknowledge briefly. Give it space to settle before the next conversation.",
+      "timing": "24 hours",
+      "whySignals": [
+        "Apology present. Watch what follows it."
+      ],
+      "fit": "borderline",
+      "fitWhy": "IMPROVED: the dating suggested line is gone (a lexical romantic flag no longer overrides an explicit Friend / Family scenario). The suggested message is now neutral stock filler, still not apology-aware, so the case stays borderline rather than fits."
+    },
+    {
+      "id": "b3-apology-accountability-repair",
+      "family": "b-accountability-vs-reassurance",
+      "draft": "I messed up the reservation and we lost the table. My fault entirely. I've already rebooked for Friday at 7 and I'll cover the deposit.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Unsure",
+        "scenario": "Text / DM"
+      },
+      "intent": "Accountability plus concrete repair already done. Should read as a strong, settled apology, not distress.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": true,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "The next move matters more than the read. Make it count.",
+      "confidence": 33,
+      "pattern": null,
+      "bestMove": "Clarify the goal",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Medium",
+      "energy": "Balanced",
+      "risk": "Medium",
+      "momentum": "Neutral",
+      "hidden": "An apology lands on its follow-through. The words alone rarely settle the original issue.",
+      "dont": "Do not accept the apology and immediately return to the original issue.",
+      "next": "Acknowledge briefly. Give it space to settle before the next conversation.",
+      "timing": "24 hours",
+      "whySignals": [
+        "Apology present. Watch what follows it."
+      ],
+      "fit": "borderline",
+      "fitWhy": "A model apology with repair already completed gets the generic default verdict and 'Clarify the goal'. Nothing recognizes the accountability or the finished repair. Not hostile, just empty, and its 'dont' line is written for the apology's receiver, not its sender."
+    },
+    {
+      "id": "b4-apology-reassurance-mad",
+      "family": "b-accountability-vs-reassurance",
+      "draft": "Please tell me you're not mad. Sorry, sorry, sorry, I keep thinking about it and I can't sleep. Just tell me we're fine, please forgive me.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Anxious",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Same psychology as b1 (repeated sorry, cannot sleep, begging for 'we're fine') phrased slightly differently. Consistency check against b1: two drafts this alike should not receive opposite verdicts.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": true,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "This needed space. You almost overplayed it.",
+      "confidence": 67,
+      "pattern": {
+        "label": "Reassurance-seeking cue",
+        "evidence": [
+          "please tell me you're"
+        ]
+      },
+      "bestMove": "Wait",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "Medium-High",
+      "momentum": "Stalled",
+      "hidden": "Anxious reads are almost always more negative than the actual situation.",
+      "dont": "Do not send a message to manage your own anxiety. That rarely ends well.",
+      "next": "Wait until you feel calmer. The same message reads differently from a settled place.",
+      "timing": "Tomorrow morning",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active.",
+        "Apology present. Watch what follows it.",
+        "Anxious state detected. Reads skew more negative than reality."
+      ],
+      "fit": "borderline",
+      "fitWhy": "Directionally humane ('needed space', Wait, Medium-High), but damning next to b1: same psychology, opposite headline, decided only by the incidental words 'mad' (conflict) vs 'good' (positive). The pattern layer even saw 'Reassurance-seeking cue' here while the spine's verdict ignored the same signal in b1."
+    },
+    {
+      "id": "b5-apology-mild-mixed",
+      "family": "b-accountability-vs-reassurance",
+      "draft": "I'm sorry I forgot your birthday. I feel awful about it. Can I take you to dinner this week to make it up to you?",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Mild, proportionate apology with a repair offer. Verdict, suggested message and best move should all be about the apology, not about dating signals.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": true,
+        "positive": false,
+        "professional": false,
+        "romantic": true,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "Accountability cue",
+      "confidence": 56,
+      "pattern": {
+        "label": "Accountability cue",
+        "evidence": [
+          "i'm sorry i"
+        ]
+      },
+      "bestMove": "Clarify the goal",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Medium",
+      "energy": "Balanced",
+      "risk": "Medium",
+      "momentum": "Neutral",
+      "hidden": "An apology lands on its follow-through. The words alone rarely settle the original issue.",
+      "dont": "Do not accept the apology and immediately return to the original issue.",
+      "next": "Acknowledge briefly. Give it space to settle before the next conversation.",
+      "timing": "24 hours",
+      "whySignals": [
+        "Apology present. Watch what follows it."
+      ],
+      "fit": "borderline",
+      "fitWhy": "IMPROVED: same fix as b2; the birthday apology no longer ships a dating line as its suggestion. Suggestion remains generic."
+    },
+    {
+      "id": "c1-quoted-accusation",
+      "family": "c-quoted-vs-own-accusation",
+      "draft": "You told me I never listen and honestly that hurt to hear. Can we talk about it tonight?",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "The user QUOTES the other person's accusation and says it hurt. The read should not blame the user for 'overplaying' an accusation they did not make.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "This needed space. You almost overplayed it.",
+      "confidence": 44,
+      "pattern": null,
+      "bestMove": "Create space",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "High",
+      "momentum": "Stalled",
+      "hidden": "These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.",
+      "dont": "Do not try to win this over text. The channel is too low for this conversation.",
+      "next": "Give this 24 hours. Then one sentence acknowledging their position, not defending yours.",
+      "timing": "24 hours minimum",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active."
+      ],
+      "fit": "misfit",
+      "fitWhy": "The user quotes the other person's accusation, says it hurt, and asks to talk. The verdict 'You almost overplayed it', High risk and 'Create space' blame the reporter for words they explicitly attributed to someone else."
+    },
+    {
+      "id": "c2-quoted-accusation-marks",
+      "family": "c-quoted-vs-own-accusation",
+      "draft": "When you said 'you only care about yourself' earlier, it stung. I don't think that's fair, but I want to hear you out.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Quoted accusation in explicit quote marks, user responding with restraint. Same expectation as c1.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "This needed space. You almost overplayed it.",
+      "confidence": 44,
+      "pattern": {
+        "label": "Broad claim about caring",
+        "evidence": [
+          "you only care"
+        ]
+      },
+      "bestMove": "Create space",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "High",
+      "momentum": "Stalled",
+      "hidden": "These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.",
+      "dont": "Do not try to win this over text. The channel is too low for this conversation.",
+      "next": "Give this 24 hours. Then one sentence acknowledging their position, not defending yours.",
+      "timing": "24 hours minimum",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active."
+      ],
+      "fit": "misfit",
+      "fitWhy": "Same failure with explicit quote marks around the accusation: the pattern layer even names the quoted phrase as the user's own 'Broad claim about caring'. Quotation is invisible to substring matching."
+    },
+    {
+      "id": "c3-own-accusation-control",
+      "family": "c-quoted-vs-own-accusation",
+      "draft": "You never listen to me, and you only care about yourself. I'm tired of it.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Repair tension",
+        "feeling": "Annoyed",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Control: the user MAKES the accusation. An activated/conflict read fits here.",
+      "flags": {
+        "conflict": true,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "You're still activated. Don't send anything yet.",
+      "confidence": 33,
+      "pattern": {
+        "label": "Absolute or blaming wording",
+        "evidence": [
+          "you never"
+        ]
+      },
+      "bestMove": "Create space",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Unclear",
+      "energy": "Tense",
+      "risk": "High",
+      "momentum": "Stalled",
+      "hidden": "These words read as a case against them. A reply is more likely to stay calm when the draft shows their point was heard.",
+      "dont": "Do not try to win this over text. The channel is too low for this conversation.",
+      "next": "Give this 24 hours. Then one sentence acknowledging their position, not defending yours.",
+      "timing": "24 hours minimum",
+      "whySignals": [
+        "Conflict language detected. Emotional charge is active."
+      ],
+      "fit": "fits",
+      "fitWhy": "Control behaves: when the user actually makes the accusation, the activated verdict, Create space and High risk are the right read."
+    },
+    {
+      "id": "c4-reported-no-triggers",
+      "family": "c-quoted-vs-own-accusation",
+      "draft": "You said I'm always the problem in this relationship. I don't agree, but I want to understand why you see it that way.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Get clarity",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Same move as c1/c2 (reporting the other's words, calmly) but without the engine's trigger phrases. Consistency check: the read should be roughly as fair as c1/c2's ought to be.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": true,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "Self-blame may shift the focus",
+      "confidence": 22,
+      "pattern": {
+        "label": "Self-blame may shift the focus",
+        "evidence": [
+          "i'm always the problem"
+        ]
+      },
+      "bestMove": "Clarify the goal",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Medium",
+      "energy": "Balanced",
+      "risk": "Medium",
+      "momentum": "Neutral",
+      "hidden": "The pressure you feel is coming from inside the read, not the interaction.",
+      "dont": "Do not try to resolve this tonight.",
+      "next": "Step back. Let the situation breathe before you decide on a move.",
+      "timing": "Tomorrow morning",
+      "whySignals": [
+        "General pattern analysis. Based on scenario and feeling combination."
+      ],
+      "fit": "borderline",
+      "fitWhy": "IMPROVED in part: the dating suggested line and Low-risk dating framing are gone. The verdict still attributes the quoted words to the user as self-blame; the attribution problem itself is unfixed (see family c diagnosis)."
+    },
+    {
+      "id": "d1-warm-short",
+      "family": "d-warmth-vs-engagement",
+      "draft": "Sounds good, thanks!",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Keep connection warm",
+        "feeling": "Good",
+        "scenario": "Text / DM"
+      },
+      "intent": "Short warm reply. Should read as warm/working, NOT cold or low-investment.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": true,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "This is working. The risk is over-managing it.",
+      "confidence": 33,
+      "pattern": null,
+      "bestMove": "Reply and move forward",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "High",
+      "energy": "Mutual",
+      "risk": "Low",
+      "momentum": "Moving",
+      "hidden": "The wording is warm on its face. The only risk here is over-managing a message that already works.",
+      "dont": "Do not add complexity to something that is already working.",
+      "next": "Keep momentum going. One easy, forward-moving message.",
+      "timing": "Now or tonight",
+      "whySignals": [
+        "Positive language present. Interest or warmth signal detected.",
+        "Very short input. Read confidence is lower."
+      ],
+      "fit": "fits",
+      "fitWhy": "Warm read, forward move, low risk: correct."
+    },
+    {
+      "id": "d2-warm-ok",
+      "family": "d-warmth-vs-engagement",
+      "draft": "ok sounds good",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Keep connection warm",
+        "feeling": "Good",
+        "scenario": "Text / DM"
+      },
+      "intent": "Casual warm agreement. The 'ok' must not drag it into the one-word 'not invested' read when 'sounds good' is right there.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": true,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": true
+      },
+      "verdict": "This is working. The risk is over-managing it.",
+      "confidence": 44,
+      "pattern": null,
+      "bestMove": "Reply and move forward",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "High",
+      "energy": "Mutual",
+      "risk": "Low",
+      "momentum": "Moving",
+      "hidden": "The wording is warm on its face. The only risk here is over-managing a message that already works.",
+      "dont": "Do not add complexity to something that is already working.",
+      "next": "Keep momentum going. One easy, forward-moving message.",
+      "timing": "Now or tonight",
+      "whySignals": [
+        "Short or one-word reply detected. Low engagement signal.",
+        "Positive language present. Interest or warmth signal detected.",
+        "Very short input. Read confidence is lower."
+      ],
+      "fit": "fits",
+      "fitWhy": "'ok' does not drag it into the not-invested read; the positive wording wins, correctly."
+    },
+    {
+      "id": "d3-warm-effusive",
+      "family": "d-warmth-vs-engagement",
+      "draft": "Thank you so much, that honestly made my day. You're the best!",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Keep connection warm",
+        "feeling": "Good",
+        "scenario": "Text / DM"
+      },
+      "intent": "Unmistakable warmth and gratitude. Should read as warm/positive, not as an unreadable generic draft.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "The next move matters more than the read. Make it count.",
+      "confidence": 11,
+      "pattern": null,
+      "bestMove": "Clarify the goal",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Medium",
+      "energy": "Balanced",
+      "risk": "Medium",
+      "momentum": "Neutral",
+      "hidden": "The pressure you feel is coming from inside the read, not the interaction.",
+      "dont": "Do not try to resolve this tonight.",
+      "next": "Step back. Let the situation breathe before you decide on a move.",
+      "timing": "Tomorrow morning",
+      "whySignals": [
+        "Very short input. Read confidence is lower."
+      ],
+      "fit": "borderline",
+      "fitWhy": "FIXED from misfit: 'made' no longer trips the conflict flag ('mad' is now matched in bounded forms), so gratitude is no longer read as a conflict needing space at High risk. What remains is a coverage gap: no positive lexicon entry fires on 'made my day' or 'the best', so the verdict is the generic default at low confidence. A shrug, but an honest one."
+    },
+    {
+      "id": "d4-engaged-substance",
+      "family": "d-warmth-vs-engagement",
+      "draft": "That works for me. I was thinking we could also invite Ana, she missed the last one and keeps asking about it, plus she makes everything more fun.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Keep connection warm",
+        "feeling": "Good",
+        "scenario": "Text / DM"
+      },
+      "intent": "Engaged reply with real substance and initiative. Should not read as cold, anxious, or empty.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": false
+      },
+      "verdict": "The next move matters more than the read. Make it count.",
+      "confidence": 11,
+      "pattern": null,
+      "bestMove": "Clarify the goal",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Medium",
+      "energy": "Balanced",
+      "risk": "Medium",
+      "momentum": "Neutral",
+      "hidden": "The pressure you feel is coming from inside the read, not the interaction.",
+      "dont": "Do not try to resolve this tonight.",
+      "next": "Step back. Let the situation breathe before you decide on a move.",
+      "timing": "Tomorrow morning",
+      "whySignals": [
+        "General pattern analysis. Based on scenario and feeling combination."
+      ],
+      "fit": "borderline",
+      "fitWhy": "IMPROVED: 'works' no longer trips the professional flag ('work' is now matched in bounded forms), so a plan with friends no longer gets a workplace follow-up and business-hours timing. The verdict remains the generic default; the warmth/engagement lexicon simply has no entry for this kind of substance."
+    },
+    {
+      "id": "d5-cold-control",
+      "family": "d-warmth-vs-engagement",
+      "draft": "fine.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Keep connection warm",
+        "feeling": "Unsure",
+        "scenario": "Text / DM"
+      },
+      "intent": "Control: a bare 'fine.' genuinely is a low-investment reply. A polite-but-not-invested read fits.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": true
+      },
+      "verdict": "They stayed polite. Not invested.",
+      "confidence": 22,
+      "pattern": null,
+      "bestMove": "Reply short or wait",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Low",
+      "energy": "You chasing",
+      "risk": "Medium-High",
+      "momentum": "Slowing",
+      "hidden": "When someone gives one-word replies, adding more words rarely helps.",
+      "dont": "Do not send a paragraph when they gave you one line.",
+      "next": "If you reply at all, keep it to one sentence. Let them re-engage on their own.",
+      "timing": "Later today",
+      "whySignals": [
+        "Short or one-word reply detected. Low engagement signal.",
+        "Very short input. Read confidence is lower."
+      ],
+      "fit": "fits",
+      "fitWhy": "Control correct: a bare 'fine.' is a low-investment reply and the read says so. (Framing note: the verdict speaks of 'they' although the user is sending it; that is the app's receipt-as-read convention.)"
+    },
+    {
+      "id": "e1-fine-calm",
+      "family": "e-same-wording-different-context",
+      "draft": "Fine. Do whatever you want.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Get clarity",
+        "feeling": "Unsure",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Same draft, three contexts (e1-e3). On its face this line is dismissive/contemptuous, not polite. Document how the read moves with context and whether the movement is defensible.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": true
+      },
+      "verdict": "They stayed polite. Not invested.",
+      "confidence": 22,
+      "pattern": {
+        "label": "Reluctant agreement",
+        "evidence": [
+          "whatever you want"
+        ]
+      },
+      "bestMove": "Reply short or wait",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Low",
+      "energy": "You chasing",
+      "risk": "Medium-High",
+      "momentum": "Slowing",
+      "hidden": "When someone gives one-word replies, adding more words rarely helps.",
+      "dont": "Do not send a paragraph when they gave you one line.",
+      "next": "If you reply at all, keep it to one sentence. Let them re-engage on their own.",
+      "timing": "Later today",
+      "whySignals": [
+        "Short or one-word reply detected. Low engagement signal.",
+        "Very short input. Read confidence is lower."
+      ],
+      "fit": "borderline",
+      "fitWhy": "'They stayed polite' mislabels a dismissive, contemptuous line; the pattern layer's own label, 'Reluctant agreement', is the truer read and it is buried under the headline."
+    },
+    {
+      "id": "e2-fine-rejected",
+      "family": "e-same-wording-different-context",
+      "draft": "Fine. Do whatever you want.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Get clarity",
+        "feeling": "Rejected",
+        "scenario": "Friend / Family"
+      },
+      "intent": "Same draft as e1, feeling changed to Rejected. Document what changes and what does not.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": true
+      },
+      "verdict": "They stayed polite. Not invested.",
+      "confidence": 22,
+      "pattern": {
+        "label": "Reluctant agreement",
+        "evidence": [
+          "whatever you want"
+        ]
+      },
+      "bestMove": "Create space",
+      "suggestedMessage": "Hey. I am around whenever you want to pick this back up.",
+      "interest": "Low",
+      "energy": "You chasing",
+      "risk": "Medium-High",
+      "momentum": "Slowing",
+      "hidden": "When someone gives one-word replies, adding more words rarely helps.",
+      "dont": "Do not ask for reassurance while you feel rejected.",
+      "next": "Step back. Let the situation show you more before you force clarity.",
+      "timing": "Do not follow up yet",
+      "whySignals": [
+        "Short or one-word reply detected. Low engagement signal.",
+        "Very short input. Read confidence is lower.",
+        "Rejected feeling logged. May be pre-interpreting the outcome."
+      ],
+      "fit": "borderline",
+      "fitWhy": "Verdict and confidence are identical to e1; the Rejected feeling changes only advice fields (bestMove 'Create space', 'Do not follow up yet'). Context moving the advice is defensible; context never touching the interpretation is the strain."
+    },
+    {
+      "id": "e3-fine-conflict",
+      "family": "e-same-wording-different-context",
+      "draft": "Fine. Do whatever you want.",
+      "settings": {
+        "format": "Text / DM",
+        "desiredOutcome": "Disengage",
+        "feeling": "Annoyed",
+        "scenario": "Conflict"
+      },
+      "intent": "Same draft as e1, scenario Conflict and feeling Annoyed. Document what changes and what does not.",
+      "flags": {
+        "conflict": false,
+        "delay": false,
+        "silence": false,
+        "apology": false,
+        "positive": false,
+        "professional": false,
+        "romantic": false,
+        "sales": false,
+        "overExplain": false,
+        "highIntent": false,
+        "oneWord": true
+      },
+      "verdict": "They stayed polite. Not invested.",
+      "confidence": 22,
+      "pattern": {
+        "label": "Reluctant agreement",
+        "evidence": [
+          "whatever you want"
+        ]
+      },
+      "bestMove": "Reply short or wait",
+      "suggestedMessage": "I hear you. I do not want to make this worse over text. Let's come back to it calmly.",
+      "interest": "Low",
+      "energy": "You chasing",
+      "risk": "Medium-High",
+      "momentum": "Slowing",
+      "hidden": "When someone gives one-word replies, adding more words rarely helps.",
+      "dont": "Do not send a paragraph when they gave you one line.",
+      "next": "If you reply at all, keep it to one sentence. Let them re-engage on their own.",
+      "timing": "Later today",
+      "whySignals": [
+        "Short or one-word reply detected. Low engagement signal.",
+        "Very short input. Read confidence is lower."
+      ],
+      "fit": "borderline",
+      "fitWhy": "Even under a Conflict scenario with an Annoyed feeling, the verdict never escalates past 'polite, not invested'; the scenario only swaps the suggested stock line. Context rearranges the furniture, not the read."
+    }
+  ]
+}
