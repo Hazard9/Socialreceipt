@@ -920,6 +920,11 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     </div>
     <div class="section-title"><h2>Recent receipts</h2><button class="subtle-link" onclick="showScreen('historyScreen')">View all &#8594;</button></div>
     <div id="recentReceipts" class="receipt-list"></div>
+    <div class="section-title"><h2>Your receipts</h2><button class="subtle-link" onclick="openJournal()">Journal &#8594;</button></div>
+    <div class="streak-card" onclick="openJournal()" style="cursor:pointer">
+      <div class="streak-icon">&#128214;</div>
+      <div><div class="streak-text" id="homeJournalText">Your receipts will live here, on this device only.</div><div style="font-size:11px;color:var(--muted-2);margin-top:2px">Every read you run, kept here. Nothing is uploaded.</div></div>
+    </div>
   </section>
 
   <!-- CREATE -->
@@ -958,6 +963,14 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <section id="historyScreen" class="screen">
     <div class="topbar"><div class="brand-lockup"><h1>History</h1><p>Your saved interaction receipts.</p></div></div>
     <div id="historyList" class="receipt-list"></div>
+  </section>
+
+  <!-- RECEIPT JOURNAL — every fresh read, on this device only -->
+  <section id="journalScreen" class="screen">
+    <div class="topbar"><div class="brand-lockup"><h1>Your receipts</h1><p>Every read you run, kept here. Kept on this device only. Nothing is uploaded.</p></div></div>
+    <div id="journalSummary"></div>
+    <div id="journalList" class="receipt-list"></div>
+    <div id="journalActions" style="margin-top:14px"></div>
   </section>
 
   <!-- INSIGHTS — upgraded with behavioral profile -->
@@ -1059,6 +1072,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <script src="/deep-layers.js"></script>
 <script src="/both-sides.js"></script>
 <script src="/share-card.js"></script>
+<script src="/journal.js"></script>
 <script>
 "use strict";
 
@@ -2028,6 +2042,106 @@ function bsChooseStance(stance) {
   trackEvent("both_sides_reply_built", { stance: stance });
 }
 
+/* ── RECEIPT JOURNAL (additive; every fresh read, on this device only) ──
+   Recording happens at exactly one place: generateReceipt, right where
+   the Deep Layers pattern memory records. Reopening a stored receipt
+   renders through renderReceiptOutput only, and _journalReplay guards
+   the recording hook for the whole reopen, so a reopen can never add a
+   journal entry or a pattern-history count. */
+var _journalReplay = false;
+
+function loadJournal() {
+  if (!window.SocialReceiptJournal) return [];
+  try {
+    var raw = localStorage.getItem(window.SocialReceiptJournal.JOURNAL_KEY);
+    var list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+
+function saveJournal(list) {
+  if (!window.SocialReceiptJournal) return;
+  try { localStorage.setItem(window.SocialReceiptJournal.JOURNAL_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function recordJournalEntry(receipt) {
+  if (_journalReplay) return;
+  if (!window.SocialReceiptJournal || !receipt) return;
+  var now = Date.now();
+  var entry = window.SocialReceiptJournal.makeEntry(receipt, now);
+  if (!entry) return;
+  saveJournal(window.SocialReceiptJournal.recordEntry(loadJournal(), entry, now));
+  updateJournalHomeCard();
+}
+
+function updateJournalHomeCard() {
+  var el = document.getElementById("homeJournalText");
+  if (!el || !window.SocialReceiptJournal) return;
+  var count = loadJournal().length;
+  el.textContent = count ? count + (count === 1 ? " receipt" : " receipts") + " in your journal. Tap to revisit a read."
+                         : window.SocialReceiptJournal.EMPTY_LINE;
+}
+
+function openJournal() {
+  renderJournal();
+  showScreen("journalScreen");
+}
+
+function renderJournal() {
+  var j = window.SocialReceiptJournal;
+  var summaryEl = document.getElementById("journalSummary");
+  var listEl = document.getElementById("journalList");
+  var actionsEl = document.getElementById("journalActions");
+  if (!j || !listEl) return;
+  var entries = loadJournal();
+  var top = j.topPattern(loadPatternHistory(), Date.now(), window.SocialReceiptDeep || null);
+  if (summaryEl) {
+    summaryEl.innerHTML = top
+      ? "<div class=\"detail-card\" style=\"margin-bottom:12px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Your pattern</div><p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0\">The pattern showing up most in your drafts is " + escapeHtml(top.display) + ", counted " + top.count + (top.count === 1 ? " time" : " times") + " in the last 30 days, on this device.</p></div>"
+      : "";
+  }
+  if (!entries.length) {
+    listEl.innerHTML = "<div class=\"detail-card\"><p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0\">" + escapeHtml(j.EMPTY_LINE) + "</p><p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:8px 0 0\">" + escapeHtml(j.PRIVACY_LINE) + "</p></div>";
+  } else {
+    listEl.innerHTML = entries.map(function (entry, i) {
+      var tags = "";
+      if (typeof entry.confidence === "number") tags += "<span class=\"tag\">Confidence " + entry.confidence + "</span>";
+      if (entry.patternLabel) tags += "<span class=\"tag\">" + escapeHtml(entry.patternLabel) + "</span>";
+      if (entry.scenario) tags += "<span class=\"tag\">" + escapeHtml(entry.scenario) + "</span>";
+      return "<button class=\"receipt-card\" onclick=\"openJournalEntry(" + i + ")\"><div class=\"receipt-card-top\"><h3>" + escapeHtml(j.firstLine(entry.draft) || "Receipt") + "</h3><time>" + escapeHtml(j.formatWhen(entry.ts)) + "</time></div><p>" + escapeHtml(entry.verdict || "") + "</p>" + (tags ? "<div class=\"tag-row\">" + tags + "</div>" : "") + "</button>";
+    }).join("");
+  }
+  if (actionsEl) {
+    actionsEl.innerHTML = entries.length
+      ? "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:0 0 10px\">" + escapeHtml(j.PRIVACY_LINE) + "</p><button class=\"ghost-btn\" onclick=\"clearJournal()\">Clear journal</button>"
+      : "";
+  }
+  updateJournalHomeCard();
+}
+
+function openJournalEntry(index) {
+  var entry = loadJournal()[index];
+  if (!entry || !entry.receipt) return;
+  var r = entry.receipt;
+  _journalReplay = true;
+  try {
+    state.currentReceipt = r;
+    applyMode(r.scenario);
+    showScreen("createScreen");
+    renderReceiptOutput(r, true);
+  } finally {
+    _journalReplay = false;
+  }
+}
+
+function clearJournal() {
+  if (!window.SocialReceiptJournal) return;
+  if (!confirm("Clear your receipt journal? Every saved read on this device will be removed.")) return;
+  try { localStorage.removeItem(window.SocialReceiptJournal.JOURNAL_KEY); } catch (e) {}
+  renderJournal();
+  toast("Journal cleared.");
+}
+
 function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing) {
   /* RECEIPT TRACKING */
   var user = getCurrentUser();
@@ -2085,6 +2199,7 @@ function generateReceipt() {
     clearInterval(lInterval);
     var receipt = buildReceipt(raw);
     attachDeepLayers(receipt, true);
+    recordJournalEntry(receipt);
     state.currentReceipt = receipt;
     bumpFreeUsed();
     document.getElementById("loadingPanel").classList.remove("active");
