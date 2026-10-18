@@ -884,6 +884,11 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">A sample draft, read by the same engine that reads yours. It does not use one of your free reads.</span>
       <button class="secondary-btn" style="margin-top:10px" onclick="runSampleRead()">Run the sample read &#8594;</button>
     </div>
+    <div class="detail-card" id="todayPauseCard" style="display:block;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">Today's pause</div>
+      <strong id="todayPausePrompt" style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text);line-height:1.35"></strong>
+      <button class="secondary-btn" style="margin-top:10px" onclick="pauseCheckDraft()">Check a draft &#8594;</button>
+    </div>
     <div class="section-title" style="margin-top:14px"><h2>Choose the moment</h2><span>Fast path</span></div>
     <div class="quick-grid">
       <button class="option-card" onclick="startEmergencyMode('send')"><div class="option-icon">&#8593;</div><strong>About to send</strong><small>Check the draft before it leaves.</small></button>
@@ -935,6 +940,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     </div>
     <div class="section-title"><h2>Recent receipts</h2><button class="subtle-link" onclick="showScreen('historyScreen')">View all &#8594;</button></div>
     <div id="recentReceipts" class="receipt-list"></div>
+    <div id="homeThreadsCard" class="detail-card" style="display:none;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.07),rgba(255,245,220,.015))"></div>
     <div class="section-title"><h2>Your receipts</h2><button class="subtle-link" onclick="openJournal()">Journal &#8594;</button></div>
     <div class="streak-card" onclick="openJournal()" style="cursor:pointer">
       <div class="streak-icon">&#128214;</div>
@@ -972,6 +978,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <p style="font-size:11px;line-height:1.5;color:var(--muted-2);margin:12px 0 0">Both texts stay on this device. Nothing is uploaded or saved.</p>
     </div>
     <div id="bothSidesOutput" style="margin-top:12px"></div>
+    <div id="bothSidesKeepThread" style="margin-top:12px"></div>
   </section>
 
   <!-- HISTORY -->
@@ -984,6 +991,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <section id="journalScreen" class="screen">
     <div class="topbar"><div class="brand-lockup"><h1>Your receipts</h1><p>Every read you run, kept here. Kept on this device only. Nothing is uploaded.</p></div></div>
     <div id="journalSummary"></div>
+    <div id="journalWeek"></div>
     <div id="journalList" class="receipt-list"></div>
     <div id="journalActions" style="margin-top:14px"></div>
   </section>
@@ -1088,6 +1096,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <script src="/both-sides.js"></script>
 <script src="/share-card.js"></script>
 <script src="/journal.js"></script>
+<script src="/return-loop.js"></script>
 <script>
 "use strict";
 
@@ -1983,6 +1992,7 @@ function runBothSides() {
   _bothSides.stance = null;
   _bothSides.result = window.SocialReceiptBothSides.analyzeExchange(sent, reply, _bothSides.time, analyzeText, window.SocialReceiptDeep);
   document.getElementById("bothSidesOutput").innerHTML = bothSidesOutputHtml(_bothSides.result);
+  renderKeepThreadButton();
   trackEvent("both_sides_read", { rule: _bothSides.result.rule.id, pro: isPro() });
 }
 
@@ -2131,6 +2141,7 @@ function renderJournal() {
       ? "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:0 0 10px\">" + escapeHtml(j.PRIVACY_LINE) + "</p><button class=\"ghost-btn\" onclick=\"clearJournal()\">Clear journal</button>"
       : "";
   }
+  renderJournalWeek();
   updateJournalHomeCard();
 }
 
@@ -2156,6 +2167,126 @@ function clearJournal() {
   renderJournal();
   toast("Journal cleared.");
 }
+
+/* ── THE RETURN LOOP (additive; open threads, week in receipts, today's pause) ──
+   Open threads are saved only when the user taps "Keep this thread
+   open" after a Both Sides read; the text stays on this device, like
+   the journal. The week block renders inside the journal screen from
+   the journal and pattern history already stored here. Today's pause
+   is one deterministic prompt per local day and stores nothing. All
+   computation lives in return-loop.js; this is only glue. */
+function loadOpenThreads() {
+  if (!window.SocialReceiptReturn) return [];
+  try {
+    var raw = localStorage.getItem(window.SocialReceiptReturn.THREADS_KEY);
+    var list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+
+function saveOpenThreads(list) {
+  if (!window.SocialReceiptReturn) return;
+  try { localStorage.setItem(window.SocialReceiptReturn.THREADS_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function renderKeepThreadButton() {
+  var el = document.getElementById("bothSidesKeepThread");
+  var R = window.SocialReceiptReturn;
+  if (!el || !R) return;
+  if (!_bothSides.result || !_bothSides.sent) { el.innerHTML = ""; return; }
+  var norm = R.normalizeText(_bothSides.sent);
+  var kept = loadOpenThreads().some(function (t) { return R.normalizeText(t.sent) === norm; });
+  el.innerHTML = kept
+    ? "<div class=\"detail-card\"><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0\">This thread is kept open on your home screen, on this device only.</p></div>"
+    : "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Still in the middle of this?</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Keep the thread open and pick it up when they reply. The text stays on this device.</p><button class=\"secondary-btn\" onclick=\"keepCurrentThread()\">Keep this thread open</button></div>";
+}
+
+function keepCurrentThread() {
+  var R = window.SocialReceiptReturn;
+  if (!R || !_bothSides.result || !_bothSides.sent) return;
+  var label = isPro() && _bothSides.result.rule ? _bothSides.result.rule.name : null;
+  var thread = R.makeThread(_bothSides.sent, label, Date.now());
+  if (!thread) return;
+  saveOpenThreads(R.saveThread(loadOpenThreads(), thread));
+  renderKeepThreadButton();
+  renderOpenThreadsCard();
+  toast("Thread kept open. Find it on your home screen.");
+}
+
+function renderReturnHome() {
+  renderTodayPause();
+  renderOpenThreadsCard();
+}
+
+function renderTodayPause() {
+  var el = document.getElementById("todayPausePrompt");
+  if (!el || !window.SocialReceiptReturn) return;
+  el.textContent = window.SocialReceiptReturn.promptFor(new Date());
+}
+
+function pauseCheckDraft() {
+  openPresend();
+  var ta = document.getElementById("presendText");
+  if (ta) {
+    if (ta.scrollIntoView) ta.scrollIntoView({ block: "center" });
+    ta.focus();
+  }
+}
+
+function renderOpenThreadsCard() {
+  var card = document.getElementById("homeThreadsCard");
+  var R = window.SocialReceiptReturn;
+  if (!card || !R) return;
+  var threads = loadOpenThreads();
+  if (!threads.length) { card.style.display = "none"; card.innerHTML = ""; return; }
+  card.style.display = "block";
+  var now = Date.now();
+  var html = "<div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Open threads</div>";
+  threads.forEach(function (t, i) {
+    html += "<div style=\"padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px\"><span style=\"display:block;color:var(--text);font-size:13px;margin-bottom:3px\">" + escapeHtml(R.firstLine(t.sent) || "Thread") + "</span><span style=\"display:block;font-size:12px;color:var(--muted);margin-bottom:8px\">" + escapeHtml(R.threadAgeLabel(t.ts, now)) + (t.dynamicLabel ? " &middot; " + escapeHtml(t.dynamicLabel) : "") + "</span><button class=\"secondary-btn\" onclick=\"heardBackThread(" + i + ")\">Heard back</button> <button class=\"ghost-btn\" onclick=\"closeThread(" + i + ")\">Close thread</button></div>";
+  });
+  html += "<p style=\"font-size:11px;line-height:1.5;color:var(--muted-2);margin:2px 0 0\">" + escapeHtml(R.THREADS_COPY) + "</p>";
+  card.innerHTML = html;
+}
+
+function heardBackThread(index) {
+  var thread = loadOpenThreads()[index];
+  if (!thread) return;
+  showScreen("bothSidesScreen");
+  var ta = document.getElementById("bsSentText");
+  if (ta) ta.value = thread.sent;
+  var reply = document.getElementById("bsReplyText");
+  if (reply) reply.focus();
+  bsRenderTimeChips();
+}
+
+function closeThread(index) {
+  var R = window.SocialReceiptReturn;
+  if (!R) return;
+  if (!confirm("Close this thread? It will be removed from this device.")) return;
+  saveOpenThreads(R.removeThread(loadOpenThreads(), index));
+  renderOpenThreadsCard();
+  toast("Thread closed.");
+}
+
+function renderJournalWeek() {
+  var el = document.getElementById("journalWeek");
+  var R = window.SocialReceiptReturn, j = window.SocialReceiptJournal;
+  if (!el) return;
+  if (!R || !j) { el.innerHTML = ""; return; }
+  var wk = R.weekSummary(loadJournal(), loadPatternHistory(), Date.now(), j, window.SocialReceiptDeep || null);
+  if (!wk.hasData) { el.innerHTML = ""; return; }
+  var html = "<div class=\"detail-card\" style=\"margin-bottom:12px\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Your week in receipts</div>";
+  html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 6px\">Receipts this week: " + wk.receiptsThisWeek + "</p>";
+  html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 6px\">Receipts kept on this device: " + wk.totalKept + "</p>";
+  if (wk.topPattern) html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 6px\">Your most frequent pattern: " + escapeHtml(wk.topPattern.display) + "</p>";
+  if (wk.lateNightThisWeek > 0) html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 6px\">Late-night receipts this week: " + wk.lateNightThisWeek + "</p>";
+  if (wk.trend) html += "<p style=\"font-size:12px;line-height:1.55;color:var(--muted);margin:0\">Your drafts averaged " + wk.trend.thisAvg + " words this week. Last week: " + wk.trend.lastAvg + ".</p>";
+  html += "</div>";
+  el.innerHTML = html;
+}
+
+renderReturnHome();
 
 function makeReceipt(rawText,scenario,feeling,desired,a,confidence,whySignals,verdict,interest,energy,risk,momentum,bestMove,hidden,dont,next,message,timing) {
   /* RECEIPT TRACKING */
@@ -3560,6 +3691,7 @@ function renderHome() {
   renderHomeReflection();
   renderHomeOwnership();
   renderHomeEvidence();
+  renderReturnHome();
 }
 function renderAll() { renderHome(); renderReceiptList("historyList",null); renderInsights(); }
 
