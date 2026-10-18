@@ -3,7 +3,7 @@
   Network-first for the app shell so deployed fixes reach phones reliably.
 */
 
-var CACHE_NAME = "social-receipt-v26-both-sides";
+var CACHE_NAME = "social-receipt-v27-first-thirty";
 var OFFLINE_URL = "/index.html";
 var PRECACHE_URLS = [
   "/",

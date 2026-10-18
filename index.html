@@ -338,6 +338,15 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .confidence-fill{height:100%;border-radius:999px;background:linear-gradient(to right,var(--gold),var(--gold-2));transition:width 1s cubic-bezier(0.34,1.56,0.64,1);}
 .confidence-pct{font-family:var(--font-mono);font-size:11px;color:var(--gold-2);white-space:nowrap;min-width:32px;text-align:right;}
 .confidence-note{font-family:var(--font-mono);font-size:10px;color:var(--muted-2);margin-top:5px;letter-spacing:0.04em;}
+/* First Thirty: the confidence track as a segmented meter (presentation only) */
+.confidence-meter{position:relative;height:9px;border:1px solid rgba(255,245,220,0.10);border-radius:3px;background:rgba(255,245,220,0.05);}
+.confidence-tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.38);pointer-events:none;}
+/* First Thirty: sample tag + sharpen line (presentation only) */
+.sample-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.sample-tag{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#0b0d0d;background:var(--gold);border-radius:999px;padding:3px 9px;font-weight:700;}
+.sample-tag-note{font-size:11px;color:var(--muted);}
+.sharpen-line{font-family:var(--font-mono);font-size:10.5px;line-height:1.55;color:var(--muted);border:1px dashed rgba(201,168,76,0.35);border-radius:10px;padding:9px 11px;}
+.sharpen-line strong{color:var(--gold-2);font-weight:600;}
 
 /* Silence */
 .silence-card{padding:22px;margin-bottom:10px;background:linear-gradient(150deg,rgba(99,93,80,0.2),rgba(255,245,220,0.025));border:1px solid rgba(99,93,80,0.35);border-radius:var(--radius-xl);}
@@ -858,6 +867,12 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">After you sent it</div>
       <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">Read both sides of the exchange <span aria-hidden="true" style="color:var(--gold)">&#8594;</span></strong>
       <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">Paste what you sent and what they replied. See what the reply actually did, in words.</span>
+    </div>
+    <div class="detail-card" id="sampleReadCard" style="display:block;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">Sample read</div>
+      <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">New here? See a sample read</strong>
+      <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">A sample draft, read by the same engine that reads yours. It does not use one of your free reads.</span>
+      <button class="secondary-btn" style="margin-top:10px" onclick="runSampleRead()">Run the sample read &#8594;</button>
     </div>
     <div class="section-title" style="margin-top:14px"><h2>Choose the moment</h2><span>Fast path</span></div>
     <div class="quick-grid">
@@ -2054,6 +2069,32 @@ function generateReceipt() {
   }, 1300);
 }
 
+/* ── FIRST THIRTY — SAMPLE READ ──
+   A new visitor sees the real product before typing anything personal.
+   This runs the exact buildReceipt pipeline on one fixed sample draft.
+   The receipt is tagged as a sample and kept out of every record: no
+   bumpFreeUsed (free limit untouched), no pattern-history recording
+   (deep layers attach read-only at render, as they do for any receipt
+   view), no paywall or limit-wall check on this path, and
+   saveCurrentReceipt refuses sample receipts so they never enter the
+   receipts journal. The visitor's own scenario/feeling/outcome picks
+   are restored untouched after the build. */
+var SAMPLE_DRAFT_TEXT = "Sorry to bother you again, I know you are busy and it is probably nothing, but are we okay? I keep thinking I said something wrong.";
+function buildSampleReceipt() {
+  var prev = { scenario: state.scenario, feeling: state.feeling, desiredOutcome: state.desiredOutcome };
+  state.scenario = "Text / DM"; state.feeling = "Anxious"; state.desiredOutcome = "Get clarity";
+  var receipt = buildReceipt(SAMPLE_DRAFT_TEXT, { goal: "", perspective: "" });
+  state.scenario = prev.scenario; state.feeling = prev.feeling; state.desiredOutcome = prev.desiredOutcome;
+  receipt.sample = true;
+  return receipt;
+}
+function runSampleRead() {
+  var receipt = buildSampleReceipt();
+  state.currentReceipt = receipt;
+  haptic([10,30]);
+  renderReceiptOutput(receipt, false);
+}
+
 /* ── PRE-SEND ── */
 function readPresendContext() {
   return {
@@ -2367,10 +2408,16 @@ function renderReceiptOutput(receipt, savedView) {
   var isHigh   = receipt.risk.toLowerCase().indexOf("high") !== -1;
   var isSilence= receipt.verdict.indexOf("Silence") === 0;
   var confNote = getConfidenceNote(receipt.confidence);
+  var meterTicks = "";
+  for (var ti = 1; ti < 10; ti++) meterTicks += "<span class=\"confidence-tick\" style=\"left:"+(ti*10)+"%"></span>";
   var html = "";
   var step = 0;
 
   function rs(content) { step++; return "<div class=\"reveal-step\" id=\"rs"+step+"\" style=\"animation-delay:"+(step*0.08)+"s\">"+content+"</div>"; }
+
+  if (receipt.sample) {
+    html += rs("<div class=\"sample-tag-row\"><span class=\"sample-tag\">Sample</span><span class=\"sample-tag-note\">A sample draft, read by the same engine that reads yours. It did not use one of your free reads.</span></div>");
+  }
 
   if (isHigh) {
     var riskMsg = isSilence
@@ -2384,7 +2431,12 @@ function renderReceiptOutput(receipt, savedView) {
   if (isSilence) {
     html += rs("<div class=\"silence-card\"><div class=\"silence-eyebrow\">Silence Detected</div><h2>"+receipt.verdict+"</h2><p class=\"silence-body\">Silence after contact is the clearest signal the app can read. The move is restraint. Not volume.</p></div>");
   } else {
-    html += rs("<div class=\"verdict-card\"><div class=\"verdict-eyebrow\">Quick Verdict</div><h2>"+receipt.verdict+"</h2><p class=\"verdict-sub\">"+receipt.summary+"</p><div class=\"confidence-row\"><span class=\"confidence-label\">Confidence</span><div class=\"confidence-track\"><div class=\"confidence-fill\" id=\"confFill\" style=\"width:0%\"></div></div><span class=\"confidence-pct\">"+receipt.confidence+"%</span></div><div class=\"confidence-note\">"+confNote+"</div></div>");
+    html += rs("<div class=\"verdict-card\"><div class=\"verdict-eyebrow\">Quick Verdict</div><h2>"+receipt.verdict+"</h2><p class=\"verdict-sub\">"+receipt.summary+"</p><div class=\"confidence-row\"><span class=\"confidence-label\">Confidence</span><div class=\"confidence-track confidence-meter\" role=\"meter\" aria-label=\"Confidence\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\""+receipt.confidence+"\" aria-valuetext=\""+receipt.confidence+" percent\"><div class=\"confidence-fill\" id=\"confFill\" style=\"width:0%\"></div>"+meterTicks+"</div><span class=\"confidence-pct\">"+receipt.confidence+"%</span></div><div class=\"confidence-note\">"+confNote+"</div></div>");
+  }
+
+  var sharpenHints = sharpenReadHints(receipt);
+  if (sharpenHints) {
+    html += rs("<div class=\"sharpen-line\"><strong>What would sharpen this read:</strong> "+sharpenHints+"</div>");
   }
 
   html += rs("<div class=\"score-grid\">"+scoreCard("Interest",receipt.interest,riskColor(receipt.interest))+scoreCard("Energy",receipt.energy,"var(--gold)")+scoreCard("Risk",receipt.risk,riskColor(receipt.risk))+scoreCard("Momentum",receipt.momentum,momentumColor(receipt.momentum))+"</div>");
@@ -2690,6 +2742,29 @@ function getConfidenceNote(confidence) {
   return "Very thin wording match. Based on how much of your wording this read could match. More detail in the draft would sharpen it.";
 }
 
+/* ── WHAT WOULD SHARPEN THIS READ ──
+   Presentation only; computes nothing new about the person. Derived at
+   render time from the same analyzeText analysis the engine itself
+   runs on the draft (the receipt carries rawText, and the deep-layers
+   attach already recomputes this exact analysis at render). Every
+   hint names an input computeConfidence actually scores that is
+   ABSENT from this draft: a question mark (light, +1), timing/delay
+   wording (mid, +2), a direct ask or stated need (strong, +3), or the
+   first length tier, more than 20 words (+1). It only ever states
+   absences, never invents a signal, and returns "" (the line hides)
+   when none of the four is absent. */
+function sharpenReadHints(receipt) {
+  if (!receipt || !receipt.rawText) return "";
+  var a = analyzeText(receipt.rawText);
+  var hints = [];
+  if (a.qMarks === 0) hints.push("No questions in this draft");
+  if (!a.delay) hints.push("No timing words in this draft");
+  if (!a.highIntent) hints.push("No direct ask or stated need in this draft");
+  if (a.length <= 20) hints.push("Only " + a.length + " words in this draft");
+  if (!hints.length) return "";
+  return hints.join(". ") + ".";
+}
+
 /* ── ONE TAP SEND ── */
 function oneTapCopy(msg) {
   if (navigator.clipboard) navigator.clipboard.writeText(msg);
@@ -2835,6 +2910,7 @@ function rewriteMessage(raw, receipt, analysis, context) {
 /* ── SAVE / LOAD ── */
 function saveCurrentReceipt() {
   if(!state.currentReceipt)return;
+  if (state.currentReceipt.sample) { toast("That was a sample. Paste your own draft to save a real read."); return; }
   var receipts=getReceipts(); receipts.unshift(state.currentReceipt); setReceipts(receipts);
   haptic([20,40,20]); toast("Saved. Track the outcome later.");
 
