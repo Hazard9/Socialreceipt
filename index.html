@@ -553,6 +553,14 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .modal-input::placeholder{color:var(--muted-2);}
 .modal-actions{display:grid;gap:9px;margin-top:14px;}
 .modal-note{font-family:var(--font-mono);font-size:10px;color:var(--muted-2);letter-spacing:0.04em;text-align:center;margin-top:10px;line-height:1.5;}
+.share-tier-option{display:block;width:100%;text-align:left;background:rgba(255,245,220,0.03);border:1px solid var(--border);border-radius:var(--radius-md);padding:13px 14px;margin-top:10px;color:var(--text);cursor:pointer;font-family:inherit;}
+.share-tier-option.selected{border-color:var(--gold);background:rgba(201,168,76,0.08);}
+.share-tier-option.disabled{opacity:0.45;cursor:default;}
+.share-tier-name{font-size:14.5px;font-weight:600;display:block;}
+.share-tier-desc{font-size:12px;line-height:1.5;color:var(--muted);display:block;margin-top:3px;}
+.share-detail-row{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--text);cursor:pointer;}
+.share-detail-row input{accent-color:var(--gold);width:17px;height:17px;flex:none;}
+.share-detail-fixed{font-size:12.5px;color:var(--muted);padding:10px 2px;border-bottom:1px solid var(--border);}
 
 /* OCR PLACEHOLDER — screenshot upload */
 .upload-zone{border:1.5px dashed var(--border-warm);border-radius:var(--radius-md);padding:26px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(201,168,76,0.03);margin-bottom:11px;}
@@ -845,9 +853,29 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <div class="modal-overlay hidden" id="shareCardOverlay">
   <div class="modal-sheet">
     <h2 class="modal-title">Save this receipt as an image?</h2>
-    <p class="modal-sub">Your draft text will appear in the image. Nothing is uploaded. The card is made on your device.</p>
+    <p class="modal-sub" id="shareCardNote">Your draft text will appear in the image. Nothing is uploaded. The card is made on your device.</p>
     <button class="primary-btn" onclick="confirmShareCard()">Continue</button>
     <button class="ghost-btn" style="width:100%;margin-top:8px" onclick="cancelShareCard()">Cancel</button>
+  </div>
+</div>
+
+<!-- SHARE CARD TIERS — pick how much the card shows, then remove details -->
+<div class="modal-overlay hidden" id="shareTierOverlay">
+  <div class="modal-sheet">
+    <div id="shareTierChooseView">
+      <h2 class="modal-title">Share this receipt</h2>
+      <p class="modal-sub">Choose how much the card shows. You can remove details on the next step.</p>
+      <div id="shareTierOptions"></div>
+      <button class="primary-btn" style="margin-top:14px" onclick="shareTierNext()">Continue</button>
+      <button class="ghost-btn" style="width:100%;margin-top:8px" onclick="cancelShareTier()">Cancel</button>
+    </div>
+    <div id="shareTierDetailsView" style="display:none">
+      <h2 class="modal-title">Remove details</h2>
+      <p class="modal-sub">Anything you switch off stays off the card.</p>
+      <div id="shareTierDetails"></div>
+      <button class="primary-btn" style="margin-top:14px" onclick="confirmShareTier()">Make the card</button>
+      <button class="ghost-btn" style="width:100%;margin-top:8px" onclick="shareTierBack()">Back</button>
+    </div>
   </div>
 </div>
 
@@ -1072,8 +1100,8 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <div style="text-align:center;margin-bottom:6px">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Free reads used</div>
     </div>
-    <h2 class="modal-title">You've used your 3 free reads.</h2>
-    <p class="modal-sub">The next one that matters should not be a guess. Save your reads and keep going.</p>
+    <h2 class="modal-title">You used your 3 free receipts this month.</h2>
+    <p class="modal-sub">Pro keeps every conversation covered.</p>
     <input class="modal-input" type="email" id="wallEmailInput" placeholder="your@email.com" autocomplete="email"/>
     <div class="modal-actions">
       <button class="primary-btn" id="wallEmailSubmitBtn" onclick="saveWallEmail()">Save my reads</button>
@@ -2094,13 +2122,107 @@ function openBothSidesFromReceipt() {
   openBothSides(r ? (r.rawText || "") : "");
 }
 
-/* SHARE CARD — the privacy note gates every render (share-card.js) */
+/* SHARE CARD — privacy tiers first, then the privacy note gates every
+   render (share-card.js). The chooser opens on the safest tier, "Just
+   the takeaway". Choosing writes nothing to storage; the choice lives
+   only in this page state until the card is made. */
+var _shareChoice = { tier: "takeaway", include: {} };
+
+var SHARE_TIER_DESCS = {
+  takeaway: "Only the lesson: the pattern and the best move. No draft text, no message text.",
+  beforeafter: "Your draft, and the version you would send instead.",
+  full: "The whole receipt, the card as it has always been."
+};
+
+function resetShareIncludes(receipt, tier) {
+  var include = {};
+  SocialReceiptShare.shareElementsFor(receipt, tier).forEach(function (el) {
+    if (el.toggleable && el.present) include[el.key] = true;
+  });
+  return include;
+}
+
 function shareReceiptCard() {
   var receipt = state.currentReceipt;
   if (!receipt || !window.SocialReceiptShare) return;
+  if (receipt.sample) { toast("That was a sample. Paste your own draft to share a real read."); return; }
+  _shareChoice = { tier: SocialReceiptShare.DEFAULT_TIER, include: {} };
+  _shareChoice.include = resetShareIncludes(receipt, _shareChoice.tier);
+  renderShareTierUi();
+  var choose = document.getElementById("shareTierChooseView");
+  var details = document.getElementById("shareTierDetailsView");
+  if (choose) choose.style.display = "";
+  if (details) details.style.display = "none";
+  var overlay = document.getElementById("shareTierOverlay");
+  if (overlay) overlay.classList.remove("hidden");
+}
+
+function renderShareTierUi() {
+  var receipt = state.currentReceipt;
+  var share = window.SocialReceiptShare;
+  if (!receipt || !share) return;
+  var optionsEl = document.getElementById("shareTierOptions");
+  if (optionsEl) {
+    optionsEl.innerHTML = share.TIERS.map(function (tier) {
+      var available = share.tierAvailable(receipt, tier);
+      var cls = "share-tier-option" + (_shareChoice.tier === tier ? " selected" : "") + (available ? "" : " disabled");
+      var desc = available ? SHARE_TIER_DESCS[tier] : share.NO_REWRITE_LINE;
+      return "<button class=\"" + cls + "\" onclick=\"selectShareTier('" + tier + "')\"><span class=\"share-tier-name\">" + share.TIER_LABELS[tier] + "</span><span class=\"share-tier-desc\">" + desc + "</span></button>";
+    }).join("");
+  }
+  var detailsEl = document.getElementById("shareTierDetails");
+  if (detailsEl) {
+    detailsEl.innerHTML = share.shareElementsFor(receipt, _shareChoice.tier).filter(function (el) { return el.present; }).map(function (el) {
+      if (!el.toggleable) return "<div class=\"share-detail-fixed\">" + el.label + " · always on this card</div>";
+      var checked = _shareChoice.include[el.key] !== false ? " checked" : "";
+      return "<label class=\"share-detail-row\"><input type=\"checkbox\"" + checked + " onchange=\"toggleShareElement('" + el.key + "', this.checked)\">" + el.label + "</label>";
+    }).join("");
+  }
+}
+
+function selectShareTier(tier) {
+  var receipt = state.currentReceipt;
+  if (!receipt || !window.SocialReceiptShare) return;
+  if (!SocialReceiptShare.tierAvailable(receipt, tier)) return;
+  _shareChoice.tier = tier;
+  _shareChoice.include = resetShareIncludes(receipt, tier);
+  renderShareTierUi();
+}
+
+function toggleShareElement(key, checked) {
+  _shareChoice.include[key] = !!checked;
+}
+
+function shareTierNext() {
+  var choose = document.getElementById("shareTierChooseView");
+  var details = document.getElementById("shareTierDetailsView");
+  if (choose) choose.style.display = "none";
+  if (details) details.style.display = "";
+}
+
+function shareTierBack() {
+  var choose = document.getElementById("shareTierChooseView");
+  var details = document.getElementById("shareTierDetailsView");
+  if (choose) choose.style.display = "";
+  if (details) details.style.display = "none";
+}
+
+function cancelShareTier() {
+  var overlay = document.getElementById("shareTierOverlay");
+  if (overlay) overlay.classList.add("hidden");
+}
+
+function confirmShareTier() {
+  var receipt = state.currentReceipt;
+  if (!receipt || !window.SocialReceiptShare) return;
+  cancelShareTier();
   SocialReceiptShare.shareReceipt(receipt, {
-    confirmPrivacy: function(done) {
+    tier: _shareChoice.tier,
+    include: _shareChoice.include,
+    confirmPrivacy: function(done, info) {
       window._shareCardDone = done;
+      var note = document.getElementById("shareCardNote");
+      if (note && info) note.textContent = "You are sharing: " + info.tierLabel + ". " + info.privacyNote + " Nothing is uploaded. The card is made on your device.";
       var overlay = document.getElementById("shareCardOverlay");
       if (overlay) overlay.classList.remove("hidden");
       else done(false);
