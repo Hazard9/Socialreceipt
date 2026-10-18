@@ -31,6 +31,7 @@ require("./share-card.test.js");
 require("./journal.test.js");
 require("./return-loop.test.js");
 require("./first-peel.test.js");
+require("./decision-card.test.js");
 require("./evidence-panel.test.js");
 require("./scripts-page.test.js");
 if (require("./verify-video-packet.js").verifyPacket(require("node:path").join(__dirname,"fixtures/posted-video-packet.json"))) process.exit(1);
