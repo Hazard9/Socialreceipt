@@ -818,6 +818,16 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   </div>
 </div>
 
+<!-- SHARE CARD PRIVACY NOTE -->
+<div class="modal-overlay hidden" id="shareCardOverlay">
+  <div class="modal-sheet">
+    <h2 class="modal-title">Save this receipt as an image?</h2>
+    <p class="modal-sub">Your draft text will appear in the image. Nothing is uploaded. The card is made on your device.</p>
+    <button class="primary-btn" onclick="confirmShareCard()">Continue</button>
+    <button class="ghost-btn" style="width:100%;margin-top:8px" onclick="cancelShareCard()">Cancel</button>
+  </div>
+</div>
+
 <!-- APP -->
 <main class="app-shell" id="appShell">
 
@@ -1061,6 +1071,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 <script src="/draft-guidance.js"></script>
 <script src="/deep-layers.js"></script>
 <script src="/both-sides.js"></script>
+<script src="/share-card.js"></script>
 <script src="/journal.js"></script>
 <script>
 "use strict";
@@ -1902,6 +1913,36 @@ function openBothSidesFromReceipt() {
   openBothSides(r ? (r.rawText || "") : "");
 }
 
+/* SHARE CARD — the privacy note gates every render (share-card.js) */
+function shareReceiptCard() {
+  var receipt = state.currentReceipt;
+  if (!receipt || !window.SocialReceiptShare) return;
+  SocialReceiptShare.shareReceipt(receipt, {
+    confirmPrivacy: function(done) {
+      window._shareCardDone = done;
+      var overlay = document.getElementById("shareCardOverlay");
+      if (overlay) overlay.classList.remove("hidden");
+      else done(false);
+    }
+  });
+}
+
+function confirmShareCard() {
+  var overlay = document.getElementById("shareCardOverlay");
+  if (overlay) overlay.classList.add("hidden");
+  var done = window._shareCardDone;
+  window._shareCardDone = null;
+  if (done) done(true);
+}
+
+function cancelShareCard() {
+  var overlay = document.getElementById("shareCardOverlay");
+  if (overlay) overlay.classList.add("hidden");
+  var done = window._shareCardDone;
+  window._shareCardDone = null;
+  if (done) done(false);
+}
+
 function bsRenderTimeChips() {
   var row = document.getElementById("bsTimeRow");
   if (!row || !window.SocialReceiptBothSides) return;
@@ -2578,6 +2619,11 @@ function renderReceiptOutput(receipt, savedView) {
   /* BOTH SIDES — the exchange continues after the send */
   if (!savedView) {
     html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">After you sent it</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Already sent it and got a reply? Read what the reply actually did, in words.</p><button class=\"secondary-btn\" data-sr-event=\"both_sides_opened_from_receipt\" data-feature=\"both_sides\" onclick=\"openBothSidesFromReceipt()\">Read both sides &#8594;</button></div>");
+  }
+
+  /* SHARE CARD — take a fresh receipt with you as an image */
+  if (!savedView) {
+    html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">Take the receipt</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Save this receipt as an image, or send it to the one person who needs to see it.</p><button class=\"secondary-btn\" data-sr-event=\"share_card_started\" data-feature=\"share_card\" onclick=\"shareReceiptCard()\">Save or share this receipt</button></div>");
   }
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");

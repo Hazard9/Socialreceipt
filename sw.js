@@ -3,7 +3,8 @@
   Network-first for the app shell so deployed fixes reach phones reliably.
 */
 
-var CACHE_NAME = "social-receipt-v27-journal";
+/* Merged cache lineage: social-receipt-v27-journal + social-receipt-v27-share-card */
+var CACHE_NAME = "social-receipt-v28-share-card";
 var OFFLINE_URL = "/index.html";
 var PRECACHE_URLS = [
   "/",
@@ -12,6 +13,7 @@ var PRECACHE_URLS = [
   "/draft-guidance.js",
   "/deep-layers.js",
   "/both-sides.js",
+  "/share-card.js",
   "/journal.js",
   "/app-language.js",
   "/manifest.json",
