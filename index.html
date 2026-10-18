@@ -345,6 +345,10 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
 .sample-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
 .sample-tag{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#0b0d0d;background:var(--gold);border-radius:999px;padding:3px 9px;font-weight:700;}
 .sample-tag-note{font-size:11px;color:var(--muted);}
+/* First Visit: situation chooser rows on the home sample block */
+.situation-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin-top:8px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:rgba(255,245,220,.03);color:var(--text);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;}
+.situation-row:hover{border-color:var(--gold);}
+.situation-row .situation-arrow{color:var(--gold);flex:none;}
 .sharpen-line{font-family:var(--font-mono);font-size:10.5px;line-height:1.55;color:var(--muted);border:1px dashed rgba(201,168,76,0.35);border-radius:10px;padding:9px 11px;}
 .sharpen-line strong{color:var(--gold-2);font-weight:600;}
 .pattern-freq-line{font-family:var(--font-mono);font-size:10.5px;line-height:1.55;color:var(--gold-2);}
@@ -888,11 +892,13 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">Read both sides of the exchange <span aria-hidden="true" style="color:var(--gold)">&#8594;</span></strong>
       <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">Paste what you sent and what they replied. See what the reply actually did, in words.</span>
     </div>
-    <div class="detail-card" id="sampleReadCard" style="display:block;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">Sample read</div>
-      <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">New here? See a sample read</strong>
-      <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">A sample draft, read by the same engine that reads yours. It does not use one of your free reads.</span>
-      <button class="secondary-btn" style="margin-top:10px" onclick="runSampleRead()">Run the sample read &#8594;</button>
+    <div class="detail-card" id="firstVisitCard" style="display:block;margin-top:12px;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">Sample reads</div>
+      <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">Start with a moment like yours</strong>
+      <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">Short examples, read by the same engine that reads yours. They do not use one of your free reads, and nothing is saved.</span>
+      <button class="situation-row" data-sr-event="sample_situation_opened" data-feature="first_visit" onclick="runSampleSituation('overexplain')">I&rsquo;m about to over-explain.<span class="situation-arrow" aria-hidden="true">&#8594;</span></button>
+      <button class="situation-row" data-sr-event="sample_situation_opened" data-feature="first_visit" onclick="runSampleSituation('replied')">They replied, and now I&rsquo;m overthinking.<span class="situation-arrow" aria-hidden="true">&#8594;</span></button>
+      <button class="situation-row" data-sr-event="sample_situation_opened" data-feature="first_visit" onclick="runSampleSituation('sayno')">I need to say no.<span class="situation-arrow" aria-hidden="true">&#8594;</span></button>
     </div>
     <div class="detail-card" id="todayPauseCard" style="display:block;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">Today's pause</div>
@@ -2442,30 +2448,117 @@ function generateReceipt() {
   }, 1300);
 }
 
-/* ── FIRST THIRTY — SAMPLE READ ──
-   A new visitor sees the real product before typing anything personal.
-   This runs the exact buildReceipt pipeline on one fixed sample draft.
-   The receipt is tagged as a sample and kept out of every record: no
-   bumpFreeUsed (free limit untouched), no pattern-history recording
-   (deep layers attach read-only at render, as they do for any receipt
-   view), no paywall or limit-wall check on this path, and
+/* ── FIRST VISIT — THREE SITUATION SAMPLES ──
+   A new visitor sees the real product before typing anything personal,
+   starting from the situation that matches why they arrived. Each
+   sample runs the exact buildReceipt pipeline (or, for "replied", the
+   real Both Sides facts) on fixed example wording at tap time; nothing
+   is hardcoded output. Samples are tagged and kept out of every
+   record: no bumpFreeUsed (free limit untouched), no pattern-history
+   recording (deep layers attach read-only at render, as they do for
+   any receipt view), no paywall or limit-wall check on this path, and
    saveCurrentReceipt refuses sample receipts so they never enter the
    receipts journal. The visitor's own scenario/feeling/outcome picks
-   are restored untouched after the build. */
-var SAMPLE_DRAFT_TEXT = "Sorry to bother you again, I know you are busy and it is probably nothing, but are we okay? I keep thinking I said something wrong.";
-function buildSampleReceipt() {
+   are restored untouched after each build. The replied sample shows
+   the FREE facts layer only: it never computes or shows the Pro
+   dynamic read, and it never touches the Both Sides thread state, so
+   nothing about it can be saved. Video deep links (?sit=overexplain,
+   ?sit=replied, ?sit=sayno) open the matching sample directly. */
+var SAMPLE_DRAFT_OVEREXPLAIN = "I know this is a lot and I'm sorry for the long message, I just want to explain why I was quiet earlier, it's not that I don't care, work has been insane and I keep thinking about it and I didn't want you to take it the wrong way.";
+var SAMPLE_DRAFT_SAYNO = "I wish I could say yes to covering Sunday, I feel bad even typing this, maybe if my family thing falls through I could, I just don't want anyone to be upset with me.";
+var SAMPLE_SITUATIONS = {
+  overexplain: { draft: SAMPLE_DRAFT_OVEREXPLAIN, scenario: "Text / DM", feeling: "Anxious", desiredOutcome: "Keep connection warm" },
+  sayno: { draft: SAMPLE_DRAFT_SAYNO, scenario: "Work", feeling: "Unsure", desiredOutcome: "Maintain professionalism" }
+};
+var SAMPLE_REPLIED_SENT = "Hey, are we good? I felt like things were off last night.";
+var SAMPLE_REPLIED_REPLY = "ok";
+var SAMPLE_REPLIED_TIME = "hours";
+
+function sampleSituationKey(search) {
+  try {
+    var v = new URLSearchParams(search || "").get("sit");
+    return (v === "overexplain" || v === "replied" || v === "sayno") ? v : null;
+  } catch (e) { return null; }
+}
+
+function buildSampleSituationReceipt(key) {
+  var def = SAMPLE_SITUATIONS[key];
+  if (!def) return null;
   var prev = { scenario: state.scenario, feeling: state.feeling, desiredOutcome: state.desiredOutcome };
-  state.scenario = "Text / DM"; state.feeling = "Anxious"; state.desiredOutcome = "Get clarity";
-  var receipt = buildReceipt(SAMPLE_DRAFT_TEXT, { goal: "", perspective: "" });
+  state.scenario = def.scenario; state.feeling = def.feeling; state.desiredOutcome = def.desiredOutcome;
+  var receipt = buildReceipt(def.draft, { goal: "", perspective: "" });
   state.scenario = prev.scenario; state.feeling = prev.feeling; state.desiredOutcome = prev.desiredOutcome;
   receipt.sample = true;
+  receipt.sampleKey = key;
   return receipt;
 }
-function runSampleRead() {
-  var receipt = buildSampleReceipt();
+
+function buildSampleRepliedFacts() {
+  if (!window.SocialReceiptBothSides) return null;
+  return window.SocialReceiptBothSides.factsFor(SAMPLE_REPLIED_SENT, SAMPLE_REPLIED_REPLY, SAMPLE_REPLIED_TIME, analyzeText);
+}
+
+/* One takeaway sentence per sample, quoting only fields the real
+   output actually carries. Returns "" (the line hides) when the
+   fields it needs are absent. */
+function sampleTakeawayLine(key, data) {
+  if (!data) return "";
+  if (key === "replied") {
+    if (!data.ratioLine || !data.questionsLine) return "";
+    return "One useful takeaway: " + data.ratioLine + " " + data.questionsLine + " Read the shape before you read into it.";
+  }
+  if (!data.bestMove || !data.timing) return "";
+  if (key === "overexplain") return "One useful takeaway: the best move here is \"" + data.bestMove + "\" (" + data.timing + "). The long draft is the problem, not the person who gets it.";
+  if (key === "sayno") return "One useful takeaway: the best move here is \"" + data.bestMove + "\" (" + data.timing + "). A clean no now beats a guilty maybe all week.";
+  return "";
+}
+
+function sampleFooterHtml(key, data) {
+  var line = sampleTakeawayLine(key, data);
+  var html = "";
+  if (line) {
+    html += "<div class=\"detail-card\" style=\"border-color:var(--border-warm);background:rgba(201,168,76,0.055)\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">The takeaway</div><p style=\"font-size:12.5px;line-height:1.55;color:var(--text);margin:0\">" + escapeHtml(line) + "</p></div>";
+  }
+  if (key === "replied") {
+    html += "<button class=\"primary-btn\" style=\"margin-top:10px\" onclick=\"exitSampleToBothSides()\">Try it with your thread</button>";
+  } else {
+    html += "<button class=\"primary-btn\" style=\"margin-top:10px\" onclick=\"exitSampleToCheck()\">Check my message</button>";
+  }
+  return "<div class=\"reveal-step shown\">" + html + "</div>";
+}
+
+function exitSampleToCheck() { openPresend(); }
+function exitSampleToBothSides() { openBothSides(); }
+
+function runSampleSituation(key) {
+  if (key === "replied") { runRepliedSample(); return; }
+  var receipt = buildSampleSituationReceipt(key);
+  if (!receipt) return;
   state.currentReceipt = receipt;
   haptic([10,30]);
   renderReceiptOutput(receipt, false);
+  var output = document.getElementById("receiptOutput");
+  if (output) output.insertAdjacentHTML("beforeend", sampleFooterHtml(key, receipt));
+}
+
+function runRepliedSample() {
+  var facts = buildSampleRepliedFacts();
+  if (!facts) return;
+  haptic([10,30]);
+  showScreen("createScreen");
+  document.getElementById("formArea").style.display = "none";
+  var output = document.getElementById("receiptOutput");
+  var html = "";
+  html += "<div class=\"sample-tag-row\"><span class=\"sample-tag\">Sample</span><span class=\"sample-tag-note\">A sample exchange, read with the same facts view that reads yours. Nothing was saved.</span></div>";
+  html += "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">The exchange</div>"
+    + "<p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 6px\">You sent</p><div class=\"message-box\">" + escapeHtml(SAMPLE_REPLIED_SENT) + "</div>"
+    + "<p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:12px 0 6px\">They replied</p><div class=\"message-box\">" + escapeHtml(SAMPLE_REPLIED_REPLY) + "</div></div>";
+  html += bothSidesFactsHtml(facts);
+  html += "<div class=\"detail-card\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px\">Both Sides, in full</div><p style=\"font-size:12.5px;line-height:1.55;color:var(--muted);margin:0\">The facts above are free. The full read, what the reply is doing and the next move to make, is Pro.</p></div>";
+  output.innerHTML = html;
+  output.classList.add("active");
+  output.insertAdjacentHTML("beforeend", sampleFooterHtml("replied", facts));
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* ── PRE-SEND ── */
@@ -5000,6 +5093,17 @@ function init() {
   window._createMode = "after";
   setCreateMode("after");
   renderAll();
+  /* FIRST VISIT — a ?sit= deep link (from a video) opens the matching
+     sample directly. Unknown values fall back to the normal home. The
+     landing and onboarding overlays are hidden for this visit only;
+     nothing is written to storage by the sample path. */
+  var sitKey = sampleSituationKey(window.location.search);
+  if (sitKey) {
+    document.getElementById("landingScreen").classList.add("hidden");
+    var onboardingEl = document.getElementById("onboarding");
+    if (onboardingEl) onboardingEl.classList.add("hidden");
+    runSampleSituation(sitKey);
+  }
 }
 init();
 </script>
