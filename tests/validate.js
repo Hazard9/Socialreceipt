@@ -26,6 +26,7 @@ require("./deep-layers.test.js");
 require("./both-sides.test.js");
 require("./honest-read.test.js");
 require("./first-thirty.test.js");
+require("./first-visit.test.js");
 require("./share-card.test.js");
 require("./journal.test.js");
 require("./return-loop.test.js");

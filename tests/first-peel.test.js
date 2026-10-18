@@ -76,10 +76,10 @@ const sandbox = {
 loadPageFunctions(['includesAny', 'escapeHtml', 'analyzeText', 'computeConfidence', 'buildWhySignals',
   'getVerdict', 'makeReceipt', 'readReceiptPatternContext', 'addReceiptPattern', 'buildReceipt',
   'freeMonthKey', 'isPro', 'getReceipts', 'loadPatternHistory', 'savePatternHistory', 'attachDeepLayers',
-  'buildSampleReceipt', 'freePeelKey', 'freePeelUsed', 'consumeFreePeel', 'canOfferFreePeel',
+  'buildSampleSituationReceipt', 'freePeelKey', 'freePeelUsed', 'consumeFreePeel', 'canOfferFreePeel',
   'revealFreePeel', 'proCapabilityListHtml', 'renderPaywallProList',
   'deepSectionInner', 'findDeepReceipt', 'persistDeepReceipt', 'refreshDeepSection'], sandbox);
-for (const varName of ['SAMPLE_DRAFT_TEXT', 'PRO_CAPABILITY_LINES']) {
+for (const varName of ['SAMPLE_DRAFT_OVEREXPLAIN', 'SAMPLE_DRAFT_SAYNO', 'SAMPLE_SITUATIONS', 'PRO_CAPABILITY_LINES']) {
   const vStart = html.indexOf('var ' + varName);
   assert(vStart >= 0, varName + ' declared');
   vm.runInContext(html.slice(vStart, html.indexOf(';', vStart) + 1), sandbox);
@@ -158,7 +158,7 @@ console.log('ok: first-peel — Pro: peel open as today, no button, no marker, n
 /* ── Sample receipts never offer and never consume ─────────────────── */
 delete store[PEEL_KEY];
 assert.equal(sandbox.freePeelUsed(), false, 'taste reset to unused for the sample checks');
-const sample = sandbox.buildSampleReceipt();
+const sample = sandbox.buildSampleSituationReceipt('overexplain');
 sandbox.attachDeepLayers(sample, false);
 const sampleView = viewReceipt(sample, true);
 assert.equal(sample.sample, true, 'fixture is the real sample receipt');

@@ -6,18 +6,19 @@ const vm = require('node:vm');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 
-const SAMPLE_DRAFT = 'Sorry to bother you again, I know you are busy and it is probably nothing, but are we okay? I keep thinking I said something wrong.';
+const SAMPLE_DRAFT = "I know this is a lot and I'm sorry for the long message, I just want to explain why I was quiet earlier, it's not that I don't care, work has been insane and I keep thinking about it and I didn't want you to take it the wrong way.";
 
-/* ── Static markup: sample card, gauge meter, sample tag, sharpen line ── */
-assert(html.includes('id="sampleReadCard"'), 'home screen carries the sample card');
-assert(html.includes('New here? See a sample read'), 'sample card heading present');
-assert(html.includes('A sample draft, read by the same engine that reads yours.'), 'sample label copy present');
-assert(html.includes('onclick="runSampleRead()"'), 'sample button wired to runSampleRead');
-assert(html.includes('var SAMPLE_DRAFT_TEXT = "' + SAMPLE_DRAFT + '"'), 'the exact spec sample draft is the one the card runs');
+/* ── Static markup: situation chooser (first-visit), gauge meter, sample tag, sharpen line ──
+   The single sample card folded into the first-visit chooser; the
+   over-explain situation is the sample this file exercises below. */
+assert(html.includes('id="firstVisitCard"'), 'home screen carries the situation chooser');
+assert(html.includes('Start with a moment like yours'), 'chooser heading present');
+assert(html.includes('onclick="runSampleSituation(\'overexplain\')"'), 'chooser row wired to the over-explain sample');
+assert(html.includes('var SAMPLE_DRAFT_OVEREXPLAIN = "' + SAMPLE_DRAFT + '"'), 'the exact over-explain draft is the one the chooser runs');
 assert(html.includes('receipt.sample = true'), 'sample receipt is tagged');
 assert(html.includes('sample-tag'), 'receipt render carries a visible Sample tag');
 assert(html.includes('currentReceipt.sample'), 'saveCurrentReceipt refuses sample receipts, so they never enter the journal');
-console.log('ok: first-thirty — sample card, exact sample draft, tag, and journal guard present');
+console.log('ok: first-thirty — situation chooser, exact sample draft, tag, and journal guard present');
 
 assert(html.includes('confidence-meter') && html.includes('confidence-tick'), 'confidence renders as a segmented meter');
 assert(html.includes('role=\\"meter\\"') && html.includes('aria-valuenow'), 'meter exposes its value accessibly');
@@ -68,13 +69,15 @@ const sandbox = {
 loadPageFunctions(['includesAny', 'escapeHtml', 'analyzeText', 'computeConfidence', 'buildWhySignals',
   'getVerdict', 'makeReceipt', 'readReceiptPatternContext', 'addReceiptPattern', 'buildReceipt',
   'freeMonthKey', 'getFreeUsed', 'loadPatternHistory', 'savePatternHistory', 'attachDeepLayers',
-  'buildSampleReceipt', 'sharpenReadHints'], sandbox);
-const vStart = html.indexOf('var SAMPLE_DRAFT_TEXT');
-assert(vStart >= 0, 'SAMPLE_DRAFT_TEXT declared');
-vm.runInContext(html.slice(vStart, html.indexOf(';', vStart) + 1), sandbox);
+  'buildSampleSituationReceipt', 'sharpenReadHints'], sandbox);
+for (const v of ['SAMPLE_DRAFT_OVEREXPLAIN', 'SAMPLE_DRAFT_SAYNO', 'SAMPLE_SITUATIONS']) {
+  const vStart = html.indexOf('var ' + v);
+  assert(vStart >= 0, v + ' declared');
+  vm.runInContext(html.slice(vStart, html.indexOf(';', vStart) + 1), sandbox);
+}
 
 const usedBefore = sandbox.getFreeUsed();
-const receipt = sandbox.buildSampleReceipt();
+const receipt = sandbox.buildSampleSituationReceipt('overexplain');
 sandbox.attachDeepLayers(receipt, false);
 
 assert.equal(writes.length, 0, 'sample path must create zero localStorage writes, saw: ' + JSON.stringify(writes));
@@ -83,18 +86,18 @@ assert(!(deep.HISTORY_KEY in store), 'sample must not create pattern history');
 assert.equal(receipt.sample, true, 'sample receipt carries the tag flag');
 assert.equal(receipt.rawText, SAMPLE_DRAFT, 'sample runs the exact spec draft');
 assert.deepEqual([receipt.scenario, receipt.feeling, receipt.desiredOutcome],
-  ['Text / DM', 'Anxious', 'Get clarity'], 'sample uses the spec context');
-assert.equal(receipt.verdict, 'Your read is anxious, not accurate. Wait 12 hours.');
-assert.equal(receipt.confidence, 44, 'sample confidence is the real gauge output');
+  ['Text / DM', 'Anxious', 'Keep connection warm'], 'sample uses the spec context');
+assert.equal(receipt.verdict, "You're explaining. They stopped listening.");
+assert.equal(receipt.confidence, 89, 'sample confidence is the real gauge output');
 assert(receipt.deep && receipt.deep.stateLabel, 'deep state card attaches read-only, like a normal receipt');
 assert.deepEqual([sandbox.state.scenario, sandbox.state.feeling, sandbox.state.desiredOutcome],
   ['Work', 'Good', 'Say no clearly'], "the visitor's own picks are restored after the sample build");
-console.log('ok: first-thirty — sample read runs the real engine (verdict pinned, confidence 44), zero localStorage writes, free counter and pattern history untouched, picks restored');
+console.log('ok: first-thirty — sample read runs the real engine (verdict pinned, confidence 89), zero localStorage writes, free counter and pattern history untouched, picks restored');
 
 /* ── Sharpen line: only true absences, derived from analyzeText fields ── */
 assert.equal(sandbox.sharpenReadHints(receipt),
-  'No timing words in this draft. No direct ask or stated need in this draft.',
-  'sample sharpen line states exactly its two absent gauge inputs (delay, highIntent)');
+  'No questions in this draft. No timing words in this draft. No direct ask or stated need in this draft.',
+  'sample sharpen line states exactly its three absent gauge inputs (qMarks, delay, highIntent)');
 
 Object.assign(sandbox.state, { scenario: 'Date', format: 'Text / DM', feeling: 'Anxious', desiredOutcome: 'Get clarity' });
 const leftOnRead = sandbox.buildReceipt('Left on read for two days. I am drafting a long follow up.', {});
