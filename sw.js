@@ -3,8 +3,8 @@
   Network-first for the app shell so deployed fixes reach phones reliably.
 */
 
-/* Merged cache lineage: social-receipt-v27-journal + social-receipt-v27-share-card */
-var CACHE_NAME = "social-receipt-v28-share-card";
+/* Merged cache lineage: social-receipt-v27-journal + social-receipt-v27-share-card + social-receipt-v27-first-thirty */
+var CACHE_NAME = "social-receipt-v29-first-thirty";
 var OFFLINE_URL = "/index.html";
 var PRECACHE_URLS = [
   "/",

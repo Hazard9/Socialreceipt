@@ -25,6 +25,7 @@ require("./legacy-receipt.test.js");
 require("./deep-layers.test.js");
 require("./both-sides.test.js");
 require("./honest-read.test.js");
+require("./first-thirty.test.js");
 require("./share-card.test.js");
 require("./journal.test.js");
 if (require("./verify-video-packet.js").verifyPacket(require("node:path").join(__dirname,"fixtures/posted-video-packet.json"))) process.exit(1);
