@@ -228,8 +228,8 @@ assert(!html.includes("You've used your 3 free reads."), 'old limit headline is 
 assert(!html.includes('The next one that matters should not be a guess.'), 'old limit subline is gone');
 console.log('ok: sharing tiers — free-limit message is exactly the spec copy');
 
-/* ── Service worker: v38 with the whole lineage ──────────────────── */
-assert(sw.includes('var CACHE_NAME = "social-receipt-v38-sharing"'), 'cache bumped to v38-sharing');
+/* ── Service worker: v38-sharing kept in the whole lineage ──────── */
+assert(sw.includes('social-receipt-v38-sharing'), 'sw lineage keeps v38-sharing');
 for (const lineage of ['social-receipt-v27-journal', 'social-receipt-v27-share-card', 'social-receipt-v27-first-thirty',
   'social-receipt-v28-share-card', 'social-receipt-v29-first-thirty', 'social-receipt-v30-return-loop',
   'social-receipt-v31-evidence', 'social-receipt-v31-first-peel', 'social-receipt-v32-first-peel',
@@ -237,7 +237,7 @@ for (const lineage of ['social-receipt-v27-journal', 'social-receipt-v27-share-c
   'social-receipt-v36-first-visit', 'social-receipt-v37-decision']) {
   assert(sw.includes(lineage), 'sw lineage keeps ' + lineage);
 }
-console.log('ok: sharing tiers — cache at v38-sharing with the full lineage intact');
+console.log('ok: sharing tiers — v38-sharing kept with the full lineage intact');
 
 /* ── Page flow in a sandbox: sample refusal, defaults, toggles ───── */
 function makeElement() {
