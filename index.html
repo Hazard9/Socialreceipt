@@ -928,6 +928,11 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <button class="situation-row" data-sr-event="sample_situation_opened" data-feature="first_visit" onclick="runSampleSituation('replied')">They replied, and now I&rsquo;m overthinking.<span class="situation-arrow" aria-hidden="true">&#8594;</span></button>
       <button class="situation-row" data-sr-event="sample_situation_opened" data-feature="first_visit" onclick="runSampleSituation('sayno')">I need to say no.<span class="situation-arrow" aria-hidden="true">&#8594;</span></button>
     </div>
+    <a href="https://beforeyousendthat.netlify.app/?utm_source=sr_app&amp;utm_medium=referral&amp;utm_campaign=playable_door" class="detail-card" data-sr-event="playable_door_clicked" data-feature="playable_door_home" style="display:block;margin-top:12px;text-decoration:none;border-color:var(--border-warm);background:linear-gradient(145deg,rgba(201,168,76,.09),rgba(255,245,220,.015))">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">The playable</div>
+      <strong style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text)">Before You Send That, played <span aria-hidden="true" style="color:var(--gold)">&#8594;</span></strong>
+      <span style="display:block;margin-top:4px;color:var(--muted);font-size:12px">Step into the four moments: the &ldquo;K.&rdquo;, the guilt-tipped request, the boundary draft, and Yours, where the unsent message is your own. Every road ends at a real receipt, and what you type never leaves your phone.</span>
+    </a>
     <div class="detail-card" id="todayPauseCard" style="display:block;margin-top:12px;border-color:var(--border);background:rgba(255,245,220,.02)">
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">Today's pause</div>
       <strong id="todayPausePrompt" style="display:block;font-family:var(--font-serif);font-size:19px;font-weight:400;color:var(--text);line-height:1.35"></strong>
@@ -3184,6 +3189,11 @@ function renderReceiptOutput(receipt, savedView) {
   /* SHARE CARD — take a fresh receipt with you as an image */
   if (!savedView) {
     html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">Take the receipt</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Save this receipt as an image, or send it to the one person who needs to see it.</p><button class=\"secondary-btn\" data-sr-event=\"share_card_started\" data-feature=\"share_card\" onclick=\"shareReceiptCard()\">Save or share this receipt</button></div>");
+  }
+
+  /* PLAYABLE DOOR - the same moments, played instead of read */
+  if (!savedView) {
+    html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">Before You Send That, the playable</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Play this moment and three more, choose your road, and watch the receipt land. Or choose Yours and bring the message you have been holding back.</p><a class=\"secondary-btn\" href=\"https://beforeyousendthat.netlify.app/?utm_source=sr_app&amp;utm_medium=referral&amp;utm_campaign=playable_door\" data-sr-event=\"playable_door_clicked\" data-feature=\"playable_door_result\" style=\"display:inline-block;text-decoration:none\">Play the moments &#8594;</a></div>");
   }
 
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
