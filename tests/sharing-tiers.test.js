@@ -222,8 +222,8 @@ console.log('ok: sharing tiers — page carries the chooser, the details step, a
 /* ── Free-limit copy: the exact spec string ──────────────────────── */
 assert(html.includes('<h2 class="modal-title">You used your 3 free receipts this month.</h2>'),
   'limit wall headline is the spec line');
-assert(html.includes('<p class="modal-sub">Pro keeps every conversation covered.</p>'),
-  'limit wall subline is the spec line');
+assert(html.includes('<p class="modal-sub">Your reads are saved on this device automatically. Join the Clear Message Map by email and one more read unlocks.</p>'),
+  'limit wall subline is the spec line (Nov 9 honest-copy fix supersedes the sharing-tiers line)');
 assert(!html.includes("You've used your 3 free reads."), 'old limit headline is gone');
 assert(!html.includes('The next one that matters should not be a guess.'), 'old limit subline is gone');
 console.log('ok: sharing tiers — free-limit message is exactly the spec copy');

@@ -740,7 +740,7 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
     <p class="landing-sub">You are about to send something that costs you the interaction. Or say nothing when one sentence would have changed everything. Social Receipt reads the actual signals and tells you exactly what to do before you blow it.</p>
     <p class="landing-sub" style="margin-top:-20px;font-size:13px;">For anyone about to send a text, DM, email, or caption they are not sure about &mdash; before a date, at work, with a client, or with a friend.</p>
     <div class="landing-proof">
-      <div class="landing-proof-item"><div class="landing-proof-icon">💬</div><div class="landing-proof-text"><strong>They replied with two words.</strong> You have read it 14 times. The app tells you what it actually means. And whether responding right now makes it worse.</div></div>
+      <div class="landing-proof-item"><div class="landing-proof-icon">💬</div><div class="landing-proof-text"><strong>They replied with two words.</strong> You have read it 14 times. The app reads the wording, not their mind. And whether responding right now makes it worse.</div></div>
       <div class="landing-proof-item"><div class="landing-proof-icon">📵</div><div class="landing-proof-text"><strong>Left on read.</strong> Most people send a follow-up that drops their position. Social Receipt gives you the one move that does not.</div></div>
       <div class="landing-proof-item"><div class="landing-proof-icon">✉</div><div class="landing-proof-text"><strong>About to send a long message.</strong> Paste it first. The app tells you if it reads as over-invested. It rewrites it before you make the mistake.</div></div>
     </div>
@@ -775,8 +775,8 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
   <div class="paywall-sheet">
     <div class="paywall-handle"></div>
     <div class="paywall-spike" id="paywallSpike">Before you send.</div>
-    <div class="paywall-eyebrow">Your next move is locked</div>
-    <h2 class="paywall-headline">If you don't unlock this, you are guessing.</h2>
+    <div class="paywall-eyebrow">Social Receipt Pro</div>
+    <h2 class="paywall-headline">You have used your 3 free reads this month.</h2>
     <p class="paywall-sub" id="paywallLead">The exact move. The message that keeps your position. The timing window. Lifetime Beta keeps the full decision layer available for one payment.</p>
     <div class="paywall-perks">
       <div class="paywall-perk"><div class="paywall-perk-icon">→</div><div class="paywall-perk-text"><strong>You are sending without seeing the outcome pattern.</strong><span>The next section shows exactly where this interaction turns against you.</span></div></div>
@@ -1106,13 +1106,13 @@ textarea::placeholder{color:var(--muted-2);font-style:italic;}
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px">Free reads used</div>
     </div>
     <h2 class="modal-title">You used your 3 free receipts this month.</h2>
-    <p class="modal-sub">Pro keeps every conversation covered.</p>
+    <p class="modal-sub">Your reads are saved on this device automatically. Join the Clear Message Map by email and one more read unlocks.</p>
     <input class="modal-input" type="email" id="wallEmailInput" placeholder="your@email.com" autocomplete="email"/>
     <div class="modal-actions">
-      <button class="primary-btn" id="wallEmailSubmitBtn" onclick="saveWallEmail()">Save my reads</button>
+      <button class="primary-btn" id="wallEmailSubmitBtn" onclick="saveWallEmail()">Email me the Clear Message Map</button>
       <button class="ghost-btn" onclick="closeLimitWall();openPaywall();">Continue</button>
     </div>
-    <div class="modal-note">Your reads, saved. Occasional tips. Unsubscribe anytime.</div>
+    <div class="modal-note">The email subscribes you to the Clear Message Map. Your reads stay saved on this device either way. Unsubscribe anytime.</div>
     <p style="text-align:center;margin:14px 0 0;font-size:12px;color:var(--muted)">Or unlock unlimited now: <a href="#" onclick="closeLimitWall();openPaywall();return false;" style="color:var(--gold)">$9/mo or $39 once</a></p>
   </div>
 </div>
@@ -1388,8 +1388,13 @@ function renderPaywallProList() {
 /* ── LANDING ── */
 function startFree() {
   localStorage.setItem("sr_seen_landing","1");
+  /* First-run flow, 2026-11-09: Start Free goes straight to the app
+     home, ready to run a check. The three onboarding slides are no
+     longer a forced gate; they remain in the page and are still
+     shown to returning visitors who never finished them (init). */
+  localStorage.setItem("sr_onboarded","1");
   document.getElementById("landingScreen").classList.add("hidden");
-  initOnboarding();
+  document.getElementById("onboarding").classList.add("hidden");
   renderAll();
   trackEvent("free_started");
 }
@@ -1462,14 +1467,22 @@ function saveWallEmail() {
   trackEvent("limit_wall_email_started");
   try { localStorage.setItem("sr_user_email", email); } catch(e){}
   function done(ok) {
+    if (!ok) {
+      /* Honest failure, 2026-11-09: the subscribe call failed, so no
+         bonus read is granted and nothing claims one. The email-given
+         flag is not set, so the visitor can try again. */
+      if (btn) { btn.disabled = false; btn.textContent = "Email me the Clear Message Map"; }
+      toast("We could not add your email. Nothing was unlocked. Please try again.");
+      trackEvent("limit_wall_email_failed");
+      return;
+    }
     try { localStorage.setItem("sr_wall_email_given", "1"); } catch(e){}
     grantBonusRead();
-    if (btn) { btn.disabled = false; btn.textContent = "Save my reads"; }
+    if (btn) { btn.disabled = false; btn.textContent = "Email me the Clear Message Map"; }
     closeLimitWall();
     renderAll();
-    toast(ok ? "One more read unlocked. Your reads are saved."
-             : "One more read unlocked. We will sync your email shortly.");
-    trackEvent(ok ? "limit_wall_email_succeeded" : "limit_wall_email_deferred");
+    toast("One more read unlocked. The Clear Message Map is on its way by email.");
+    trackEvent("limit_wall_email_succeeded");
     haptic([15,30,20]);
   }
   fetch("/.netlify/functions/subscribe-email", {
@@ -1497,6 +1510,11 @@ see handlePaymentSuccess() below, which fails closed by design.
 */
 var STRIPE_LINKS = {
   monthly:  "https://buy.stripe.com/28EbJ3eGAb2z0xw8PKa3u00",
+  /* Yearly entry retained deliberately (reviewed 2026-11-09): no UI
+     calls startCheckout('yearly'), but a historical yearly buyer
+     returning with client_reference_id=yearly resolves their plan
+     through this map and the verify path. Removing it could strand
+     that buyer. Leave it. */
   yearly:   "https://buy.stripe.com/3cI00l6a44Eb5RQd60a3u01",
   lifetime: "https://buy.stripe.com/6oU9AVeGA2w39425Dya3u02"
 };
@@ -3128,7 +3146,7 @@ function renderReceiptOutput(receipt, savedView) {
     html += rs(interruptCardHtml(receipt));
   }
 
-  html += rs("<div class=\"receipt-divider\"><span>Signal Breakdown</span></div><div class=\"why-toggle\" onclick=\"toggleWhy()\"><span class=\"why-label\">Why this read?</span><span class=\"why-icon\" id=\"whyIcon\">+</span></div><div class=\"why-body\" id=\"whyBody\">"+receipt.whySignals.concat(receipt.patternWhySignals || []).map(function(s){return "<div class=\"why-signal\"><span class=\"why-arrow\">\u2192</span>"+s+"</div>";}).join("")+"</div>");
+  html += rs("<div class=\"receipt-divider\"><span>The wording behind this read</span></div><div class=\"why-toggle\" onclick=\"toggleWhy()\"><span class=\"why-label\">Why this read?</span><span class=\"why-icon\" id=\"whyIcon\">+</span></div><div class=\"why-body\" id=\"whyBody\">"+receipt.whySignals.concat(receipt.patternWhySignals || []).map(function(s){return "<div class=\"why-signal\"><span class=\"why-arrow\">\u2192</span>"+s+"</div>";}).join("")+"</div>");
 
   html += rs("<div class=\"detail-card\"><h3>What you missed</h3><p>"+receipt.hidden+"</p></div>");
   html += rs("<div class=\"detail-card warning-card\"><h3>Do not do this</h3><p>"+receipt.dont+"</p></div>");
@@ -3830,6 +3848,10 @@ function updateHomeStatus() {
   }
   var used=getFreeUsed(); var remaining=Math.max(0,FREE_LIMIT-used); var pct=Math.min(100,Math.round((used/FREE_LIMIT)*100));
   pill.innerHTML="<span class=\"pulse-dot\"></span>Free";
+  /* Limit banner timing, 2026-11-09: the banner shows only after at
+     least one read has been used. Before that it stays hidden, even
+     if a stale "visible" class is present. */
+  if(used<1&&banner){ banner.classList.remove("visible"); }
   if(used>=1&&banner){
     banner.classList.add("visible");
     var ce=document.getElementById("limitCount"); var fe=document.getElementById("limitBarFill");

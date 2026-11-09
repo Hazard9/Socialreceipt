@@ -3,8 +3,8 @@
   Network-first for the app shell so deployed fixes reach phones reliably.
 */
 
-/* Merged cache lineage: social-receipt-v27-journal + social-receipt-v27-share-card + social-receipt-v27-first-thirty + social-receipt-v28-share-card + social-receipt-v29-first-thirty + social-receipt-v30-return-loop + social-receipt-v31-evidence + social-receipt-v31-first-peel + social-receipt-v32-first-peel + social-receipt-v33-scripts + social-receipt-v34-scripts-link + social-receipt-v35-challenge + social-receipt-v36-first-visit + social-receipt-v37-decision + social-receipt-v38-sharing */
-var CACHE_NAME = "social-receipt-v39-playable-door";
+/* Merged cache lineage: social-receipt-v27-journal + social-receipt-v27-share-card + social-receipt-v27-first-thirty + social-receipt-v28-share-card + social-receipt-v29-first-thirty + social-receipt-v30-return-loop + social-receipt-v31-evidence + social-receipt-v31-first-peel + social-receipt-v32-first-peel + social-receipt-v33-scripts + social-receipt-v34-scripts-link + social-receipt-v35-challenge + social-receipt-v36-first-visit + social-receipt-v37-decision + social-receipt-v38-sharing + social-receipt-v39-playable-door + social-receipt-v40-nov9-fixes */
+var CACHE_NAME = "social-receipt-v40-nov9-fixes";
 var OFFLINE_URL = "/index.html";
 var PRECACHE_URLS = [
   "/",
