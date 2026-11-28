@@ -3215,6 +3215,14 @@ function renderReceiptOutput(receipt, savedView) {
     html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">Before You Send That, the playable</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Play this moment and three more, choose your road, and watch the receipt land. Or choose Yours and bring the message you have been holding back.</p><a class=\"secondary-btn\" href=\"https://beforeyousendthat.netlify.app/?utm_source=sr_app&amp;utm_medium=referral&amp;utm_campaign=playable_door\" data-sr-event=\"playable_door_clicked\" data-feature=\"playable_door_result\" style=\"display:inline-block;text-decoration:none\">Play the moments &#8594;</a></div>");
   }
 
+  /* SCRIPTS DOOR - the 3 free scripts email offer at the moment of value, same offer as the home capture card */
+  if (!savedView && !pro) {
+    var _srUser = getCurrentUser();
+    if (!_srUser || !_srUser.email) {
+      html += rs("<div class=\"detail-card\" style=\"text-align:center\"><div style=\"font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px\">Before you send</div><p style=\"font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 10px\">Know what you mean. Find the words. Get 3 scripts for saying no, asking for clarity, and apologizing. No private message text required.</p><button class=\"secondary-btn\" data-sr-event=\"email_capture_viewed\" data-feature=\"result_email_capture\" onclick=\"openLoginModal()\">Send me the 3 scripts</button><p style=\"margin:10px 0 0\"><a href=\"/scripts.html\" style=\"color:var(--gold)\">Read the scripts now</a></p></div>");
+    }
+  }
+
   html += rs("<div class=\"form-actions\" style=\"padding-bottom:8px;margin-top:4px\">"+(savedView?"<button class=\"primary-btn\" onclick=\"showScreen('historyScreen')\">Back to History</button>":"<button class=\"primary-btn\" data-sr-event=\"receipt_saved\" data-feature=\"receipt\" onclick=\"saveCurrentReceipt()\">Save Receipt</button>")+"<button class=\"ghost-btn\" data-sr-event=\"repeat_check_started\" data-feature=\"receipt\" onclick=\"openCreate()\">Start new read</button></div>");
 
   /* Result value prompt: make saving and privacy-safe sharing the next obvious action. */
